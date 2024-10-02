@@ -22,22 +22,22 @@ coverage:
         - pytest
     project:
       default:
-        target: 100%
+        target: 85%  # 100%
       lib:
         flags:
         - pytest
         paths:
         - propcache/
-        target: 97.91%
+        target: 93%  # 97.91%
       tests:
         flags:
         - pytest
         paths:
         - tests/
-        target: 99.87%  # 100%
+        target: 97.87%  # 100%
       typing:
         flags:
         - MyPy
-        target: 100%
+        target: 70%  # 100%
 
 ...

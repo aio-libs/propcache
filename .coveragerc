@@ -1,0 +1,34 @@
+[html]
+show_contexts = true
+skip_covered = false
+
+[paths]
+source =
+  propcache
+  */lib/pypy*/site-packages/propcache
+  */lib/python*/site-packages/propcache
+  */Lib/site-packages/propcache
+
+[report]
+# small library, don't fail when running without C-extension
+fail_under = 50.00
+skip_covered = true
+skip_empty = true
+show_missing = true
+exclude_also =
+  ^\s*@pytest\.mark\.xfail
+
+[run]
+branch = true
+cover_pylib = false
+# https://coverage.rtfd.io/en/latest/contexts.html#dynamic-contexts
+# dynamic_context = test_function  # conflicts with `pytest-cov` if set here
+parallel = true
+plugins =
+  covdefaults
+  Cython.Coverage
+relative_files = true
+source =
+  .
+source_pkgs =
+  propcache

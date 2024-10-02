@@ -1,0 +1,467 @@
+---
+
+name: CI/CD
+
+on:
+  merge_group:
+  push:
+    branches:
+    - master
+    - >-
+      [0-9].[0-9]+
+    tags:
+    - v*
+  pull_request:
+    branches:
+    - master
+    - >-
+      [0-9].[0-9]+
+  schedule:
+  - cron: 0 6 * * *  # Daily 6AM UTC build
+
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+
+env:
+  COLOR: >-  # Supposedly, pytest or coveragepy use this
+    yes
+  FORCE_COLOR: 1  # Request colored output from CLI tools supporting it
+  MYPY_FORCE_COLOR: 1  # MyPy's color enforcement
+  PIP_DISABLE_PIP_VERSION_CHECK: 1
+  PIP_NO_PYTHON_VERSION_WARNING: 1
+  PIP_NO_WARN_SCRIPT_LOCATION: 1
+  PRE_COMMIT_COLOR: always
+  PROJECT_NAME: propcache
+  PY_COLORS: 1  # Recognized by the `py` package, dependency of `pytest`
+  PYTHONIOENCODING: utf-8
+  PYTHONUTF8: 1
+  PYTHON_LATEST: 3.12
+
+
+jobs:
+
+  pre-setup:
+    name: ⚙️ Pre-set global build settings
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    defaults:
+      run:
+        shell: python
+    outputs:
+      # NOTE: These aren't env vars because the `${{ env }}` context is
+      # NOTE: inaccessible when passing inputs to reusable workflows.
+      dists-artifact-name: python-package-distributions
+      sdist-name: ${{ env.PROJECT_NAME }}-*.tar.gz
+      wheel-name: ${{ env.PROJECT_NAME }}-*.whl
+    steps:
+    - run: >-
+        print('No-op')
+
+
+  build-pure-python-dists:
+    name: 📦 Build distribution packages
+    needs:
+    - pre-setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    outputs:
+      sdist-filename: >-
+        ${{ steps.dist-filenames-detection.outputs.sdist-filename }}
+      wheel-filename: >-
+        ${{ steps.dist-filenames-detection.outputs.wheel-filename }}
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_LATEST }}
+        cache: pip
+        cache-dependency-path:
+          requirements/*.txt
+    - name: Install core libraries for build
+      run: python -Im pip install build
+    - name: Build sdists and pure-python wheel
+      env:
+        PIP_CONSTRAINT: requirements/cython.txt
+      run: python -Im build --config-setting=pure-python=true
+    - name: Determine actual created filenames
+      id: dist-filenames-detection
+      run: >-
+        {
+        echo -n sdist-filename=
+        ;
+        basename "$(ls -1 dist/${{ needs.pre-setup.outputs.sdist-name }})"
+        ;
+        echo -n wheel-filename=
+        ;
+        basename "$(ls -1 dist/${{ needs.pre-setup.outputs.wheel-name }})"
+        ;
+        }
+        >> "${GITHUB_OUTPUT}"
+    - name: Upload built artifacts for testing
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        name: ${{ needs.pre-setup.outputs.dists-artifact-name  }}
+        # NOTE: Exact expected file names are specified here
+        # NOTE: as a safety measure — if anything weird ends
+        # NOTE: up being in this dir or not all dists will be
+        # NOTE: produced, this will fail the workflow.
+        path: |
+          dist/${{ steps.dist-filenames-detection.outputs.sdist-filename }}
+          dist/${{ steps.dist-filenames-detection.outputs.wheel-filename }}
+        retention-days: 15
+
+  lint:
+    uses: ./.github/workflows/reusable-linters.yml
+    secrets:
+      codecov-token: 26f4a393-24a9-48d9-8fa4-f1344d930846
+
+  build-wheels-for-tested-arches:
+    name: >-  # ${{ '' } is a hack to nest jobs under the same sidebar category
+      📦 Build wheels for tested arches${{ '' }}
+    needs:
+    - build-pure-python-dists
+    - pre-setup  # transitive, for accessing settings
+    strategy:
+      matrix:
+        os:
+        - ubuntu
+        - windows
+        - macos
+    uses: ./.github/workflows/reusable-build-wheel.yml
+    with:
+      os: ${{ matrix.os }}
+      wheel-tags-to-skip: >-
+        ${{
+        (github.event_name != 'push' || !contains(github.ref, 'refs/tags/'))
+        && '*_i686
+        *-macosx_universal2
+        *-musllinux_*
+        *-win32
+        pp*'
+        || ''
+        }}
+      source-tarball-name: >-
+        ${{ needs.build-pure-python-dists.outputs.sdist-filename }}
+      dists-artifact-name: ${{ needs.pre-setup.outputs.dists-artifact-name }}
+      cython-tracing: >-  # Cython line tracing for coverage collection
+        ${{
+          (
+            github.event_name == 'push'
+            && contains(github.ref, 'refs/tags/')
+          )
+          && 'false'
+          || 'true'
+        }}
+
+  test:
+    name: Test
+    needs:
+    - build-pure-python-dists  # transitive, for accessing settings
+    - build-wheels-for-tested-arches
+    - pre-setup  # transitive, for accessing settings
+    strategy:
+      matrix:
+        pyver:
+        - 3.13
+        - 3.12
+        - 3.11
+        - >-
+          3.10
+        - 3.9
+        - 3.8
+        no-extensions: ['', 'Y']
+        os:
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
+        experimental: [false]
+        exclude:
+        - os: macos-latest
+          no-extensions: Y
+        - os: windows-latest
+          no-extensions: Y
+        include:
+        - pyver: pypy-3.10
+          no-extensions: Y
+          experimental: false
+          os: ubuntu-latest
+        - pyver: pypy-3.9
+          no-extensions: Y
+          experimental: false
+          os: ubuntu-latest
+        - pyver: pypy-3.8
+          no-extensions: Y
+          experimental: false
+          os: ubuntu-latest
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    continue-on-error: ${{ matrix.experimental }}
+    steps:
+    - name: Retrieve the project source from an sdist inside the GHA artifact
+      uses: re-actors/checkout-python-sdist@release/v2
+      with:
+        source-tarball-name: >-
+          ${{ needs.build-pure-python-dists.outputs.sdist-filename }}
+        workflow-artifact-name: >-
+          ${{ needs.pre-setup.outputs.dists-artifact-name }}
+    - name: Download distributions
+      uses: actions/download-artifact@v4
+      with:
+        path: dist
+        pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
+        merge-multiple: true
+
+    - name: Setup Python ${{ matrix.pyver }}
+      id: python-install
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.pyver }}
+        allow-prereleases: true
+        cache: pip
+        cache-dependency-path: requirements/*.txt
+    - name: Install dependencies
+      uses: py-actions/py-dependency-install@v4
+      with:
+        path: requirements/test.txt
+    - name: Determine pre-compiled compatible wheel
+      env:
+        # NOTE: When `pip` is forced to colorize output piped into `jq`,
+        # NOTE: the latter can't parse it. So we're overriding the color
+        # NOTE: preference here via https://no-color.org.
+        # NOTE: Setting `FORCE_COLOR` to any value (including 0, an empty
+        # NOTE: string, or a "YAML null" `~`) doesn't have any effect and
+        # NOTE: `pip` (through its verndored copy of `rich`) treats the
+        # NOTE: presence of the variable as "force-color" regardless.
+        #
+        # NOTE: This doesn't actually work either, so we'll resort to unsetting
+        # NOTE: in the Bash script.
+        # NOTE: Ref: https://github.com/Textualize/rich/issues/2622
+        NO_COLOR: 1
+      id: wheel-file
+      run: >
+        echo -n path= | tee -a "${GITHUB_OUTPUT}"
+
+
+        unset FORCE_COLOR
+
+
+        python
+        -X utf8
+        -u -I
+        -m pip install
+        --find-links=./dist
+        --no-index
+        '${{ env.PROJECT_NAME }}'
+        --force-reinstall
+        --no-color
+        --no-deps
+        --only-binary=:all:
+        --dry-run
+        --report=-
+        --quiet
+        | jq --raw-output .install[].download_info.url
+        | tee -a "${GITHUB_OUTPUT}"
+      shell: bash
+    - name: Self-install
+      run: python -Im pip install '${{ steps.wheel-file.outputs.path }}'
+    - name: Produce the C-files for the Coverage.py Cython plugin
+      if: >-  # Only works if the dists were built with line tracing
+        !matrix.no-extensions
+        && (
+          github.event_name != 'push'
+          || !contains(github.ref, 'refs/tags/')
+        )
+      env:
+        PYTHONPATH: packaging/
+      run: |
+        set -eEuo pipefail
+
+        python -Im pip install expandvars
+        python -m pep517_backend.cli translate-cython
+      shell: bash
+    - name: Disable the Cython.Coverage Produce plugin
+      if: >-  # Only works if the dists were built with line tracing
+        matrix.no-extensions
+        || (
+          github.event_name == 'push'
+          && contains(github.ref, 'refs/tags/')
+        )
+      run: |
+        set -eEuo pipefail
+        sed -i.bak 's/^\s\{2\}Cython\.Coverage$//g' .coveragerc
+      shell: bash
+    - name: Run unittests
+      env:
+        PROPCACHE_NO_EXTENSIONS: ${{ matrix.no-extensions }}
+      run: >-
+        python -Im
+        pytest
+        -v
+        --cov-report xml
+        --junitxml=.test-results/pytest/test.xml
+    - name: Produce markdown test summary from JUnit
+      if: >-
+        !cancelled()
+      uses: test-summary/action@v2.4
+      with:
+        paths: .test-results/pytest/test.xml
+    - name: Append coverage results to Job Summary
+      if: >-
+        !cancelled()
+      continue-on-error: true
+      run: >-
+        python -Im coverage report --format=markdown
+        >> "${GITHUB_STEP_SUMMARY}"
+      shell: bash
+    - name: Re-run the failing tests with maximum verbosity
+      if: >-
+        !cancelled()
+        && failure()
+      env:
+        PROPCACHE_NO_EXTENSIONS: ${{ matrix.no-extensions }}
+      run: >-  # `exit 1` makes sure that the job remains red with flaky runs
+        python -Im
+        pytest --no-cov -vvvvv --lf -rA
+        && exit 1
+      shell: bash
+    - name: Send coverage data to Codecov
+      if: >-
+        !cancelled()
+      uses: codecov/codecov-action@v4
+      with:
+        token: 26f4a393-24a9-48d9-8fa4-f1344d930846
+        file: ./coverage.xml
+        flags: >-
+          CI-GHA,
+          pytest,
+          OS-${{ runner.os }},
+          VM-${{ matrix.os }},
+          Py-${{ steps.python-install.outputs.python-version }}
+        fail_ci_if_error: false
+
+  test-summary:
+    name: Test matrix status
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    needs: [lint, test]
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        jobs: ${{ toJSON(needs) }}
+
+  pre-deploy:
+    name: Pre-Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    needs: test-summary
+    # Run only on pushing a tag
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    steps:
+    - name: Dummy
+      run: |
+        echo "Predeploy step"
+
+  build-wheels-for-odd-archs:
+    name: >-  # ${{ '' } is a hack to nest jobs under the same sidebar category
+      📦 Build wheels for odd arches${{ '' }}
+    needs:
+    - build-pure-python-dists
+    - pre-deploy
+    - pre-setup  # transitive, for accessing settings
+    strategy:
+      matrix:
+        qemu:
+        - aarch64
+        - ppc64le
+        - s390x
+    uses: ./.github/workflows/reusable-build-wheel.yml
+    with:
+      qemu: ${{ matrix.qemu }}
+      source-tarball-name: >-
+        ${{ needs.build-pure-python-dists.outputs.sdist-filename }}
+      dists-artifact-name: ${{ needs.pre-setup.outputs.dists-artifact-name }}
+
+  deploy:
+    name: Deploy
+    needs:
+    - build-pure-python-dists
+    - build-wheels-for-odd-archs
+    - build-wheels-for-tested-arches
+    - pre-setup  # transitive, for accessing settings
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+
+    permissions:
+      contents: write  # IMPORTANT: mandatory for making GitHub Releases
+      id-token: write  # IMPORTANT: mandatory for trusted publishing & sigstore
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/${{ env.PROJECT_NAME }}
+
+    steps:
+    - name: Retrieve the project source from an sdist inside the GHA artifact
+      uses: re-actors/checkout-python-sdist@release/v2
+      with:
+        source-tarball-name: >-
+          ${{ needs.build-pure-python-dists.outputs.sdist-filename }}
+        workflow-artifact-name: >-
+          ${{ needs.pre-setup.outputs.dists-artifact-name }}
+
+    - name: Download distributions
+      uses: actions/download-artifact@v4
+      with:
+        path: dist
+        pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
+        merge-multiple: true
+    - run: |
+        tree
+    - name: Login
+      run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+    - name: Make Release
+      uses: aio-libs/create-release@v1.6.6
+      with:
+        changes_file: CHANGES.rst
+        version_file: ${{ env.PROJECT_NAME }}/__init__.py
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        head_line: >-
+          {version}\n=+\n\n\*\({date}\)\*\n
+        fix_issue_regex: >-
+          :issue:`(\d+)`
+        fix_issue_repl: >-
+          #\1
+
+    - name: >-
+        Publish 🐍📦 to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        attestations: true
+
+    - name: Sign the dists with Sigstore
+      uses: sigstore/gh-action-sigstore-python@v3.0.0
+      with:
+        inputs: >-
+          ./dist/${{ needs.build-pure-python-dists.outputs.sdist-filename }}
+          ./dist/*.whl
+
+    - name: Upload artifact signatures to GitHub Release
+      # Confusingly, this action also supports updating releases, not
+      # just creating them. This is what we want here, since we've manually
+      # created the release above.
+      uses: softprops/action-gh-release@v2
+      with:
+        # dist/ contains the built packages, which smoketest-artifacts/
+        # contains the signatures and certificates.
+        files: dist/**
+
+...

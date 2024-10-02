@@ -14,7 +14,10 @@ Changelog
 
 .. towncrier release notes start
 
-0.0.0 (2024-01-02)
-==================
+0.0.0
+=====
 
-* The first release.
+*(2024-10-02)*
+
+
+- Initial release.

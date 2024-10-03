@@ -73,7 +73,7 @@ cdef class cached_property:
         if self.name is None:
             raise TypeError(
                 "Cannot use cached_property instance"
-                "without calling __set_name__ on it.")
+                " without calling __set_name__ on it.")
         cdef dict cache = inst.__dict__
         val = cache.get(self.name, _sentinel)
         if val is _sentinel:

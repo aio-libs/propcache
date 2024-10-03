@@ -15,7 +15,7 @@ The module provides a fast implementation of cached properties for Python 3.8+.
 
 
 .. image:: https://readthedocs.org/projects/propcache/badge/?version=latest
-    :target: https://propcache.aio-libs.org
+    :target: https://propcache.readthedocs.io
 
 
 .. image:: https://img.shields.io/pypi/pyversions/propcache.svg
@@ -36,7 +36,7 @@ The API is designed to be nearly identical to the built-in ``functools.cached_pr
 except for the additional ``under_cached_property`` class which uses ``self._cache``
 instead of ``self.__dict__`` to store the cached values and prevents ``__set__`` from being called.
 
-For full documentation please read https://propcache.aio-libs.org.
+For full documentation please read https://propcache.readthedocs.io.
 
 Installation
 ------------
@@ -69,7 +69,7 @@ by this variable.
 API documentation
 ------------------
 
-The documentation is located at https://propcache.aio-libs.org.
+The documentation is located at https://propcache.readthedocs.io.
 
 Source code
 -----------

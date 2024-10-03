@@ -73,7 +73,7 @@ _ConfigDict = t.Dict[str, t.Union[str, t.List[str], None]]
 CYTHON_TRACING_CONFIG_SETTING = 'with-cython-tracing'
 """Config setting name toggle to include line tracing to C-exts."""
 
-CYTHON_TRACING_ENV_VAR = 'PROPCACHECYTHON_TRACING'
+CYTHON_TRACING_ENV_VAR = 'PROPCACHE_CYTHON_TRACING'
 """Environment variable name toggle used to opt out of making C-exts."""
 
 PURE_PYTHON_CONFIG_SETTING = 'pure-python'

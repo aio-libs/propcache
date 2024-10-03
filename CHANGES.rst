@@ -14,6 +14,24 @@ Changelog
 
 .. towncrier release notes start
 
+v0.1.0
+======
+
+*(2024-10-03)*
+
+
+Features
+--------
+
+- Added ``armv7l`` wheels -- by :user:`bdraco`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`5`.
+
+
+----
+
+
 0.0.0
 =====
 

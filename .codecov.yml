@@ -28,7 +28,7 @@ coverage:
         - pytest
         paths:
         - propcache/
-        target: 93%  # 97.91%
+        target: 100%
       tests:
         flags:
         - pytest

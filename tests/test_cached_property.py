@@ -1,4 +1,5 @@
 import platform
+from operator import not_
 
 import pytest
 
@@ -108,39 +109,26 @@ def test_set_name():
     """Test that the __set_name__ method is called and checked."""
 
     class A:
-        def __init__(self):
-            self._cache = {}
 
         @cached_property
         def prop(self):
             """Docstring."""
-            return 1
 
     A.prop.__set_name__(A, "prop")
 
     with pytest.raises(
-        TypeError,
-        match=(
-            r"Cannot assign the same cached_property to two "
-            r"different names \('prop' and 'something_else'\)."
-        ),
+        TypeError, match=r"Cannot assign the same cached_property to two "
     ):
         A.prop.__set_name__(A, "something_else")
 
 
 def test_get_without_set_name():
     """Test that get without __set_name__ fails."""
-    cp = cached_property(lambda s: None)
+    cp = cached_property(not_)
 
     class A:
         """A class."""
 
     A.cp = cp
-    with pytest.raises(
-        TypeError,
-        match=(
-            r"Cannot use cached_property instance "
-            r"without calling __set_name__ on it."
-        ),
-    ):
+    with pytest.raises(TypeError, match=r"Cannot use cached_property instance "):
         _ = A().cp

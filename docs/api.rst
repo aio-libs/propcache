@@ -1,4 +1,4 @@
-.. _propcache-reference:
+.. _propcache-api:
 
 ============
 Reference
@@ -19,7 +19,7 @@ cached_property
 
    As with the standard library version, the cached value is stored in
    the instance's ``__dict__`` dictionary. To clear a cached value, you
-   can use the :meth:`del` operator on the instance's attribute or call
+   can use the ``del`` operator on the instance's attribute or call
    ``instance.__dict__.pop('attribute_name', None)``.
 
 under_cached_property

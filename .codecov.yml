@@ -7,7 +7,7 @@ codecov:
 
   require_ci_to_pass: false
 
-  token: b3595683-c992-48f6-9dc6-d4903e558e24  # repo-scoped
+  token: bb0fa8d8-1f5b-4b59-95f4-ec338cbd13a4  # repo-scoped
 
 comment:
   require_changes: true

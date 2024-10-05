@@ -1,0 +1,1 @@
+Added API documentation for the ``cached_property`` and ``under_cached_property`` decorators -- by :user:`bdraco`.

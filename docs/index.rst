@@ -18,6 +18,11 @@ The API is designed to be nearly identical to the built-in ``cached_property`` c
 except for the additional ``under_cached_property`` class which uses ``self._cache``
 instead of ``self.__dict__`` to store the cached values and prevents ``__set__`` from being called.
 
+API documentation
+------------------
+
+Open :ref:`propcache-api` for reading full list of available methods.
+
 Source code
 -----------
 
@@ -45,6 +50,11 @@ It's *Apache 2* licensed and freely available.
 
 
 Contents:
+
+.. toctree::
+   :maxdepth: 2
+
+   api
 
 .. toctree::
    :caption: What's new

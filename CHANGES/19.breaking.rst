@@ -1,0 +1,1 @@
+Moved ``under_cached_property`` and ``cached_property`` to ``propcache.api`` -- by :user:`bdraco`.

@@ -282,6 +282,7 @@ def maybe_prebuild_c_extensions(
     print("**********************", file=_standard_error_stream)
     print("inplace:", build_inplace, file=_standard_error_stream)
     print("resolved cwd:", Path.cwd().resolve(), file=_standard_error_stream)
+    print("files in cwd:", list_files(str(Path.cwd().resolve())), file=_standard_error_stream)
 
     if not IS_CPYTHON:
         _warn_that(
@@ -306,6 +307,15 @@ def maybe_prebuild_c_extensions(
             with patched_dist_has_ext_modules():
                 yield
 
+
+def list_files(startpath):
+    for root, dirs, files in os.walk(startpath):
+        level = root.replace(startpath, '').count(os.sep)
+        indent = ' ' * 4 * (level)
+        print(f'{indent}{os.path.basename(root)}/')
+        subindent = ' ' * 4 * (level + 1)
+        for f in files:
+            print(f'{subindent}{f}')
 
 @patched_dist_get_long_description()
 def build_wheel(

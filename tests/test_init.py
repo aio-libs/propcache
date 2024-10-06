@@ -14,16 +14,22 @@ def test_api_at_top_level():
     assert propcache.under_cached_property is _helpers.under_cached_property
 
 
-def test_public_api_is_in_dir():
-    """Verify the public API is accessible in the module's dir()."""
-    assert "cached_property" in dir(propcache)
-    assert "under_cached_property" in dir(propcache)
+@pytest.mark.parametrize(
+    'prop_name',
+    ('cached_property', 'under_cached_property'),
+)
+@pytest.mark.parametrize(
+    'api_list',
+    (dir(propcache), propcache.__all__),
+    ids=('dir', '__all__')
+)
+def test_public_api_is_in_inspectable_object_lists(prop_name, api_list):
+    """Verify the public API is discoverable programmatically.
 
-
-def test_public_api_is_in_all():
-    """Verify the public API is accessible in the module's __all__."""
-    assert "cached_property" in propcache.__all__
-    assert "under_cached_property" in propcache.__all__
+    This checks for presence of known public decorators module's
+    ``__all__`` and ``dir()``.
+    """
+    assert prop_name in api_list
 
 
 def test_importing_invalid_attr_raises():

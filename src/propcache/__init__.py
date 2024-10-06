@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, List
 
 __version__ = "0.2.0.dev0"
 
-# Imports have moved to `propcache.api` in 1.0.0+.
+# Imports have moved to `propcache.api` in 0.2.0+.
 # This module is now a facade for the API.
 if TYPE_CHECKING:
     from .api import cached_property, under_cached_property

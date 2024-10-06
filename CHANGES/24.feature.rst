@@ -1,0 +1,1 @@
+Restored the ability to import :func:`propcache.api.under_cached_property` and :func:`propcache.api.cached_property` directly from ``propcache`` -- by :user:`bdraco`.

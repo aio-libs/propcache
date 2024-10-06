@@ -10,7 +10,8 @@ __all__ = ()
 # Imports have moved to `propcache.api` in 0.2.0+.
 # This module is now a facade for the API.
 if TYPE_CHECKING:
-    from .api import cached_property, under_cached_property  # noqa: F401
+    from .api import cached_property as cached_property  # noqa: F401
+    from .api import under_cached_property as under_cached_property  # noqa: F401
 
 
 def _import_facade(attr: str) -> object:

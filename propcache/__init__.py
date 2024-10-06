@@ -1,1 +1,3 @@
-__version__ = "0.1.0.dev0"
+"""propcache: An accelerated property cache for Python classes."""
+
+__version__ = "1.0.0.dev0"

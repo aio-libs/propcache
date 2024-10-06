@@ -19,7 +19,7 @@ except for the additional ``under_cached_property`` class which uses ``self._cac
 instead of ``self.__dict__`` to store the cached values and prevents ``__set__`` from being called.
 
 API documentation
-------------------
+-----------------
 
 Open :ref:`propcache-api` for reading full list of available methods.
 

@@ -84,12 +84,11 @@ def test_cached_property_class_docstring(propcache_module) -> None:
 
     class A:
         def __init__(self):
-            self._cache = {}
+            """Init."""
 
         @propcache_module.cached_property
         def prop(self):
             """Docstring."""
-            return 1
 
     assert isinstance(A.prop, propcache_module.cached_property)
     assert "Docstring." == A.prop.__doc__

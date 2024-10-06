@@ -1,7 +1,9 @@
+from types import ModuleType
+
 import pytest
 
 
-def test_under_cached_property(propcache_module) -> None:
+def test_under_cached_property(propcache_module: ModuleType) -> None:
     class A:
         def __init__(self):
             self._cache = {}
@@ -14,7 +16,7 @@ def test_under_cached_property(propcache_module) -> None:
     assert a.prop == 1
 
 
-def test_under_cached_property_class(propcache_module) -> None:
+def test_under_cached_property_class(propcache_module: ModuleType) -> None:
     class A:
         def __init__(self):
             """Init."""
@@ -28,7 +30,7 @@ def test_under_cached_property_class(propcache_module) -> None:
     assert A.prop.__doc__ == "Docstring."
 
 
-def test_under_cached_property_assignment(propcache_module) -> None:
+def test_under_cached_property_assignment(propcache_module: ModuleType) -> None:
     class A:
         def __init__(self):
             self._cache = {}
@@ -43,7 +45,7 @@ def test_under_cached_property_assignment(propcache_module) -> None:
         a.prop = 123
 
 
-def test_under_cached_property_without_cache(propcache_module) -> None:
+def test_under_cached_property_without_cache(propcache_module: ModuleType) -> None:
     class A:
         def __init__(self):
             pass
@@ -58,7 +60,9 @@ def test_under_cached_property_without_cache(propcache_module) -> None:
         a.prop = 123
 
 
-def test_under_cached_property_check_without_cache(propcache_module) -> None:
+def test_under_cached_property_check_without_cache(
+    propcache_module: ModuleType,
+) -> None:
     class A:
         def __init__(self):
             pass
@@ -72,7 +76,7 @@ def test_under_cached_property_check_without_cache(propcache_module) -> None:
         assert a.prop == 1
 
 
-def test_under_cached_property_caching(propcache_module) -> None:
+def test_under_cached_property_caching(propcache_module: ModuleType) -> None:
 
     class A:
         def __init__(self):
@@ -87,7 +91,7 @@ def test_under_cached_property_caching(propcache_module) -> None:
     assert 1 == a.prop
 
 
-def test_under_cached_property_class_docstring(propcache_module) -> None:
+def test_under_cached_property_class_docstring(propcache_module: ModuleType) -> None:
     class A:
         def __init__(self):
             """Init."""

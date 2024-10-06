@@ -1,9 +1,10 @@
 from operator import not_
+from types import ModuleType
 
 import pytest
 
 
-def test_cached_property(propcache_module) -> None:
+def test_cached_property(propcache_module: ModuleType) -> None:
     class A:
         def __init__(self):
             self._cache = {}
@@ -16,7 +17,7 @@ def test_cached_property(propcache_module) -> None:
     assert a.prop == 1
 
 
-def test_cached_property_class(propcache_module) -> None:
+def test_cached_property_class(propcache_module: ModuleType) -> None:
     class A:
         def __init__(self):
             """Init."""
@@ -30,7 +31,7 @@ def test_cached_property_class(propcache_module) -> None:
     assert A.prop.__doc__ == "Docstring."
 
 
-def test_cached_property_without_cache(propcache_module) -> None:
+def test_cached_property_without_cache(propcache_module: ModuleType) -> None:
     class A:
 
         __slots__ = ()
@@ -48,7 +49,7 @@ def test_cached_property_without_cache(propcache_module) -> None:
         a.prop = 123
 
 
-def test_cached_property_check_without_cache(propcache_module) -> None:
+def test_cached_property_check_without_cache(propcache_module: ModuleType) -> None:
     class A:
 
         __slots__ = ()
@@ -65,7 +66,7 @@ def test_cached_property_check_without_cache(propcache_module) -> None:
         assert a.prop == 1
 
 
-def test_cached_property_caching(propcache_module) -> None:
+def test_cached_property_caching(propcache_module: ModuleType) -> None:
 
     class A:
         def __init__(self):
@@ -80,7 +81,7 @@ def test_cached_property_caching(propcache_module) -> None:
     assert 1 == a.prop
 
 
-def test_cached_property_class_docstring(propcache_module) -> None:
+def test_cached_property_class_docstring(propcache_module: ModuleType) -> None:
 
     class A:
         def __init__(self):
@@ -94,7 +95,7 @@ def test_cached_property_class_docstring(propcache_module) -> None:
     assert "Docstring." == A.prop.__doc__
 
 
-def test_set_name(propcache_module) -> None:
+def test_set_name(propcache_module: ModuleType) -> None:
     """Test that the __set_name__ method is called and checked."""
 
     class A:
@@ -110,7 +111,7 @@ def test_set_name(propcache_module) -> None:
         A.prop.__set_name__(A, "something_else")
 
 
-def test_get_without_set_name(propcache_module) -> None:
+def test_get_without_set_name(propcache_module: ModuleType) -> None:
     """Test that get without __set_name__ fails."""
     cp = propcache_module.cached_property(not_)
 

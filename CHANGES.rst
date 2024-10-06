@@ -14,33 +14,6 @@ Changelog
 
 .. towncrier release notes start
 
-1.0.0
-=====
-
-*(2024-10-05)*
-
-
-Removals and backward incompatible breaking changes
----------------------------------------------------
-
-- Moved :func:`propcache.api.under_cached_property` and :func:`propcache.api.cached_property` to ``propcache.api`` -- by :user:`bdraco`.
-
-  *Related issues and pull requests on GitHub:*
-  :issue:`19`.
-
-
-Improved documentation
-----------------------
-
-- Added API documentation for the :func:`propcache.api.cached_property` and :func:`propcache.api.under_cached_property` decorators -- by :user:`bdraco`.
-
-  *Related issues and pull requests on GitHub:*
-  :issue:`16`.
-
-
-----
-
-
 0.1.0
 =====
 

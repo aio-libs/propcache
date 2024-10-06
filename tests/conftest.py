@@ -38,7 +38,7 @@ class PropcacheImplementation:
         importable_module = "_helpers_py" if self.is_pure_python else "_helpers_c"
         return import_module(f"propcache.{importable_module}")
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Render the implementation facade instance as a string."""
         return f"{self.tag}-module"
 

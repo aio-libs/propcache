@@ -40,8 +40,7 @@ if IS_RELEASE_ON_RTD:
 
 
 _docs_path = Path(__file__).parent
-_version_path = _docs_path / "../propcache/__init__.py"
-
+_version_path = _docs_path / "../src/propcache/__init__.py"
 
 with _version_path.open() as fp:
     try:

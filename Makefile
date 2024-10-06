@@ -1,4 +1,4 @@
-PYXS = $(wildcard propcache/*.pyx)
+PYXS = $(wildcard src/propcache/*.pyx)
 SRC = propcache tests
 
 all: test
@@ -15,8 +15,8 @@ all: test
 	touch .install-cython
 
 
-propcache/%.c: propcache/%.pyx
-	python -m cython -3 -o $@ $< -I propcache
+src/propcache/%.c: src/propcache/%.pyx
+	python -m cython -3 -o $@ $< -I src/propcache
 
 
 .cythonize: .install-cython $(PYXS:.pyx=.c)
@@ -25,7 +25,7 @@ propcache/%.c: propcache/%.pyx
 cythonize: .cythonize
 
 
-.develop: .install-deps $(shell find propcache -type f)
+.develop: .install-deps $(shell find src/propcache -type f)
 	@pip install -e .
 	@touch .develop
 
@@ -39,15 +39,15 @@ endif
 lint: fmt
 
 test: lint .develop
-	pytest ./tests ./propcache
+	pytest ./tests
 
 
 vtest: lint .develop
-	pytest ./tests ./propcache -v
+	pytest -v ./tests
 
 
 cov: lint .develop
-	pytest --cov propcache --cov-report html --cov-report term ./tests/ ./propcache/
+	pytest --cov src/propcache --cov-report html --cov-report term ./tests
 	@echo "open file://`pwd`/htmlcov/index.html"
 
 

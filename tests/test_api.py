@@ -3,7 +3,7 @@
 from propcache import _helpers, api
 
 
-def test_api():
+def test_api() -> None:
     """Verify the public API is accessible."""
     assert api.cached_property is not None
     assert api.under_cached_property is not None

@@ -281,6 +281,7 @@ def maybe_prebuild_c_extensions(
     print("* Accelerated build *", file=_standard_error_stream)
     print("**********************", file=_standard_error_stream)
     print("inplace:", build_inplace, file=_standard_error_stream)
+    print("resolved cwd:", Path.cwd().resolve(), file=_standard_error_stream)
 
     if not IS_CPYTHON:
         _warn_that(

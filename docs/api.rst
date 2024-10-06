@@ -4,7 +4,7 @@
 Reference
 =========
 
-.. module:: propcache
+.. module:: propcache.api
 
 
 
@@ -15,7 +15,7 @@ cached_property
 
    This decorator functions exactly the same as the standard library
    :func:`cached_property` decorator, but it's available in the
-   :mod:`propcache` module along with an accelerated Cython version.
+   :mod:`propcache.api` module along with an accelerated Cython version.
 
    As with the standard library version, the cached value is stored in
    the instance's ``__dict__`` dictionary. To clear a cached value, you
@@ -33,6 +33,8 @@ under_cached_property
    in the instance's ``_cache`` dictionary instead of ``__dict__``.
 
    Example::
+
+       from propcache.api import under_cached_property
 
        class MyClass:
 

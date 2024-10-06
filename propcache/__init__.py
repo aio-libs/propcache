@@ -1,8 +1,6 @@
-from ._helpers import cached_property, under_cached_property
+"""propcache: An accelerated property cache for Python classes."""
 
-__version__ = "0.1.0.dev0"
+__version__ = "1.0.0.dev0"
 
-__all__ = (
-    "cached_property",
-    "under_cached_property",
-)
+# Imports have moved to `propcache.api` in 1.0.0+.
+__all__ = ()

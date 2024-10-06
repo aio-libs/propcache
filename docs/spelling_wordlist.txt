@@ -42,6 +42,7 @@ requote
 requoting
 runtimes
 sdist
+src
 subclass
 subclasses
 subcomponent

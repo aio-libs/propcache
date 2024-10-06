@@ -4,7 +4,7 @@
 Reference
 =========
 
-.. module:: propcache
+.. module:: propcache.api
 
 
 

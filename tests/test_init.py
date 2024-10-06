@@ -31,3 +31,11 @@ def test_importing_invalid_attr_raises():
     match = r"^module 'propcache' has no attribute 'invalid_attr'$"
     with pytest.raises(AttributeError, match=match):
         propcache.invalid_attr
+
+
+def test_import_error_invalid_attr():
+    """Verify importing an invalid attribute raises an ImportError."""
+    # No match here because the error is raised by the import system
+    # and may vary between Python versions.
+    with pytest.raises(ImportError):
+        from propcache import invalid_attr  # noqa: F401

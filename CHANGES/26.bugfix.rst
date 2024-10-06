@@ -1,0 +1,1 @@
+Fixed loading the C-extensions on Python 3.8 -- by :user:`bdraco`.

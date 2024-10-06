@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, List
 
-__version__ = "1.0.0.dev0"
+__version__ = "0.2.0.dev0"
 
 # Imports have moved to `propcache.api` in 1.0.0+.
 # This module is now a facade for the API.

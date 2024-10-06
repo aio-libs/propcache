@@ -34,6 +34,8 @@ under_cached_property
 
    Example::
 
+       from propcache.api import under_cached_property
+
        class MyClass:
 
            def __init__(self, data: List[float]):

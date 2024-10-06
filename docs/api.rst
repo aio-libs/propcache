@@ -1,8 +1,8 @@
 .. _propcache-api:
 
-============
+=========
 Reference
-============
+=========
 
 .. module:: propcache
 

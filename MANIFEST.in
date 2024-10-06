@@ -14,8 +14,8 @@ graft requirements
 graft tests
 global-exclude *.pyc
 global-exclude *.cache
-exclude propcache/*.c
-exclude propcache/*.html
-exclude propcache/*.so
-exclude propcache/*.pyd
+exclude src/propcache/*.c
+exclude src/propcache/*.html
+exclude src/propcache/*.so
+exclude src/propcache/*.pyd
 prune docs/_build

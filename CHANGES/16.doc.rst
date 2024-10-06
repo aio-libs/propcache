@@ -1,0 +1,1 @@
+Added API documentation for the :func:`propcache.cached_property` and :func:`propcache.under_cached_property` decorators -- by :user:`bdraco`.

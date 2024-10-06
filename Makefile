@@ -39,15 +39,15 @@ endif
 lint: fmt
 
 test: lint .develop
-	pytest ./tests ./src/propcache
+	pytest ./tests
 
 
 vtest: lint .develop
-	pytest ./tests ./src/propcache -v
+	pytest -v ./tests
 
 
 cov: lint .develop
-	pytest --cov src/propcache --cov-report html --cov-report term ./tests/ ./src/propcache/
+	pytest --cov src/propcache --cov-report html --cov-report term ./tests
 	@echo "open file://`pwd`/htmlcov/index.html"
 
 

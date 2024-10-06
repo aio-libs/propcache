@@ -1,5 +1,13 @@
 # cython: language_level=3
-from types import GenericAlias
+import sys
+import types
+
+if sys.version_info >= (3, 9):
+    GenericAlias = types.GenericAlias
+else:
+
+    def GenericAlias(cls):
+        return cls
 
 
 cdef _sentinel = object()

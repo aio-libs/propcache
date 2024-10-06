@@ -280,6 +280,8 @@ def maybe_prebuild_c_extensions(
     print("**********************", file=_standard_error_stream)
     print("* Accelerated build *", file=_standard_error_stream)
     print("**********************", file=_standard_error_stream)
+    print("inplace:", build_inplace, file=_standard_error_stream)
+
     if not IS_CPYTHON:
         _warn_that(
             'Building C-extensions under the runtimes other than CPython is '

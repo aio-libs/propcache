@@ -15,13 +15,11 @@ def test_api_at_top_level():
 
 
 @pytest.mark.parametrize(
-    'prop_name',
-    ('cached_property', 'under_cached_property'),
+    "prop_name",
+    ("cached_property", "under_cached_property"),
 )
 @pytest.mark.parametrize(
-    'api_list',
-    (dir(propcache), propcache.__all__),
-    ids=('dir', '__all__')
+    "api_list", (dir(propcache), propcache.__all__), ids=("dir", "__all__")
 )
 def test_public_api_is_in_inspectable_object_lists(prop_name, api_list):
     """Verify the public API is discoverable programmatically.

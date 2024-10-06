@@ -1,1 +1,0 @@
-Moved :func:`propcache.api.under_cached_property` and :func:`propcache.api.cached_property` to ``propcache.api`` -- by :user:`bdraco`.

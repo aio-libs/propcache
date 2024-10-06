@@ -28,6 +28,6 @@ def test_public_api_is_in_all():
 
 def test_importing_invalid_attr_raises():
     """Verify importing an invalid attribute raises an AttributeError."""
-    match = r"module 'propcache' has no attribute 'invalid_attr'"
+    match = r"^module 'propcache' has no attribute 'invalid_attr'$"
     with pytest.raises(AttributeError, match=match):
         propcache.invalid_attr

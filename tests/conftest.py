@@ -78,15 +78,15 @@ def pytest_addoption(
     """
     del pluginmanager
 
-    action: Union[str, Type[argparse.Action]]
+    arg_parse_action: Union[str, Type[argparse.Action]]
     if PY_38_AND_BELOW:
-        action = "store_true"
+        arg_parse_action = "store_true"
     else:
-        action = argparse.BooleanOptionalAction  # type: ignore[attr-defined, unused-ignore]  # noqa
+        arg_parse_action = argparse.BooleanOptionalAction  # type: ignore[attr-defined, unused-ignore]  # noqa
 
     parser.addoption(
         "--c-extensions",  # disabled with `--no-c-extensions`
-        action=action,
+        action=arg_parse_action,
         default=True,
         dest="c_extensions",
         help="Test C-extensions (on by default)",

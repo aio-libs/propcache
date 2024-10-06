@@ -18,16 +18,9 @@ def test_api_at_top_level():
     "prop_name",
     ("cached_property", "under_cached_property"),
 )
-@pytest.mark.parametrize(
-    "api_list", (dir(propcache), propcache.__all__), ids=("dir", "__all__")
-)
-def test_public_api_is_in_inspectable_object_lists(prop_name, api_list):
-    """Verify the public API is discoverable programmatically.
-
-    This checks for presence of known public decorators module's
-    ``__all__`` and ``dir()``.
-    """
-    assert prop_name in api_list
+def test_public_api_is_discoverable_in_dir(prop_name: str):
+    """Verify the public API is discoverable programmatically."""
+    assert prop_name in dir(propcache)
 
 
 def test_importing_invalid_attr_raises():
@@ -43,3 +36,8 @@ def test_import_error_invalid_attr():
     # and may vary between Python versions.
     with pytest.raises(ImportError):
         from propcache import invalid_attr  # noqa: F401
+
+
+def test_no_wildcard_imports():
+    """Verify wildcard imports are prohibited."""
+    assert not propcache.__all__

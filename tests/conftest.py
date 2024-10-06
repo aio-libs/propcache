@@ -74,7 +74,7 @@ def pytest_addoption(
     """Define a new ``--c-extensions`` flag.
 
     This lets the callers deselect tests executed against the C-extension
-    version of the ``multidict`` implementation.
+    version of the ``propcache`` implementation.
     """
     del pluginmanager
 

@@ -1,42 +1,48 @@
-from types import ModuleType
+from typing import Any, Dict, Protocol, Type
 
 import pytest
 
+from propcache.api import under_cached_property
 
-def test_under_cached_property(propcache_module: ModuleType) -> None:
+
+class APIProtocol(Protocol):
+
+    under_cached_property: Type[under_cached_property]
+
+
+def test_under_cached_property(propcache_module: APIProtocol) -> None:
     class A:
-        def __init__(self):
-            self._cache = {}
+        def __init__(self) -> None:
+            self._cache: Dict[str, int] = {}
 
         @propcache_module.under_cached_property
-        def prop(self):
+        def prop(self) -> int:
             return 1
 
     a = A()
     assert a.prop == 1
 
 
-def test_under_cached_property_class(propcache_module: ModuleType) -> None:
+def test_under_cached_property_class(propcache_module: APIProtocol) -> None:
     class A:
-        def __init__(self):
+        def __init__(self) -> None:
             """Init."""
-            # self._cache not set because its never accessed in this test
 
         @propcache_module.under_cached_property
-        def prop(self):
+        def prop(self) -> None:
             """Docstring."""
 
     assert isinstance(A.prop, propcache_module.under_cached_property)
     assert A.prop.__doc__ == "Docstring."
 
 
-def test_under_cached_property_assignment(propcache_module: ModuleType) -> None:
+def test_under_cached_property_assignment(propcache_module: APIProtocol) -> None:
     class A:
-        def __init__(self):
-            self._cache = {}
+        def __init__(self) -> None:
+            self._cache: Dict[str, Any] = {}
 
         @propcache_module.under_cached_property
-        def prop(self):
+        def prop(self) -> None:
             """Mock property."""
 
     a = A()
@@ -45,13 +51,14 @@ def test_under_cached_property_assignment(propcache_module: ModuleType) -> None:
         a.prop = 123
 
 
-def test_under_cached_property_without_cache(propcache_module: ModuleType) -> None:
+def test_under_cached_property_without_cache(propcache_module: APIProtocol) -> None:
     class A:
-        def __init__(self):
-            pass
+        def __init__(self) -> None:
+            """Init."""
+            self._cache: Dict[str, int] = {}
 
         @propcache_module.under_cached_property
-        def prop(self):
+        def prop(self) -> None:
             """Mock property."""
 
     a = A()
@@ -61,43 +68,44 @@ def test_under_cached_property_without_cache(propcache_module: ModuleType) -> No
 
 
 def test_under_cached_property_check_without_cache(
-    propcache_module: ModuleType,
+    propcache_module: APIProtocol,
 ) -> None:
     class A:
-        def __init__(self):
-            pass
+        def __init__(self) -> None:
+            """Init."""
+            # Note that self._cache is intentionally missing
+            # here to verify AttributeError
 
         @propcache_module.under_cached_property
-        def prop(self):
+        def prop(self) -> None:
             """Mock property."""
 
     a = A()
     with pytest.raises(AttributeError):
-        assert a.prop == 1
+        _ = a.prop  # type: ignore[call-overload]
 
 
-def test_under_cached_property_caching(propcache_module: ModuleType) -> None:
-
+def test_under_cached_property_caching(propcache_module: APIProtocol) -> None:
     class A:
-        def __init__(self):
-            self._cache = {}
+        def __init__(self) -> None:
+            self._cache: Dict[str, int] = {}
 
         @propcache_module.under_cached_property
-        def prop(self):
+        def prop(self) -> int:
             """Docstring."""
             return 1
 
     a = A()
-    assert 1 == a.prop
+    assert a.prop == 1
 
 
-def test_under_cached_property_class_docstring(propcache_module: ModuleType) -> None:
+def test_under_cached_property_class_docstring(propcache_module: APIProtocol) -> None:
     class A:
-        def __init__(self):
+        def __init__(self) -> None:
             """Init."""
 
         @propcache_module.under_cached_property
-        def prop(self):
+        def prop(self) -> Any:
             """Docstring."""
 
     assert isinstance(A.prop, propcache_module.under_cached_property)

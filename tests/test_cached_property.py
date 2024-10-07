@@ -1,46 +1,53 @@
 from operator import not_
-from types import ModuleType
+from typing import Protocol, Type
 
 import pytest
 
+from propcache.api import cached_property
 
-def test_cached_property(propcache_module: ModuleType) -> None:
+
+class APIProtocol(Protocol):
+
+    cached_property: Type[cached_property]
+
+
+def test_cached_property(propcache_module: APIProtocol) -> None:
     class A:
-        def __init__(self):
-            self._cache = {}
+        def __init__(self) -> None:
+            """Init."""
 
         @propcache_module.cached_property
-        def prop(self):
+        def prop(self) -> int:
             return 1
 
     a = A()
     assert a.prop == 1
 
 
-def test_cached_property_class(propcache_module: ModuleType) -> None:
+def test_cached_property_class(propcache_module: APIProtocol) -> None:
     class A:
-        def __init__(self):
+        def __init__(self) -> None:
             """Init."""
             # self._cache not set because its never accessed in this test
 
         @propcache_module.cached_property
-        def prop(self):
+        def prop(self) -> None:
             """Docstring."""
 
     assert isinstance(A.prop, propcache_module.cached_property)
     assert A.prop.__doc__ == "Docstring."
 
 
-def test_cached_property_without_cache(propcache_module: ModuleType) -> None:
+def test_cached_property_without_cache(propcache_module: APIProtocol) -> None:
     class A:
 
         __slots__ = ()
 
-        def __init__(self):
+        def __init__(self) -> None:
             pass
 
         @propcache_module.cached_property
-        def prop(self):
+        def prop(self) -> None:
             """Mock property."""
 
     a = A()
@@ -49,16 +56,16 @@ def test_cached_property_without_cache(propcache_module: ModuleType) -> None:
         a.prop = 123
 
 
-def test_cached_property_check_without_cache(propcache_module: ModuleType) -> None:
+def test_cached_property_check_without_cache(propcache_module: APIProtocol) -> None:
     class A:
 
         __slots__ = ()
 
-        def __init__(self):
-            pass
+        def __init__(self) -> None:
+            """Init."""
 
         @propcache_module.cached_property
-        def prop(self):
+        def prop(self) -> None:
             """Mock property."""
 
     a = A()
@@ -66,42 +73,40 @@ def test_cached_property_check_without_cache(propcache_module: ModuleType) -> No
         assert a.prop == 1
 
 
-def test_cached_property_caching(propcache_module: ModuleType) -> None:
-
+def test_cached_property_caching(propcache_module: APIProtocol) -> None:
     class A:
-        def __init__(self):
-            self._cache = {}
+        def __init__(self) -> None:
+            """Init."""
 
         @propcache_module.cached_property
-        def prop(self):
+        def prop(self) -> int:
             """Docstring."""
             return 1
 
     a = A()
-    assert 1 == a.prop
+    assert a.prop == 1
 
 
-def test_cached_property_class_docstring(propcache_module: ModuleType) -> None:
-
+def test_cached_property_class_docstring(propcache_module: APIProtocol) -> None:
     class A:
-        def __init__(self):
+        def __init__(self) -> None:
             """Init."""
 
         @propcache_module.cached_property
-        def prop(self):
+        def prop(self) -> None:
             """Docstring."""
 
     assert isinstance(A.prop, propcache_module.cached_property)
     assert "Docstring." == A.prop.__doc__
 
 
-def test_set_name(propcache_module: ModuleType) -> None:
+def test_set_name(propcache_module: APIProtocol) -> None:
     """Test that the __set_name__ method is called and checked."""
 
     class A:
 
         @propcache_module.cached_property
-        def prop(self):
+        def prop(self) -> None:
             """Docstring."""
 
     A.prop.__set_name__(A, "prop")
@@ -111,7 +116,7 @@ def test_set_name(propcache_module: ModuleType) -> None:
         A.prop.__set_name__(A, "something_else")
 
 
-def test_get_without_set_name(propcache_module: ModuleType) -> None:
+def test_get_without_set_name(propcache_module: APIProtocol) -> None:
     """Test that get without __set_name__ fails."""
     cp = propcache_module.cached_property(not_)
 

@@ -47,7 +47,7 @@ vtest: lint .develop
 
 
 cov: lint .develop
-	pytest --cov src/propcache --cov-report html --cov-report term
+	pytest --cov-report html --cov-report term
 	@echo "python3 -Im webbrowser file://`pwd`/htmlcov/index.html"
 
 

@@ -12,9 +12,6 @@ source =
 [report]
 # small library, don't fail when running without C-extension
 fail_under = 50.00
-skip_covered = true
-skip_empty = true
-show_missing = true
 exclude_also =
   ^\s*@pytest\.mark\.xfail
 

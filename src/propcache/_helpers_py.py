@@ -45,12 +45,12 @@ class under_cached_property(Generic[_T]):
         self.__doc__ = wrapped.__doc__
         self.name = wrapped.__name__
 
-    @overload  # pragma: no branch
+    @overload
     def __get__(  # pragma: no branch
         self, inst: None, owner: Optional[Type[Any]] = None
     ) -> Self: ...  # pragma: no cover
 
-    @overload  # pragma: no branch
+    @overload
     def __get__(  # pragma: no branch
         self, inst: _TSelf[_T], owner: Optional[Type[Any]] = None
     ) -> _T: ...  # pragma: no cover

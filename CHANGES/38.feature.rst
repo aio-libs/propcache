@@ -1,1 +1,0 @@
-Improved typing for the :func:`propcache.api.under_cached_property` decorator -- by :user:`bdraco`.

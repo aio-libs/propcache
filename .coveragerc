@@ -5,9 +5,11 @@ skip_covered = false
 [paths]
 source =
   src
-  */lib/pypy*/site-packages/propcache
-  */lib/python*/site-packages/propcache
-  */Lib/site-packages/propcache
+  */src
+  *\src
+  */lib/pypy*/site-packages
+  */lib/python*/site-packages
+  *\Lib\site-packages
 
 [report]
 # small library, don't fail when running without C-extension

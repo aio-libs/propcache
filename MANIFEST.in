@@ -16,4 +16,6 @@ global-exclude *.pyc
 global-exclude *.cache
 exclude src/propcache/*.c
 exclude src/propcache/*.html
+exclude src/propcache/*.so
+exclude src/propcache/*.pyd
 prune docs/_build

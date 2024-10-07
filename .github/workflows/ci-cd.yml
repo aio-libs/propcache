@@ -435,7 +435,7 @@ jobs:
       uses: aio-libs/create-release@v1.6.6
       with:
         changes_file: CHANGES.rst
-        version_file: ${{ env.PROJECT_NAME }}/__init__.py
+        version_file: src/${{ env.PROJECT_NAME }}/__init__.py
         github_token: ${{ secrets.GITHUB_TOKEN }}
         head_line: >-
           {version}\n=+\n\n\*\({date}\)\*\n

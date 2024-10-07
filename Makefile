@@ -48,12 +48,12 @@ vtest: lint .develop
 
 cov: lint .develop
 	pytest --cov src/propcache --cov-report html --cov-report term
-	@echo "open file://`pwd`/htmlcov/index.html"
+	@echo "python3 -Im webbrowser file://`pwd`/htmlcov/index.html"
 
 
 doc: doctest doc-spelling
 	make -C docs html SPHINXOPTS="-W -E --keep-going -n"
-	@echo "open file://`pwd`/docs/_build/html/index.html"
+	@echo "python3 -Im webbrowser file://`pwd`/docs/_build/html/index.html"
 
 
 doctest: .develop

@@ -1,5 +1,4 @@
 PYXS = $(wildcard src/propcache/*.pyx)
-SRC = propcache tests
 
 all: test
 

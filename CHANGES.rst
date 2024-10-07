@@ -14,6 +14,58 @@ Changelog
 
 .. towncrier release notes start
 
+0.2.0
+=====
+
+*(2024-10-07)*
+
+
+Bug fixes
+---------
+
+- Fixed loading the C-extensions on Python 3.8 -- by :user:`bdraco`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`26`.
+
+
+Features
+--------
+
+- Improved typing for the :func:`propcache.api.under_cached_property` decorator -- by :user:`bdraco`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`38`.
+
+
+Improved documentation
+----------------------
+
+- Added API documentation for the :func:`propcache.api.cached_property` and :func:`propcache.api.under_cached_property` decorators -- by :user:`bdraco`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`16`.
+
+
+Packaging updates and notes for downstreams
+-------------------------------------------
+
+- Moved :func:`propcache.api.under_cached_property` and :func:`propcache.api.cached_property` to `propcache.api` -- by :user:`bdraco`.
+
+  Both decorators remain importable from the top-level package, however importing from `propcache.api` is now the recommended way to use them.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`19`, :issue:`24`, :issue:`32`.
+
+- Converted project to use a src layout -- by :user:`bdraco`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`22`, :issue:`29`, :issue:`37`.
+
+
+----
+
+
 0.1.0
 =====
 

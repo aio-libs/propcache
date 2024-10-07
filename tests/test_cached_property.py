@@ -122,3 +122,9 @@ def test_get_without_set_name(propcache_module: ModuleType) -> None:
     match = r"Cannot use cached_property instance "
     with pytest.raises(TypeError, match=match):
         _ = A().cp  # type: ignore[attr-defined]
+
+
+def test_class_getitem(propcache_module: ModuleType) -> None:
+    """Test __class_getitem__ is implemented."""
+    cached_property = propcache_module.cached_property
+    assert str(cached_property[int]).endswith("cached_property[int]")

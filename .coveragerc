@@ -4,7 +4,7 @@ skip_covered = false
 
 [paths]
 source =
-  propcache
+  src/propcache
   */lib/pypy*/site-packages/propcache
   */lib/python*/site-packages/propcache
   */Lib/site-packages/propcache

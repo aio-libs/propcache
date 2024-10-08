@@ -3,11 +3,13 @@ show_contexts = true
 skip_covered = false
 
 [paths]
-source =
-  src/propcache
-  */lib/pypy*/site-packages/propcache
-  */lib/python*/site-packages/propcache
-  */Lib/site-packages/propcache
+_site-packages-to-src-mapping =
+  src
+  */src
+  *\src
+  */lib/pypy*/site-packages
+  */lib/python*/site-packages
+  *\Lib\site-packages
 
 [report]
 # small library, don't fail when running without C-extension

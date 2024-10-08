@@ -46,13 +46,13 @@ class under_cached_property(Generic[_T]):
         self.name = wrapped.__name__
 
     @overload
-    def __get__(self, inst: None, owner: Optional[Type[Any]] = None) -> Self: ...
+    def __get__(self, inst: None, owner: Optional[Type[object]] = None) -> Self: ...
 
     @overload
-    def __get__(self, inst: _TSelf[_T], owner: Optional[Type[Any]] = None) -> _T: ...
+    def __get__(self, inst: _TSelf[_T], owner: Optional[Type[object]] = None) -> _T: ...
 
     def __get__(
-        self, inst: Optional[_TSelf[_T]], owner: Optional[Type[Any]] = None
+        self, inst: Optional[_TSelf[_T]], owner: Optional[Type[object]] = None
     ) -> Union[_T, Self]:
         if inst is None:
             return self

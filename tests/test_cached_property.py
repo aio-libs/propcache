@@ -1,5 +1,5 @@
 from operator import not_
-from typing import Protocol, Type
+from typing import Protocol
 
 import pytest
 
@@ -8,7 +8,7 @@ from propcache.api import cached_property
 
 class APIProtocol(Protocol):
 
-    cached_property: Type[cached_property]
+    cached_property: type[cached_property]
 
 
 def test_cached_property(propcache_module: APIProtocol) -> None:

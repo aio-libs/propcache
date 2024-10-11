@@ -87,7 +87,7 @@ def pytest_addoption(
 def pytest_collection_modifyitems(
     session: pytest.Session,
     config: pytest.Config,
-    items: List[pytest.Item],
+    items: list[pytest.Item],
 ) -> None:
     """Deselect tests against C-extensions when requested via CLI."""
     test_c_extensions = config.getoption("--c-extensions") is True
@@ -95,8 +95,8 @@ def pytest_collection_modifyitems(
     if test_c_extensions:
         return
 
-    selected_tests: List[pytest.Item] = []
-    deselected_tests: List[pytest.Item] = []
+    selected_tests: list[pytest.Item] = []
+    deselected_tests: list[pytest.Item] = []
 
     for item in items:
         c_ext = item.get_closest_marker(C_EXT_MARK.name) is not None

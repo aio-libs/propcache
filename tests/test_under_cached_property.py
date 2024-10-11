@@ -1,4 +1,4 @@
-from typing import Any, Dict, Protocol, Type
+from typing import Any, Protocol
 
 import pytest
 
@@ -7,13 +7,13 @@ from propcache.api import under_cached_property
 
 class APIProtocol(Protocol):
 
-    under_cached_property: Type[under_cached_property]
+    under_cached_property: type[under_cached_property]
 
 
 def test_under_cached_property(propcache_module: APIProtocol) -> None:
     class A:
         def __init__(self) -> None:
-            self._cache: Dict[str, int] = {}
+            self._cache: dict[str, int] = {}
 
         @propcache_module.under_cached_property
         def prop(self) -> int:
@@ -39,7 +39,7 @@ def test_under_cached_property_class(propcache_module: APIProtocol) -> None:
 def test_under_cached_property_assignment(propcache_module: APIProtocol) -> None:
     class A:
         def __init__(self) -> None:
-            self._cache: Dict[str, Any] = {}
+            self._cache: dict[str, Any] = {}
 
         @propcache_module.under_cached_property
         def prop(self) -> None:
@@ -55,7 +55,7 @@ def test_under_cached_property_without_cache(propcache_module: APIProtocol) -> N
     class A:
         def __init__(self) -> None:
             """Init."""
-            self._cache: Dict[str, int] = {}
+            self._cache: dict[str, int] = {}
 
         @propcache_module.under_cached_property
         def prop(self) -> None:
@@ -88,7 +88,7 @@ def test_under_cached_property_check_without_cache(
 def test_under_cached_property_caching(propcache_module: APIProtocol) -> None:
     class A:
         def __init__(self) -> None:
-            self._cache: Dict[str, int] = {}
+            self._cache: dict[str, int] = {}
 
         @propcache_module.under_cached_property
         def prop(self) -> int:

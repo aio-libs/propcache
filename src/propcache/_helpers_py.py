@@ -2,18 +2,7 @@
 
 import sys
 from functools import cached_property
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generic,
-    Optional,
-    Protocol,
-    Type,
-    TypeVar,
-    Union,
-    overload,
-)
+from typing import Any, Callable, Generic, Optional, Protocol, TypeVar, Union, overload
 
 __all__ = ("under_cached_property", "cached_property")
 
@@ -27,7 +16,7 @@ _T = TypeVar("_T")
 
 
 class _TSelf(Protocol, Generic[_T]):
-    _cache: Dict[str, _T]
+    _cache: dict[str, _T]
 
 
 class under_cached_property(Generic[_T]):
@@ -46,13 +35,13 @@ class under_cached_property(Generic[_T]):
         self.name = wrapped.__name__
 
     @overload
-    def __get__(self, inst: None, owner: Optional[Type[object]] = None) -> Self: ...
+    def __get__(self, inst: None, owner: Optional[type[object]] = None) -> Self: ...
 
     @overload
-    def __get__(self, inst: _TSelf[_T], owner: Optional[Type[object]] = None) -> _T: ...
+    def __get__(self, inst: _TSelf[_T], owner: Optional[type[object]] = None) -> _T: ...
 
     def __get__(
-        self, inst: Optional[_TSelf[_T]], owner: Optional[Type[object]] = None
+        self, inst: Optional[_TSelf[_T]], owner: Optional[type[object]] = None
     ) -> Union[_T, Self]:
         if inst is None:
             return self

@@ -2,14 +2,11 @@ import argparse
 from dataclasses import dataclass
 from functools import cached_property
 from importlib import import_module
-from sys import version_info as _version_info
 from types import ModuleType
-from typing import List, Type, Union
 
 import pytest
 
 C_EXT_MARK = pytest.mark.c_extension
-PY_38_AND_BELOW = _version_info < (3, 9)
 
 
 @dataclass(frozen=True)
@@ -77,34 +74,19 @@ def pytest_addoption(
     version of the ``propcache`` implementation.
     """
     del pluginmanager
-
-    arg_parse_action: Union[str, Type[argparse.Action]]
-    if PY_38_AND_BELOW:
-        arg_parse_action = "store_true"
-    else:
-        arg_parse_action = argparse.BooleanOptionalAction  # type: ignore[attr-defined, unused-ignore]  # noqa
-
     parser.addoption(
         "--c-extensions",  # disabled with `--no-c-extensions`
-        action=arg_parse_action,
+        action=argparse.BooleanOptionalAction,
         default=True,
         dest="c_extensions",
         help="Test C-extensions (on by default)",
     )
 
-    if PY_38_AND_BELOW:
-        parser.addoption(
-            "--no-c-extensions",
-            action="store_false",
-            dest="c_extensions",
-            help="Skip testing C-extensions (on by default)",
-        )
-
 
 def pytest_collection_modifyitems(
     session: pytest.Session,
     config: pytest.Config,
-    items: List[pytest.Item],
+    items: list[pytest.Item],
 ) -> None:
     """Deselect tests against C-extensions when requested via CLI."""
     test_c_extensions = config.getoption("--c-extensions") is True
@@ -112,8 +94,8 @@ def pytest_collection_modifyitems(
     if test_c_extensions:
         return
 
-    selected_tests: List[pytest.Item] = []
-    deselected_tests: List[pytest.Item] = []
+    selected_tests: list[pytest.Item] = []
+    deselected_tests: list[pytest.Item] = []
 
     for item in items:
         c_ext = item.get_closest_marker(C_EXT_MARK.name) is not None

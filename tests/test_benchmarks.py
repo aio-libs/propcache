@@ -14,7 +14,8 @@ def test_under_cached_property_caching(benchmark: BenchmarkFixture) -> None:
 
         @under_cached_property
         def prop(self) -> int:
-            return 42
+            """Return the value of the property."""
+            raise NotImplementedError
 
     t = Test()
 
@@ -33,7 +34,8 @@ def test_cached_property_caching(benchmark: BenchmarkFixture) -> None:
 
         @cached_property
         def prop(self) -> int:
-            return 42
+            """Return the value of the property."""
+            raise NotImplementedError
 
     t = Test()
 

@@ -28,11 +28,12 @@ cdef class under_cached_property:
         if inst is None:
             return self
         cdef dict cache = inst._cache
-        val = cache.get(self.name, _sentinel)
-        if val is _sentinel:
+        try:
+            return cache[self.name]
+        except KeyError:
             val = self.wrapped(inst)
             cache[self.name] = val
-        return val
+            return val
 
     def __set__(self, inst, value):
         raise AttributeError("cached property is read-only")

@@ -27,7 +27,7 @@ cdef class under_cached_property:
     def __get__(self, inst, owner):
         if inst is None:
             return self
-        cdef dict cache = inst._cache
+        cdef dict cache = <dict>inst._cache
         val = cache.get(self.name, _sentinel)
         if val is _sentinel:
             val = self.wrapped(inst)

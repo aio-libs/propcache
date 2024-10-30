@@ -1,6 +1,6 @@
 """codspeed benchmarks for propcache."""
 
-from pytest_codspeed import BenchmarkFixture  # type: ignore[import-untyped]
+from pytest_codspeed import BenchmarkFixture
 
 from propcache import cached_property, under_cached_property
 

@@ -201,7 +201,7 @@ def _exclude_dir_path(
     """Prevent recursive directory traversal."""
     # This stops the temporary directory from being copied
     # into self recursively forever.
-    # Ref: https://github.com/aio-libs/propcache/issues/992
+    # Ref: https://github.com/aio-libs/yarl/issues/992
     visited_directory_subdirs_to_ignore = [
         subdir
         for subdir in _visited_dir_contents

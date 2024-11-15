@@ -334,7 +334,7 @@ jobs:
       uses: codecov/codecov-action@v5
       with:
         token: bb0fa8d8-1f5b-4b59-95f4-ec338cbd13a4
-        file: ./coverage.xml
+        files: ./coverage.xml
         flags: >-
           CI-GHA,
           pytest,

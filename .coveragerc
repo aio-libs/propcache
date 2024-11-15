@@ -12,13 +12,13 @@ _site-packages-to-src-mapping =
   *\Lib\site-packages
 
 [report]
+exclude_also =
+  ^\s*@pytest\.mark\.xfail
 # small library, don't fail when running without C-extension
 fail_under = 50.00
 skip_covered = true
 skip_empty = true
 show_missing = true
-exclude_also =
-  ^\s*@pytest\.mark\.xfail
 
 [run]
 branch = true

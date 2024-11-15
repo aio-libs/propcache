@@ -7,7 +7,8 @@ codecov:
 
   require_ci_to_pass: false
 
-  token: bb0fa8d8-1f5b-4b59-95f4-ec338cbd13a4  # repo-scoped
+  token: >-  # notsecret  # repo-scoped, upload-only, stability in fork PRs
+    72cf0d69-efb5-4014-84bc-f6ef562f0d3a
 
 comment:
   require_changes: true

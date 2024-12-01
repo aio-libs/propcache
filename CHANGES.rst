@@ -14,6 +14,51 @@ Changelog
 
 .. towncrier release notes start
 
+0.2.1
+=====
+
+*(2024-12-01)*
+
+
+Bug fixes
+---------
+
+- Stopped implicitly allowing the use of Cython pre-release versions when
+  building the distribution package -- by :user:`ajsanchezsanz` and
+  :user:`markgreene74`.
+
+  *Related commits on GitHub:*
+  :commit:`64df0a6`.
+
+- Fixed ``wrapped`` and ``func`` not being accessible in the Cython versions of :func:`propcache.api.cached_property` and :func:`propcache.api.under_cached_property` decorators -- by :user:`bdraco`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`72`.
+
+
+Removals and backward incompatible breaking changes
+---------------------------------------------------
+
+- Removed support for Python 3.8 as it has reached end of life -- by :user:`bdraco`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`57`.
+
+
+Packaging updates and notes for downstreams
+-------------------------------------------
+
+- Stopped implicitly allowing the use of Cython pre-release versions when
+  building the distribution package -- by :user:`ajsanchezsanz` and
+  :user:`markgreene74`.
+
+  *Related commits on GitHub:*
+  :commit:`64df0a6`.
+
+
+----
+
+
 0.2.0
 =====
 

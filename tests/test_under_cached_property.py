@@ -110,3 +110,20 @@ def test_under_cached_property_class_docstring(propcache_module: APIProtocol) ->
 
     assert isinstance(A.prop, propcache_module.under_cached_property)
     assert "Docstring." == A.prop.__doc__
+
+
+def test_ensured_wrapped_function_is_accessible(propcache_module: APIProtocol) -> None:
+    """Test that the wrapped function can be accessed from python."""
+
+    class A:
+        def __init__(self) -> None:
+            """Init."""
+            self._cache: dict[str, int] = {}
+
+        @propcache_module.under_cached_property
+        def prop(self) -> int:
+            """Docstring."""
+            return 1
+
+    a = A()
+    assert A.prop.wrapped(a) == 1

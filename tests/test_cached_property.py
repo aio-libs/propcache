@@ -127,3 +127,19 @@ def test_get_without_set_name(propcache_module: APIProtocol) -> None:
     match = r"Cannot use cached_property instance "
     with pytest.raises(TypeError, match=match):
         _ = A().cp  # type: ignore[attr-defined]
+
+
+def test_ensured_wrapped_function_is_accessible(propcache_module: APIProtocol) -> None:
+    """Test that the wrapped function can be accessed from python."""
+
+    class A:
+        def __init__(self) -> None:
+            """Init."""
+
+        @propcache_module.cached_property
+        def prop(self) -> int:
+            """Docstring."""
+            return 1
+
+    a = A()
+    assert A.prop.func(a) == 1

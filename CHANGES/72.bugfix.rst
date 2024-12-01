@@ -1,0 +1,1 @@
+Fixed ``wrapped`` and ``func`` not being accessible in the Cython versions of :func:`propcache.api.cached_property` and :func:`propcache.api.under_cached_property` decorators -- by :user:`bdraco`.

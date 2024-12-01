@@ -13,7 +13,7 @@ cdef class under_cached_property:
 
     """
 
-    cdef object wrapped
+    cdef readonly object wrapped
     cdef object name
 
     def __init__(self, wrapped):
@@ -47,16 +47,16 @@ cdef class cached_property:
 
     """
 
-    cdef object wrapped
+    cdef readonly object func
     cdef object name
 
-    def __init__(self, wrapped):
-        self.wrapped = wrapped
+    def __init__(self, func):
+        self.func = func
         self.name = None
 
     @property
     def __doc__(self):
-        return self.wrapped.__doc__
+        return self.func.__doc__
 
     def __set_name__(self, owner, name):
         if self.name is None:
@@ -77,7 +77,7 @@ cdef class cached_property:
         cdef dict cache = inst.__dict__
         val = cache.get(self.name, _sentinel)
         if val is _sentinel:
-            val = self.wrapped(inst)
+            val = self.func(inst)
             cache[self.name] = val
         return val
 

@@ -91,3 +91,6 @@ pure-python = "false"
 
 [tool.cibuildwheel.windows]
 before-test = []  # Windows cmd has different syntax and pip chooses wheels
+
+[tool.cibuildwheel.linux]
+before-all = "yum install -y libffi-devel || apk add --upgrade libffi-dev || apt-get install libffi-dev"

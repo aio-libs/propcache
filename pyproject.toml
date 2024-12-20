@@ -64,6 +64,7 @@ linetrace = "True"  # Implies `profile=True`
 
 [tool.cibuildwheel]
 build-frontend = "build"
+enable = ["cpython-freethreading"]
 before-test = [
   # NOTE: Attempt to have pip pre-compile PyYAML wheel with our build
   # NOTE: constraints unset. The hope is that pip will cache that wheel
@@ -77,6 +78,11 @@ test-requires = "-r requirements/test.txt"
 test-command = "pytest -v --no-cov {project}/tests"
 # don't build PyPy wheels, install from source instead
 skip = "pp*"
+
+[[tool.cibuildwheel.overrides]]
+select = "cp313t-*"
+build-frontend = "build; args: --no-isolation"
+before-build = "bash {package}/scripts/cibw_before_build.sh"
 
 [tool.cibuildwheel.environment]
 COLOR = "yes"

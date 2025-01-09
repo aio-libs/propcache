@@ -80,6 +80,8 @@ test-command = "pytest -v --no-cov {project}/tests"
 skip = "pp*"
 
 [[tool.cibuildwheel.overrides]]
+# TODO: This whole overrides section can go away once there's a final
+# Cython release that supports free-threaded Python.
 select = "cp313t-*"
 build-frontend = "build; args: --no-isolation"
 before-build = "bash {package}/scripts/cibw_before_build.sh"

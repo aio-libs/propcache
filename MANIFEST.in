@@ -19,7 +19,3 @@ exclude src/propcache/*.html
 exclude src/propcache/*.so
 exclude src/propcache/*.pyd
 prune docs/_build
-
-# TODO: Remove this once a final Cython release is out
-# that supports free-threaded Python.
-graft scripts

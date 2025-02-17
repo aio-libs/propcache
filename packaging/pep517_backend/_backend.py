@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import os
-import sysconfig
 import typing as t
 from contextlib import contextmanager, nullcontext, suppress
 from functools import partial
@@ -372,13 +371,7 @@ def get_requires_for_build_wheel(
             stacklevel=999,
         )
 
-    if is_pure_python_build:
-        c_ext_build_deps = []
-    elif sysconfig.get_config_var("Py_GIL_DISABLED"):
-        # TODO: Remove when there's a Cython final with free-threading support
-        c_ext_build_deps = ['Cython == 3.1.0a1']
-    else:
-        c_ext_build_deps = ['Cython ~= 3.0.0']
+    c_ext_build_deps = [] if is_pure_python_build else ['Cython ~= 3.0.11']
 
     return _setuptools_get_requires_for_build_wheel(
         config_settings=config_settings,

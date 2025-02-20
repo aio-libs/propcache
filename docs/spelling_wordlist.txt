@@ -12,7 +12,6 @@ Towncrier
 Twitter
 UTF
 aiohttp
-armv
 backend
 boolean
 booleans

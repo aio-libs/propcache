@@ -37,11 +37,6 @@ Packaging updates and notes for downstreams
   *Related issues and pull requests on GitHub:*
   :issue:`84`.
 
-- Started building wheels for armv7l manylinux -- by :user:`bdraco`.
-
-  *Related issues and pull requests on GitHub:*
-  :issue:`94`.
-
 
 Contributor-facing changes
 --------------------------

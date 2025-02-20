@@ -28,7 +28,8 @@ runs:
             'pyproject.toml',
             '.pre-commit-config.yaml',
             'pytest.ini',
-            'requirements/**'
+            'requirements/**',
+            'setup.cfg'
           )
       }}'
 

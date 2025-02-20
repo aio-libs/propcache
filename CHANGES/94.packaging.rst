@@ -1,1 +1,0 @@
-Started building wheels for armv7l manylinux -- by :user:`bdraco`.

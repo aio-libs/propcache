@@ -14,6 +14,53 @@ Changelog
 
 .. towncrier release notes start
 
+0.3.0
+=====
+
+*(2025-02-20)*
+
+
+Features
+--------
+
+- Implemented support for the free-threaded build of CPython 3.13 -- by :user:`lysnikolaou`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`84`.
+
+
+Packaging updates and notes for downstreams
+-------------------------------------------
+
+- Started building wheels for the free-threaded build of CPython 3.13 -- by :user:`lysnikolaou`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`84`.
+
+- Started building wheels for armv7l manylinux -- by :user:`bdraco`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`94`.
+
+
+Contributor-facing changes
+--------------------------
+
+- GitHub Actions CI/CD is now configured to manage caching pip-ecosystem
+  dependencies using `re-actors/cache-python-deps`_ -- an action by
+  :user:`webknjaz` that takes into account ABI stability and the exact
+  version of Python runtime.
+
+  .. _`re-actors/cache-python-deps`:
+     https://github.com/marketplace/actions/cache-python-deps
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`93`.
+
+
+----
+
+
 0.2.1
 =====
 

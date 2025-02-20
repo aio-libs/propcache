@@ -222,6 +222,8 @@ jobs:
     timeout-minutes: 5
     continue-on-error: ${{ matrix.experimental }}
     steps:
+    - name: Checkout project
+      uses: actions/checkout@v4
     - name: Retrieve the project source from an sdist inside the GHA artifact
       uses: re-actors/checkout-python-sdist@release/v2
       with:

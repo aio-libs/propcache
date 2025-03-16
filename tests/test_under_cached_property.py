@@ -9,13 +9,13 @@ from propcache.api import under_cached_property
 if sys.version_info >= (3, 11):
     from typing import assert_type
 
-_T = TypeVar("_T")
+_T_co = TypeVar("_T_co", covariant=True)
 
 
 class APIProtocol(Protocol):
     def under_cached_property(
-        self, func: Callable[..., _T]
-    ) -> under_cached_property[_T]: ...
+        self, func: Callable[[Any], _T_co]
+    ) -> under_cached_property[_T_co]: ...
 
 
 def test_under_cached_property(propcache_module: APIProtocol) -> None:

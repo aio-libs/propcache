@@ -28,6 +28,8 @@ def test_cached_property(propcache_module: APIProtocol) -> None:
             return 1
 
     a = A()
+    if sys.version_info >= (3, 11):
+        assert_type(a.prop, int)
     assert a.prop == 1
 
 

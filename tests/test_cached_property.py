@@ -14,7 +14,9 @@ _T_co = TypeVar("_T_co", covariant=True)
 
 
 class APIProtocol(Protocol):
-    def cached_property(self, func: Callable[[Any], _T_co]) -> cached_property[_T_co]: ...
+    def cached_property(
+        self, func: Callable[[Any], _T_co]
+    ) -> cached_property[_T_co]: ...
 
 
 def test_cached_property(propcache_module: APIProtocol) -> None:

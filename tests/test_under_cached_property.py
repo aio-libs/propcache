@@ -113,6 +113,9 @@ def test_under_cached_property_class_docstring(propcache_module: APIProtocol) ->
             """Docstring."""
 
     if TYPE_CHECKING:
+        # At type checking, the fixture doesn't represent the real module, so
+        # we use the global-level imported module to verify the isinstance() check here
+        # matches the behaviour users would see in real code.
         assert isinstance(A.prop, under_cached_property)
     else:
         assert isinstance(A.prop, propcache_module.under_cached_property)

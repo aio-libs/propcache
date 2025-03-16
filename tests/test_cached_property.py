@@ -1,14 +1,22 @@
+import sys
+from collections.abc import Callable
 from operator import not_
-from typing import Protocol
+from typing import Protocol, TypeVar, TYPE_CHECKING
 
 import pytest
 
 from propcache.api import cached_property
 
+if sys.version_info >= (3, 11):
+    from typing import assert_type
+
+_T = TypeVar("_T")
+
 
 class APIProtocol(Protocol):
-
-    cached_property: type[cached_property]
+    # TODO: Check functools.cached_property signature.
+    def cached_property(self, func: Callable[..., _T]) -> cached_property[_T]:
+        ...
 
 
 def test_cached_property(propcache_module: APIProtocol) -> None:
@@ -22,20 +30,6 @@ def test_cached_property(propcache_module: APIProtocol) -> None:
 
     a = A()
     assert a.prop == 1
-
-
-def test_cached_property_class(propcache_module: APIProtocol) -> None:
-    class A:
-        def __init__(self) -> None:
-            """Init."""
-            # self._cache not set because its never accessed in this test
-
-        @propcache_module.cached_property
-        def prop(self) -> None:
-            """Docstring."""
-
-    assert isinstance(A.prop, propcache_module.cached_property)
-    assert A.prop.__doc__ == "Docstring."
 
 
 def test_cached_property_without_cache(propcache_module: APIProtocol) -> None:
@@ -53,7 +47,7 @@ def test_cached_property_without_cache(propcache_module: APIProtocol) -> None:
     a = A()
 
     with pytest.raises(AttributeError):
-        a.prop = 123
+        a.prop = 123  # type: ignore[assignment]
 
 
 def test_cached_property_check_without_cache(propcache_module: APIProtocol) -> None:
@@ -96,7 +90,10 @@ def test_cached_property_class_docstring(propcache_module: APIProtocol) -> None:
         def prop(self) -> None:
             """Docstring."""
 
-    assert isinstance(A.prop, propcache_module.cached_property)
+    if TYPE_CHECKING:
+        assert isinstance(A.prop, cached_property)
+    else:
+        assert isinstance(A.prop, propcache_module.cached_property)
     assert "Docstring." == A.prop.__doc__
 
 

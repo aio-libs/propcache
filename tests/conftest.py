@@ -53,7 +53,7 @@ class PropcacheImplementation:
 )
 def propcache_implementation(request: pytest.FixtureRequest) -> PropcacheImplementation:
     """Return a propcache variant facade."""
-    return request.param
+    return request.param  # type: ignore[no-any-return]
 
 
 @pytest.fixture(scope="session")

@@ -16,7 +16,7 @@ _T = TypeVar("_T")
 
 
 class _CacheImpl(Protocol):
-    _cache: Dict[str, Any]
+    _cache: dict[str, Any]
 
 
 class under_cached_property(Generic[_T]):
@@ -38,10 +38,10 @@ class under_cached_property(Generic[_T]):
     def __get__(self, inst: None, owner: Optional[type[object]] = None) -> Self: ...
 
     @overload
-    def __get__(self, inst: _CacheImpl, owner: Optional[Type[object]] = None) -> _T: ...
+    def __get__(self, inst: _CacheImpl, owner: Optional[type[object]] = None) -> _T: ...
 
     def __get__(
-        self, inst: Optional[_CacheImpl], owner: Optional[Type[object]] = None
+        self, inst: Optional[_CacheImpl], owner: Optional[type[object]] = None
     ) -> Union[_T, Self]:
         if inst is None:
             return self

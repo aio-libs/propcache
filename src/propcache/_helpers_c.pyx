@@ -37,6 +37,8 @@ cdef class under_cached_property:
     def __set__(self, inst, value):
         raise AttributeError("cached property is read-only")
 
+    __class_getitem__ = classmethod(GenericAlias)
+
 
 cdef class cached_property:
     """Use as a class method decorator.  It operates almost exactly like

@@ -7,8 +7,8 @@ from collections.abc import Sequence
 from itertools import chain
 from pathlib import Path
 
-from Cython.Compiler.Main import compile as _translate_cython_cli_cmd
 from Cython.Compiler.CmdLine import parse_command_line as _split_cython_cli_args
+from Cython.Compiler.Main import compile as _translate_cython_cli_cmd
 
 from ._cython_configuration import get_local_cython_config as _get_local_cython_config
 from ._cython_configuration import (

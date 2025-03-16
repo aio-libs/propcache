@@ -1,7 +1,7 @@
 import sys
 from collections.abc import Callable
 from operator import not_
-from typing import Protocol, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol, TypeVar
 
 import pytest
 
@@ -15,8 +15,7 @@ _T = TypeVar("_T")
 
 class APIProtocol(Protocol):
     # TODO: Check functools.cached_property signature.
-    def cached_property(self, func: Callable[..., _T]) -> cached_property[_T]:
-        ...
+    def cached_property(self, func: Callable[..., _T]) -> cached_property[_T]: ...
 
 
 def test_cached_property(propcache_module: APIProtocol) -> None:

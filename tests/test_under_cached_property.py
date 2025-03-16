@@ -1,6 +1,6 @@
 import sys
 from collections.abc import Callable
-from typing import Any, Protocol, TypeVar, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar, Union
 
 import pytest
 
@@ -13,8 +13,9 @@ _T = TypeVar("_T")
 
 
 class APIProtocol(Protocol):
-    def under_cached_property(self, func: Callable[..., _T]) -> under_cached_property[_T]:
-        ...
+    def under_cached_property(
+        self, func: Callable[..., _T]
+    ) -> under_cached_property[_T]: ...
 
 
 def test_under_cached_property(propcache_module: APIProtocol) -> None:

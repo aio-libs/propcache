@@ -1,13 +1,21 @@
-from typing import Any, Protocol
+import sys
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
 import pytest
 
 from propcache.api import under_cached_property
 
+if sys.version_info >= (3, 11):
+    from typing import assert_type
+
+_T_co = TypeVar("_T_co", covariant=True)
+
 
 class APIProtocol(Protocol):
-
-    under_cached_property: type[under_cached_property]
+    def under_cached_property(
+        self, func: Callable[[Any], _T_co]
+    ) -> under_cached_property[_T_co]: ...
 
 
 def test_under_cached_property(propcache_module: APIProtocol) -> None:
@@ -19,21 +27,17 @@ def test_under_cached_property(propcache_module: APIProtocol) -> None:
         def prop(self) -> int:
             return 1
 
-    a = A()
-    assert a.prop == 1
-
-
-def test_under_cached_property_class(propcache_module: APIProtocol) -> None:
-    class A:
-        def __init__(self) -> None:
-            """Init."""
-
         @propcache_module.under_cached_property
-        def prop(self) -> None:
-            """Docstring."""
+        def prop2(self) -> str:
+            return "foo"
 
-    assert isinstance(A.prop, propcache_module.under_cached_property)
-    assert A.prop.__doc__ == "Docstring."
+    a = A()
+    if sys.version_info >= (3, 11):
+        assert_type(a.prop, int)
+    assert a.prop == 1
+    if sys.version_info >= (3, 11):
+        assert_type(a.prop2, str)
+    assert a.prop2 == "foo"
 
 
 def test_under_cached_property_assignment(propcache_module: APIProtocol) -> None:
@@ -48,7 +52,7 @@ def test_under_cached_property_assignment(propcache_module: APIProtocol) -> None
     a = A()
 
     with pytest.raises(AttributeError):
-        a.prop = 123
+        a.prop = 123  # type: ignore[assignment]
 
 
 def test_under_cached_property_without_cache(propcache_module: APIProtocol) -> None:
@@ -64,7 +68,7 @@ def test_under_cached_property_without_cache(propcache_module: APIProtocol) -> N
     a = A()
 
     with pytest.raises(AttributeError):
-        a.prop = 123
+        a.prop = 123  # type: ignore[assignment]
 
 
 def test_under_cached_property_check_without_cache(
@@ -105,10 +109,16 @@ def test_under_cached_property_class_docstring(propcache_module: APIProtocol) ->
             """Init."""
 
         @propcache_module.under_cached_property
-        def prop(self) -> Any:
+        def prop(self) -> None:
             """Docstring."""
 
-    assert isinstance(A.prop, propcache_module.under_cached_property)
+    if TYPE_CHECKING:
+        # At type checking, the fixture doesn't represent the real module, so
+        # we use the global-level imported module to verify the isinstance() check here
+        # matches the behaviour users would see in real code.
+        assert isinstance(A.prop, under_cached_property)
+    else:
+        assert isinstance(A.prop, propcache_module.under_cached_property)
     assert "Docstring." == A.prop.__doc__
 
 

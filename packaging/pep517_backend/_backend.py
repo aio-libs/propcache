@@ -6,6 +6,7 @@ from __future__ import annotations
 import os
 import sysconfig
 import typing as t
+from collections.abc import Iterator
 from contextlib import contextmanager, nullcontext, suppress
 from functools import partial
 from pathlib import Path
@@ -56,7 +57,7 @@ __all__ = (  # noqa: WPS410
     'get_requires_for_build_wheel',
     'prepare_metadata_for_build_wheel',
     *(
-        () if _setuptools_build_editable is None
+        () if _setuptools_build_editable is None  # type: ignore[redundant-expr]
         else (
             'build_editable',
             'get_requires_for_build_editable',
@@ -87,7 +88,7 @@ PURE_PYTHON_MODE_CLI_FALLBACK = not IS_CPYTHON
 """A fallback for ``pure-python`` is not set."""
 
 
-def _is_truthy_setting_value(setting_value) -> bool:
+def _is_truthy_setting_value(setting_value: str) -> bool:
     truthy_values = {'', None, 'true', '1', 'on'}
     return setting_value.lower() in truthy_values
 
@@ -108,7 +109,7 @@ def _get_setting_value(
             continue
 
         with suppress(lookup_errors):  # type: ignore[arg-type]
-            return _is_truthy_setting_value(src_mapping[src_key])  # type: ignore[index]
+            return _is_truthy_setting_value(src_mapping[src_key])  # type: ignore[arg-type,index]
 
     return default
 
@@ -125,7 +126,7 @@ def _make_pure_python(config_settings: _ConfigDict | None = None) -> bool:
 def _include_cython_line_tracing(
         config_settings: _ConfigDict | None = None,
         *,
-        default=False,
+        default: bool = False,
 ) -> bool:
     return _get_setting_value(
         config_settings,
@@ -136,7 +137,7 @@ def _include_cython_line_tracing(
 
 
 @contextmanager
-def patched_distutils_cmd_install():
+def patched_distutils_cmd_install() -> Iterator[None]:
     """Make `install_lib` of `install` cmd always use `platlib`.
 
     :yields: None
@@ -144,19 +145,19 @@ def patched_distutils_cmd_install():
     # Without this, build_lib puts stuff under `*.data/purelib/` folder
     orig_finalize = _distutils_install_cmd.finalize_options
 
-    def new_finalize_options(self):  # noqa: WPS430
+    def new_finalize_options(self: _distutils_install_cmd) -> None:
         self.install_lib = self.install_platlib
         orig_finalize(self)
 
-    _distutils_install_cmd.finalize_options = new_finalize_options
+    _distutils_install_cmd.finalize_options = new_finalize_options  # type: ignore[method-assign]
     try:
         yield
     finally:
-        _distutils_install_cmd.finalize_options = orig_finalize
+        _distutils_install_cmd.finalize_options = orig_finalize  # type: ignore[method-assign]
 
 
 @contextmanager
-def patched_dist_has_ext_modules():
+def patched_dist_has_ext_modules() -> Iterator[None]:
     """Make `has_ext_modules` of `Distribution` always return `True`.
 
     :yields: None
@@ -164,15 +165,15 @@ def patched_dist_has_ext_modules():
     # Without this, build_lib puts stuff under `*.data/platlib/` folder
     orig_func = _DistutilsDistribution.has_ext_modules
 
-    _DistutilsDistribution.has_ext_modules = lambda *args, **kwargs: True
+    _DistutilsDistribution.has_ext_modules = lambda *args, **kwargs: True  # type: ignore[method-assign]
     try:
         yield
     finally:
-        _DistutilsDistribution.has_ext_modules = orig_func
+        _DistutilsDistribution.has_ext_modules = orig_func  # type: ignore[method-assign]
 
 
 @contextmanager
-def patched_dist_get_long_description():
+def patched_dist_get_long_description() -> Iterator[None]:
     """Make `has_ext_modules` of `Distribution` always return `True`.
 
     :yields: None
@@ -180,16 +181,17 @@ def patched_dist_get_long_description():
     # Without this, build_lib puts stuff under `*.data/platlib/` folder
     _orig_func = _DistutilsDistributionMetadata.get_long_description
 
-    def _get_sanitized_long_description(self):
+    def _get_sanitized_long_description(self: _DistutilsDistributionMetadata) -> str:
+        assert self.long_description is not None
         return sanitize_rst_roles(self.long_description)
 
-    _DistutilsDistributionMetadata.get_long_description = (
+    _DistutilsDistributionMetadata.get_long_description = (  # type: ignore[method-assign]
         _get_sanitized_long_description
     )
     try:
         yield
     finally:
-        _DistutilsDistributionMetadata.get_long_description = _orig_func
+        _DistutilsDistributionMetadata.get_long_description = _orig_func  # type: ignore[method-assign]
 
 
 def _exclude_dir_path(
@@ -293,7 +295,7 @@ def maybe_prebuild_c_extensions(
 
         cythonize_args = _make_cythonize_cli_args_from_config(config)
         with _patched_cython_env(config['env'], cython_line_tracing_requested):
-            _cythonize_cli_cmd(cythonize_args)
+            _cythonize_cli_cmd(cythonize_args)  # type: ignore[no-untyped-call]
         with patched_distutils_cmd_install():
             with patched_dist_has_ext_modules():
                 yield

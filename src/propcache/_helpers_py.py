@@ -15,8 +15,8 @@ else:
 _T = TypeVar("_T")
 
 
-class _TSelf(Protocol, Generic[_T]):
-    _cache: dict[str, _T]
+class _CacheImpl(Protocol):
+    _cache: dict[str, Any]
 
 
 class under_cached_property(Generic[_T]):
@@ -38,19 +38,19 @@ class under_cached_property(Generic[_T]):
     def __get__(self, inst: None, owner: Optional[type[object]] = None) -> Self: ...
 
     @overload
-    def __get__(self, inst: _TSelf[_T], owner: Optional[type[object]] = None) -> _T: ...
+    def __get__(self, inst: _CacheImpl, owner: Optional[type[object]] = None) -> _T: ...
 
     def __get__(
-        self, inst: Optional[_TSelf[_T]], owner: Optional[type[object]] = None
+        self, inst: Optional[_CacheImpl], owner: Optional[type[object]] = None
     ) -> Union[_T, Self]:
         if inst is None:
             return self
         try:
-            return inst._cache[self.name]
+            return inst._cache[self.name]  # type: ignore[no-any-return]
         except KeyError:
             val = self.wrapped(inst)
             inst._cache[self.name] = val
             return val
 
-    def __set__(self, inst: _TSelf[_T], value: _T) -> None:
+    def __set__(self, inst: _CacheImpl, value: _T) -> None:
         raise AttributeError("cached property is read-only")

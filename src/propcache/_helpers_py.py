@@ -1,18 +1,9 @@
 """Various helper functions."""
 
 import sys
-from functools import cached_property
-from typing import (
-    Any,
-    Callable,
-    Generic,
-    Optional,
-    Protocol,
-    TypeVar,
-    Union,
-    overload,
-)
 from collections.abc import Mapping
+from functools import cached_property
+from typing import Any, Callable, Generic, Optional, Protocol, TypeVar, Union, overload
 
 __all__ = ("under_cached_property", "cached_property")
 

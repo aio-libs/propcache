@@ -23,6 +23,8 @@ else:
     Self = Any
 
 _T = TypeVar("_T")
+# We use Mapping to make it possible to use TypedDict, but this isn't
+# technically type safe as we need to assign into the dict.
 _Cache = TypeVar("_Cache", bound=Mapping[str, Any])
 
 

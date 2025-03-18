@@ -2,7 +2,7 @@
 
 import sys
 from functools import cached_property
-from typing import Any, Callable, Generic, Optional, Protocol, TypeVar, Union, overload
+from typing import Any, Callable, Generic, Mapping, Optional, Protocol, TypeVar, Union, overload
 
 __all__ = ("under_cached_property", "cached_property")
 
@@ -13,10 +13,11 @@ else:
     Self = Any
 
 _T = TypeVar("_T")
+_Cache = TypeVar("_Cache", bound=Mapping[str, Any])
 
 
-class _CacheImpl(Protocol):
-    _cache: dict[str, Any]
+class _CacheImpl(Protocol[_Cache]):
+    _cache: _Cache
 
 
 class under_cached_property(Generic[_T]):
@@ -29,7 +30,7 @@ class under_cached_property(Generic[_T]):
     variable.  It is, in Python parlance, a data descriptor.
     """
 
-    def __init__(self, wrapped: Callable[..., _T]) -> None:
+    def __init__(self, wrapped: Callable[[Any], _T]) -> None:
         self.wrapped = wrapped
         self.__doc__ = wrapped.__doc__
         self.name = wrapped.__name__
@@ -38,10 +39,10 @@ class under_cached_property(Generic[_T]):
     def __get__(self, inst: None, owner: Optional[type[object]] = None) -> Self: ...
 
     @overload
-    def __get__(self, inst: _CacheImpl, owner: Optional[type[object]] = None) -> _T: ...
+    def __get__(self, inst: _CacheImpl[Any], owner: Optional[type[object]] = None) -> _T: ...  # type: ignore[misc]
 
     def __get__(
-        self, inst: Optional[_CacheImpl], owner: Optional[type[object]] = None
+        self, inst: Optional[_CacheImpl[Any]], owner: Optional[type[object]] = None
     ) -> Union[_T, Self]:
         if inst is None:
             return self
@@ -52,5 +53,5 @@ class under_cached_property(Generic[_T]):
             inst._cache[self.name] = val
             return val
 
-    def __set__(self, inst: _CacheImpl, value: _T) -> None:
+    def __set__(self, inst: _CacheImpl[Any], value: _T) -> None:
         raise AttributeError("cached property is read-only")

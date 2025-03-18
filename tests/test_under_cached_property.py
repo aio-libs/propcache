@@ -1,6 +1,6 @@
 import sys
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Protocol, TypeVar, TypedDict
+from typing import TYPE_CHECKING, Any, Protocol, TypedDict, TypeVar
 
 import pytest
 

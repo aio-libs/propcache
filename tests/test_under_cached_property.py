@@ -1,6 +1,6 @@
 import sys
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, Protocol, TypedDict, TypeVar
 
 import pytest
 
@@ -22,6 +22,34 @@ def test_under_cached_property(propcache_module: APIProtocol) -> None:
     class A:
         def __init__(self) -> None:
             self._cache: dict[str, int] = {}
+
+        @propcache_module.under_cached_property
+        def prop(self) -> int:
+            return 1
+
+        @propcache_module.under_cached_property
+        def prop2(self) -> str:
+            return "foo"
+
+    a = A()
+    if sys.version_info >= (3, 11):
+        assert_type(a.prop, int)
+    assert a.prop == 1
+    if sys.version_info >= (3, 11):
+        assert_type(a.prop2, str)
+    assert a.prop2 == "foo"
+
+
+def test_under_cached_property_typeddict(propcache_module: APIProtocol) -> None:
+    """Test static typing passes with TypedDict."""
+
+    class _Cache(TypedDict, total=False):
+        prop: int
+        prop2: str
+
+    class A:
+        def __init__(self) -> None:
+            self._cache: _Cache = {}
 
         @propcache_module.under_cached_property
         def prop(self) -> int:

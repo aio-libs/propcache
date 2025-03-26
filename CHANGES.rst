@@ -14,8 +14,8 @@ Changelog
 
 .. towncrier release notes start
 
-v0.3.1
-======
+0.3.1
+=====
 
 *(2025-03-25)*
 

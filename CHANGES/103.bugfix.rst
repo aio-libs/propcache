@@ -1,2 +1,0 @@
-Improved typing annotations, fixing some type errors under correct usage
-and improving typing robustness generally -- by :user:`Dreamsorcerer`.

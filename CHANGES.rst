@@ -14,6 +14,25 @@ Changelog
 
 .. towncrier release notes start
 
+v0.3.1
+======
+
+*(2025-03-25)*
+
+
+Bug fixes
+---------
+
+- Improved typing annotations, fixing some type errors under correct usage
+  and improving typing robustness generally -- by :user:`Dreamsorcerer`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`103`.
+
+
+----
+
+
 0.3.0
 =====
 

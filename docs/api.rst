@@ -42,7 +42,7 @@ under_cached_property
                self._data = data
                self._cache = {}
 
-           @cached_property
+           @under_cached_property
            def calculated_data(self):
                return expensive_operation(self._data)
 

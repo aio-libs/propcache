@@ -3,9 +3,18 @@
 import sys
 from collections.abc import Mapping
 from functools import cached_property
-from typing import Any, Callable, Generic, Optional, Protocol, TypeVar, Union, overload
+from typing import (
+    Any,
+    Callable,
+    Generic,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
+    overload,
+)
 
-__all__ = ("under_cached_property", "cached_property")
+__all__ = ("CacheBase", "under_cached_property", "cached_property")
 
 
 if sys.version_info >= (3, 11):
@@ -24,10 +33,13 @@ class CacheBase:
     provides a _cache attribute that is used to store the results of
     cached properties.
 
-    Callers are responsible for creating the _cache attribute.  This is
-    done in the __init__ method of the class that inherits from
-    CachedBase.
+    Callers are responsible for calling super().__init__() in their
+    __init__() methods to ensure that the _cache attribute is
+    initialized.
     """
+
+    def __init__(self) -> None:
+        self._cache: dict[str, Any] = {}
 
 
 class _CacheImpl(Protocol[_Cache]):
@@ -69,8 +81,3 @@ class under_cached_property(Generic[_T]):
 
     def __set__(self, inst: _CacheImpl[Any], value: _T) -> None:
         raise AttributeError("cached property is read-only")
-
-
-# For Python, the implementation of base_cached_property
-# is the same as under_cached_property
-base_cached_property = under_cached_property

@@ -10,12 +10,15 @@ cdef class CacheBase:
     provides a _cache attribute that is used to store the results of
     cached properties.
 
-    Callers are responsible for creating the _cache attribute.  This is
-    done in the __init__ method of the class that inherits from
-    CachedBase.
+    Callers are responsible for calling super().__init__() in their
+    __init__() methods to ensure that the _cache attribute is
+    initialized.
     """
 
-    cdef dict _cache
+    cdef public dict _cache
+
+    def __init__(self):
+        self._cache = {}
 
 
 cdef class base_cached_property:

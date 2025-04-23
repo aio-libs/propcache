@@ -12,7 +12,7 @@ if sys.implementation.name != "cpython":
 
 # isort: off
 if TYPE_CHECKING:
-    from ._helpers_py import base_cached_property as base_cached_property_py
+    from ._helpers_py import under_cached_property as base_cached_property_py
     from ._helpers_py import cached_property as cached_property_py
     from ._helpers_py import under_cached_property as under_cached_property_py
     from ._helpers_py import CacheBase as CacheBase_py

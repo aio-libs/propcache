@@ -20,7 +20,8 @@ def test_base_cached_property_cache_hit(benchmark: "BenchmarkFixture") -> None:
 
     class Test(CacheBase):
         def __init__(self) -> None:
-            self._cache = {"prop": 42}
+            super().__init__()
+            self._cache["prop"] = 42
 
         @base_cached_property
         def prop(self) -> int:
@@ -79,8 +80,6 @@ def test_base_cached_property_cache_miss(benchmark: "BenchmarkFixture") -> None:
     """Benchmark for under_cached_property cache miss."""
 
     class Test(CacheBase):
-        def __init__(self) -> None:
-            self._cache: dict[str, int] = {}
 
         @base_cached_property
         def prop(self) -> int:

@@ -50,7 +50,7 @@ cdef class base_cached_property:
         val = cache_inst._cache.get(self.name, _sentinel)
         if val is _sentinel:
             val = self.wrapped(inst)
-            (<CacheBase>inst)._cache[self.name] = val
+            cache_inst._cache[self.name] = val
         return val
 
     def __set__(self, inst, value):

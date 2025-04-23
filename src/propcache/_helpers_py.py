@@ -11,7 +11,6 @@ from typing import (
     Protocol,
     TypeVar,
     Union,
-    cast,
     overload,
 )
 
@@ -49,7 +48,7 @@ class CacheBase(Generic[_Cache]):
     """
 
     def __init__(self) -> None:
-        self._cache = cast(_Cache, {})
+        self._cache: _Cache = {}  # type: ignore[assignment]
 
 
 class under_cached_property(Generic[_T]):

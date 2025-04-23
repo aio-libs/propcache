@@ -46,11 +46,10 @@ cdef class base_cached_property:
     def __get__(self, inst, owner):
         if inst is None:
             return self
-        cdef dict cache = (<CacheBase>inst)._cache
-        val = cache.get(self.name, _sentinel)
+        val = (<CacheBase>inst)._cache.get(self.name, _sentinel)
         if val is _sentinel:
             val = self.wrapped(inst)
-            cache[self.name] = val
+            (<CacheBase>inst)._cache[self.name] = val
         return val
 
     def __set__(self, inst, value):

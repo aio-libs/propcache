@@ -11,10 +11,16 @@ from typing import (
     Protocol,
     TypeVar,
     Union,
+    cast,
     overload,
 )
 
-__all__ = ("CacheBase", "under_cached_property", "cached_property")
+__all__ = (
+    "CacheBase",
+    "base_cached_property",
+    "under_cached_property",
+    "cached_property",
+)
 
 
 if sys.version_info >= (3, 11):
@@ -28,7 +34,11 @@ _T = TypeVar("_T")
 _Cache = TypeVar("_Cache", bound=Mapping[str, Any])
 
 
-class CacheBase:
+class _CacheImpl(Protocol[_Cache]):
+    _cache: _Cache
+
+
+class CacheBase(Generic[_Cache]):
     """Base class for objects that use cached properties.  This class
     provides a _cache attribute that is used to store the results of
     cached properties.
@@ -39,11 +49,7 @@ class CacheBase:
     """
 
     def __init__(self) -> None:
-        self._cache: dict[str, Any] = {}
-
-
-class _CacheImpl(Protocol[_Cache]):
-    _cache: _Cache
+        self._cache = cast(_Cache, {})
 
 
 class under_cached_property(Generic[_T]):
@@ -81,3 +87,6 @@ class under_cached_property(Generic[_T]):
 
     def __set__(self, inst: _CacheImpl[Any], value: _T) -> None:
         raise AttributeError("cached property is read-only")
+
+
+base_cached_property = under_cached_property

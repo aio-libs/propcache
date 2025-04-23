@@ -18,7 +18,7 @@ from propcache.api import (
 def test_base_cached_property_cache_hit(benchmark: "BenchmarkFixture") -> None:
     """Benchmark for base_cached_property cache hit."""
 
-    class Test(CacheBase):
+    class Test(CacheBase[dict[str, int]]):
         def __init__(self) -> None:
             super().__init__()
             self._cache["prop"] = 42
@@ -79,7 +79,7 @@ def test_cached_property_cache_hit(benchmark: "BenchmarkFixture") -> None:
 def test_base_cached_property_cache_miss(benchmark: "BenchmarkFixture") -> None:
     """Benchmark for under_cached_property cache miss."""
 
-    class Test(CacheBase):
+    class Test(CacheBase[dict[str, int]]):
 
         @base_cached_property
         def prop(self) -> int:

@@ -21,7 +21,7 @@ class APIProtocol(Protocol):
 
 
 def test_base_cached_property(propcache_module: APIProtocol) -> None:
-    class A(CacheBase[dict[str, int]]):
+    class A(CacheBase):  # type: ignore[type-arg]
 
         @propcache_module.base_cached_property
         def prop(self) -> int:
@@ -47,7 +47,7 @@ def test_base_cached_property_typeddict(propcache_module: APIProtocol) -> None:
         prop: int
         prop2: str
 
-    class A(CacheBase[_Cache]):
+    class A(CacheBase):  # type: ignore[type-arg]
 
         @propcache_module.base_cached_property
         def prop(self) -> int:
@@ -67,7 +67,7 @@ def test_base_cached_property_typeddict(propcache_module: APIProtocol) -> None:
 
 
 def test_base_cached_property_assignment(propcache_module: APIProtocol) -> None:
-    class A(CacheBase[dict[str, Any]]):
+    class A(CacheBase):  # type: ignore[type-arg]
 
         @propcache_module.base_cached_property
         def prop(self) -> None:
@@ -80,7 +80,7 @@ def test_base_cached_property_assignment(propcache_module: APIProtocol) -> None:
 
 
 def test_base_cached_property_without_cache(propcache_module: APIProtocol) -> None:
-    class A(CacheBase[dict[str, int]]):
+    class A(CacheBase):  # type: ignore[type-arg]
 
         @propcache_module.base_cached_property
         def prop(self) -> None:
@@ -93,7 +93,7 @@ def test_base_cached_property_without_cache(propcache_module: APIProtocol) -> No
 
 
 def test_base_cached_property_caching(propcache_module: APIProtocol) -> None:
-    class A(CacheBase[dict[str, int]]):
+    class A(CacheBase):  # type: ignore[type-arg]
 
         @propcache_module.base_cached_property
         def prop(self) -> int:
@@ -105,7 +105,7 @@ def test_base_cached_property_caching(propcache_module: APIProtocol) -> None:
 
 
 def test_base_cached_property_class_docstring(propcache_module: APIProtocol) -> None:
-    class A(CacheBase[dict[str, int]]):
+    class A(CacheBase):  # type: ignore[type-arg]
         def __init__(self) -> None:
             """Init."""
 
@@ -126,7 +126,7 @@ def test_base_cached_property_class_docstring(propcache_module: APIProtocol) -> 
 def test_ensured_wrapped_function_is_accessible(propcache_module: APIProtocol) -> None:
     """Test that the wrapped function can be accessed from python."""
 
-    class A(CacheBase[dict[str, int]]):
+    class A(CacheBase):  # type: ignore[type-arg]
 
         @propcache_module.base_cached_property
         def prop(self) -> int:

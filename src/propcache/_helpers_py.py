@@ -19,6 +19,17 @@ _T = TypeVar("_T")
 _Cache = TypeVar("_Cache", bound=Mapping[str, Any])
 
 
+class CacheBase:
+    """Base class for objects that use cached properties.  This class
+    provides a _cache attribute that is used to store the results of
+    cached properties.
+
+    Callers are responsible for creating the _cache attribute.  This is
+    done in the __init__ method of the class that inherits from
+    CachedBase.
+    """
+
+
 class _CacheImpl(Protocol[_Cache]):
     _cache: _Cache
 
@@ -58,3 +69,8 @@ class under_cached_property(Generic[_T]):
 
     def __set__(self, inst: _CacheImpl[Any], value: _T) -> None:
         raise AttributeError("cached property is read-only")
+
+
+# For Python, the implementation of base_cached_property
+# is the same as under_cached_property
+base_cached_property = under_cached_property

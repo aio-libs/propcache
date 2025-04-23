@@ -4,6 +4,58 @@ from types import GenericAlias
 
 cdef _sentinel = object()
 
+
+cdef class CacheBase:
+    """Base class for objects that use cached properties.  This class
+    provides a _cache attribute that is used to store the results of
+    cached properties.
+
+    Callers are responsible for creating the _cache attribute.  This is
+    done in the __init__ method of the class that inherits from
+    CachedBase.
+    """
+
+    cdef dict _cache
+
+
+cdef class base_cached_property:
+    """Use as a class method decorator.  It operates almost exactly like
+    the Python `@property` decorator, but it puts the result of the
+    method it decorates into the instance dict after the first call,
+    effectively replacing the function it decorates with an instance
+    variable.  It is, in Python parlance, a data descriptor. This version
+    requires that the base class CachedBase is used, which provides
+    the _cache attribute.
+
+    """
+
+    cdef readonly object wrapped
+    cdef object name
+
+    def __init__(self, wrapped):
+        self.wrapped = wrapped
+        self.name = wrapped.__name__
+
+    @property
+    def __doc__(self):
+        return self.wrapped.__doc__
+
+    def __get__(self, inst, owner):
+        if inst is None:
+            return self
+        cdef dict cache = (<CacheBase>inst)._cache
+        val = cache.get(self.name, _sentinel)
+        if val is _sentinel:
+            val = self.wrapped(inst)
+            cache[self.name] = val
+        return val
+
+    def __set__(self, inst, value):
+        raise AttributeError("cached property is read-only")
+
+    __class_getitem__ = classmethod(GenericAlias)
+
+
 cdef class under_cached_property:
     """Use as a class method decorator.  It operates almost exactly like
     the Python `@property` decorator, but it puts the result of the

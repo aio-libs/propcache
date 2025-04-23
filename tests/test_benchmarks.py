@@ -7,7 +7,32 @@ try:
 except ImportError:
     pytestmark = pytest.mark.skip("pytest_codspeed needs to be installed")
 
-from propcache import cached_property, under_cached_property
+from propcache.api import (
+    CacheBase,
+    base_cached_property,
+    cached_property,
+    under_cached_property,
+)
+
+
+def test_base_cached_property_cache_hit(benchmark: "BenchmarkFixture") -> None:
+    """Benchmark for base_cached_property cache hit."""
+
+    class Test(CacheBase):
+        def __init__(self) -> None:
+            self._cache = {"prop": 42}
+
+        @base_cached_property
+        def prop(self) -> int:
+            """Return the value of the property."""
+            raise NotImplementedError
+
+    t = Test()
+
+    @benchmark
+    def _run() -> None:
+        for _ in range(100):
+            t.prop
 
 
 def test_under_cached_property_cache_hit(benchmark: "BenchmarkFixture") -> None:
@@ -47,6 +72,28 @@ def test_cached_property_cache_hit(benchmark: "BenchmarkFixture") -> None:
     @benchmark
     def _run() -> None:
         for _ in range(100):
+            t.prop
+
+
+def test_base_cached_property_cache_miss(benchmark: "BenchmarkFixture") -> None:
+    """Benchmark for under_cached_property cache miss."""
+
+    class Test(CacheBase):
+        def __init__(self) -> None:
+            self._cache: dict[str, int] = {}
+
+        @base_cached_property
+        def prop(self) -> int:
+            """Return the value of the property."""
+            return 42
+
+    t = Test()
+    cache = t._cache
+
+    @benchmark
+    def _run() -> None:
+        for _ in range(100):
+            cache.pop("prop", None)
             t.prop
 
 

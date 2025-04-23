@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING
 
-_PUBLIC_API = ("cached_property", "under_cached_property")
+_PUBLIC_API = ("base_cached_property", "cached_property", "under_cached_property")
 
 __version__ = "0.3.1"
 __all__ = ()
@@ -10,6 +10,8 @@ __all__ = ()
 # Imports have moved to `propcache.api` in 0.2.0+.
 # This module is now a facade for the API.
 if TYPE_CHECKING:
+    from .api import CacheBase as CacheBase  # noqa: F401
+    from .api import base_cached_property as base_cached_property  # noqa: F401
     from .api import cached_property as cached_property  # noqa: F401
     from .api import under_cached_property as under_cached_property  # noqa: F401
 

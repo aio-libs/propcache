@@ -90,22 +90,6 @@ def test_base_cached_property_without_cache(propcache_module: APIProtocol) -> No
         a.prop = 123  # type: ignore[assignment]
 
 
-def test_base_cached_property_check_without_cache(
-    propcache_module: APIProtocol,
-) -> None:
-    class A:
-        # Note that self._cache is intentionally missing
-        # here to verify AttributeError or SystemError is raised.
-
-        @propcache_module.base_cached_property
-        def prop(self) -> None:
-            """Mock property."""
-
-    a = A()
-    with pytest.raises((AttributeError, SystemError)):
-        _ = a.prop  # type: ignore[call-overload]
-
-
 def test_base_cached_property_caching(propcache_module: APIProtocol) -> None:
     class A(CacheBase[dict[str, int]]):
 

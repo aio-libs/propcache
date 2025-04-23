@@ -97,14 +97,14 @@ def test_base_cached_property_check_without_cache(
 ) -> None:
     class A:
         # Note that self._cache is intentionally missing
-        # here to verify AttributeError or SystemError is raised.
+        # here to verify AttributeError or TypeError is raised.
 
         @propcache_module.base_cached_property
         def prop(self) -> None:
             """Mock property."""
 
     a = A()
-    with pytest.raises((AttributeError, SystemError)):
+    with pytest.raises((AttributeError, TypeError)):
         _ = a.prop  # type: ignore[call-overload]
 
 

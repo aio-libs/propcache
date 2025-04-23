@@ -27,7 +27,7 @@ cdef class base_cached_property:
     method it decorates into the instance dict after the first call,
     effectively replacing the function it decorates with an instance
     variable.  It is, in Python parlance, a data descriptor. This version
-    requires that the base class CachedBase is used, which provides
+    requires that the base class CacheBase is used, which provides
     the _cache attribute.
 
     """

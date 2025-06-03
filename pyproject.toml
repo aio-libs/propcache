@@ -95,12 +95,3 @@ before-test = []  # Windows cmd has different syntax and pip chooses wheels
 
 [tool.cibuildwheel.linux]
 before-all = "yum install -y libffi-devel || apk add --upgrade libffi-dev || apt-get install libffi-dev"
-
-# TODO: Remove this when there's a Cython 3.1 final release
-# Remove PIP_CONSTRAINT from the environment
-[[tool.cibuildwheel.overrides]]
-select = "cp313t-*"
-
-test-requires = "-r requirements/test-freethreading.txt"
-inherit.environment = "append"
-environment = {PIP_CONSTRAINT = "requirements/cython-freethreading.txt"}

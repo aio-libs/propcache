@@ -238,12 +238,9 @@ jobs:
         path: dist
         pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
         merge-multiple: true
-
-    # TODO: Revert back to using actions/setup-python once the official
-    # action supports free-threaded Python
     - name: Setup Python ${{ matrix.pyver }}
       id: python-install
-      uses: quansight-labs/setup-python@v5
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.pyver }}
         allow-prereleases: true

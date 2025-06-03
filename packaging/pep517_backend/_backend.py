@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import os
-import sysconfig
 import typing as t
 from collections.abc import Iterator
 from contextlib import contextmanager, nullcontext, suppress

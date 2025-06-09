@@ -1,1 +1,1 @@
-Updated documentation: replaced `cached_property` with `under_cached_property` for accuracy in `docs/api.rst`.  -- by :user:`meanmail`
+Fixed incorrect decorator usage in the :func:`~propcache.api.under_cached_property` example code -- by :user:`meanmail`.

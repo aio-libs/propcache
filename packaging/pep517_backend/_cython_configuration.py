@@ -7,7 +7,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 from sys import version_info as _python_version_tuple
-from typing import TypedDict
+from typing import TypedDict, Union
 
 from expandvars import expandvars
 

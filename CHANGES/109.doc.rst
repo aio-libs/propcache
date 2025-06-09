@@ -1,1 +1,0 @@
-Fixed incorrect decorator usage in the :func:`~propcache.api.under_cached_property` example code -- by :user:`meanmail`.

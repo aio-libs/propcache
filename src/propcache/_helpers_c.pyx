@@ -6,12 +6,16 @@ from cpython.object cimport PyObject
 
 
 cdef extern from "Python.h":
-    # Call a callable Python object callable with exactly 1 positional argument arg and no keyword arguments.
-    # Return the result of the call on success, or raise an exception and return NULL on failure.
-    PyObject* PyObject_CallOneArg(object callable, object arg) except NULL
-    int PyDict_SetItem(object dict, object key, PyObject* value) except -1
-
-
+    # Call a callable Python object callable with exactly 
+    # 1 positional argument arg and no keyword arguments.
+    # Return the result of the call on success, or raise 
+    # an exception and return NULL on failure.
+    PyObject* PyObject_CallOneArg(
+        object callable, object arg
+    ) except NULL
+    int PyDict_SetItem(
+        object dict, object key, PyObject* value
+    ) except -1
 
 cdef class under_cached_property:
     """Use as a class method decorator.  It operates almost exactly like
@@ -33,7 +37,7 @@ cdef class under_cached_property:
     def __doc__(self):
         return self.wrapped.__doc__
 
-    def __get__(self, inst, owner):
+    def __get__(self, object inst, owner):
         if inst is None:
             return self
         cdef dict cache = inst._cache
@@ -69,7 +73,7 @@ cdef class cached_property:
     def __doc__(self):
         return self.func.__doc__
 
-    def __set_name__(self, owner, name):
+    def __set_name__(self, type owner, object name):
         if self.name is None:
             self.name = name
         elif name != self.name:
@@ -87,7 +91,7 @@ cdef class cached_property:
                 " without calling __set_name__ on it.")
         cdef object cache = inst.__dict__
         cdef PyObject* val = PyDict_GetItem(cache, self.name)
-        if val == NULL:
+        if val is NULL:
             val = PyObject_CallOneArg(self.func, inst)
             PyDict_SetItem(cache, self.name, val)
         return <object>val

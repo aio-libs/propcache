@@ -1,9 +1,5 @@
 # cython: language_level=3, freethreading_compatible=True
 from types import GenericAlias
-
-# TODO: Going to play it safe with PyDict_GetItem / PyDict_SetItem
-# in the future we should consider migrating to the Macro versions
-
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem
 from cpython.object cimport PyObject
 

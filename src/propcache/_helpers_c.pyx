@@ -76,7 +76,7 @@ cdef class cached_property:
     def __doc__(self):
         return self.func.__doc__
 
-    def __set_name__(self, type owner, object name):
+    def __set_name__(self, owner, object name):
         if self.name is None:
             self.name = name
         elif name != self.name:

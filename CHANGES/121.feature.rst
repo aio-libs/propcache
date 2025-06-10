@@ -1,3 +1,3 @@
-Optimized propcache by replacing sentinel :py:data:`object` for checking if
-the :py:data:`object` is ``NULL`` and changed :py:class:`dict` API for
+Optimized propcache by replacing sentinel :py:class:`object` for checking if
+the :py:class:`object` is ``NULL`` and changed :py:class:`dict` API for
 Python C-API -- by :user:`Vizonex`.

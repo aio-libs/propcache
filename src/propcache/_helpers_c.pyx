@@ -9,7 +9,7 @@ cdef extern from "Python.h":
     # Call a callable Python object callable with exactly 1 positional argument arg and no keyword arguments.
     # Return the result of the call on success, or raise an exception and return NULL on failure.
     PyObject* PyObject_CallOneArg(object callable, object arg) except NULL
-    PyDict_SetItem(object dict, object key, PyObject* value)
+    int PyDict_SetItem(object dict, object key, PyObject* value) except -1
 
 
 

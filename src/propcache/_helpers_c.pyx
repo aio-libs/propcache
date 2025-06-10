@@ -87,7 +87,7 @@ cdef class cached_property:
                 " without calling __set_name__ on it.")
         cdef object cache = inst.__dict__
         cdef PyObject* val = PyDict_GetItem(cache, self.name)
-        if val is NULL:
+        if val == NULL:
             val = PyObject_CallOneArg(self.func, inst)
             PyDict_SetItem(cache, self.name, val)
         return <object>val

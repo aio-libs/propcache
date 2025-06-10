@@ -1,7 +1,9 @@
 # cython: language_level=3, freethreading_compatible=True
 from types import GenericAlias
+
 from cpython.dict cimport PyDict_GetItem
 from cpython.object cimport PyObject
+
 
 cdef extern from "Python.h":
     # Call a callable Python object callable with exactly 1 positional argument arg and no keyword arguments.

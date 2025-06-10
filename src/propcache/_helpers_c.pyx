@@ -1,14 +1,14 @@
 # cython: language_level=3, freethreading_compatible=True
 from types import GenericAlias
-from cpython.dict cimport PyDict_GetItem, PyDict_SetItem
+from cpython.dict cimport PyDict_GetItem
 from cpython.object cimport PyObject
 
-
 cdef extern from "Python.h":
-    # NOTE: introduced in 3.9 so it should be covered on all versions of python that aren't EOL.
     # Call a callable Python object callable with exactly 1 positional argument arg and no keyword arguments.
     # Return the result of the call on success, or raise an exception and return NULL on failure.
-    object PyObject_CallOneArg(object callable, object arg)
+    PyObject* PyObject_CallOneArg(object callable, object arg) except NULL
+    PyDict_SetItem(object dict, object key, PyObject* value)
+
 
 
 cdef class under_cached_property:
@@ -37,9 +37,8 @@ cdef class under_cached_property:
         cdef dict cache = inst._cache
         cdef PyObject* val = PyDict_GetItem(cache, self.name)
         if val == NULL:
-            result = PyObject_CallOneArg(self.wrapped, inst)
-            PyDict_SetItem(cache, self.name, result)
-            return result
+            val = PyObject_CallOneArg(self.wrapped, inst)
+            PyDict_SetItem(cache, self.name, val)
         return <object>val
 
     def __set__(self, inst, value):
@@ -87,9 +86,8 @@ cdef class cached_property:
         cdef object cache = inst.__dict__
         cdef PyObject* val = PyDict_GetItem(cache, self.name)
         if val is NULL:
-            result = PyObject_CallOneArg(self.func, inst)
-            PyDict_SetItem(cache, self.name, result)
-            return result
+            val = PyObject_CallOneArg(self.func, inst)
+            PyDict_SetItem(cache, self.name, val)
         return <object>val
 
     __class_getitem__ = classmethod(GenericAlias)

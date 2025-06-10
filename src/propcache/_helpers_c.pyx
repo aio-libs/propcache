@@ -1,8 +1,16 @@
 # cython: language_level=3, freethreading_compatible=True
 from types import GenericAlias
+# TODO: Going to play it safe with PyDict_GetItem / PyDict_SetItem 
+# in the future we should consider migrating to the Macro versions
+from cpython.dict cimport PyDict_GetItem, PyDict_SetItem
+from cpython.object cimport PyObject
 
+cdef extern from "Python.h":
+    # NOTE: introduced in 3.9 so it should be covered on all versions of python that aren't EOL.
+    # Call a callable Python object callable with exactly 1 positional argument arg and no keyword arguments.
+    # Return the result of the call on success, or raise an exception and return NULL on failure.
+    object PyObject_CallOneArg(object callable, object arg)
 
-cdef _sentinel = object()
 
 cdef class under_cached_property:
     """Use as a class method decorator.  It operates almost exactly like
@@ -16,7 +24,7 @@ cdef class under_cached_property:
     cdef readonly object wrapped
     cdef object name
 
-    def __init__(self, wrapped):
+    def __init__(self, object wrapped):
         self.wrapped = wrapped
         self.name = wrapped.__name__
 
@@ -28,11 +36,12 @@ cdef class under_cached_property:
         if inst is None:
             return self
         cdef dict cache = inst._cache
-        val = cache.get(self.name, _sentinel)
-        if val is _sentinel:
-            val = self.wrapped(inst)
-            cache[self.name] = val
-        return val
+        cdef PyObject* val = PyDict_GetItem(cache, self.name)
+        if val == NULL:
+            result = PyObject_CallOneArg(self.wrapped, inst)
+            PyDict_SetItem(cache, self.name, result)
+            return result
+        return <object>val
 
     def __set__(self, inst, value):
         raise AttributeError("cached property is read-only")
@@ -76,11 +85,13 @@ cdef class cached_property:
             raise TypeError(
                 "Cannot use cached_property instance"
                 " without calling __set_name__ on it.")
-        cdef dict cache = inst.__dict__
-        val = cache.get(self.name, _sentinel)
-        if val is _sentinel:
-            val = self.func(inst)
-            cache[self.name] = val
-        return val
+        cdef object cache = inst.__dict__
+        cdef PyObject* val = PyDict_GetItem(cache, self.name)
+        if val is NULL:
+            result = PyObject_CallOneArg(self.func, inst)
+            PyDict_SetItem(cache, self.name, result)
+            return result
+        return <object>val
 
     __class_getitem__ = classmethod(GenericAlias)
+

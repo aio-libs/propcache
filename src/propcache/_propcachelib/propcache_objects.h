@@ -21,7 +21,7 @@ typedef struct _under_cached_property_object {
     PyObject* name;
     PyObject* doc;
     // TODO: Maybe implement __isabstract__ for @abc.abstractmethod()
-    // PyObject* isabstract; 
+    // PyObject* isabstract;
 } UnderCachedPropertyObject;
 
 

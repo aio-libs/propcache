@@ -1,4 +1,5 @@
-from setuptools import setup, Extension
+from setuptools import Extension, setup
+
 # XXX: No idea where this would go in a config file so I am putting it here...
 setup(
     ext_modules=[

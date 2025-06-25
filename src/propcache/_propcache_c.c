@@ -1,4 +1,4 @@
-/* _propcache_c.c 
+/* _propcache_c.c
  *
  * A replacement of the cython _helper_c.pyx with a few more optimized
  * parts for better care and speed...
@@ -43,14 +43,14 @@ under_cached_property_set__doc__(UnderCachedPropertyObject* self,  PyObject* new
 };
 
 
-static PyObject* 
+static PyObject*
 under_cached_property__get__(UnderCachedPropertyObject* self, PyObject* inst, void* Py_UNUSED(owner)){
     return uc_prop__get__(self, inst);
 }
 
 /* under_cached_property is immutable */
 
-static PyObject* 
+static PyObject*
 under_cached_property__set__(UnderCachedPropertyObject* self, void* Py_UNUSED(inst), void* Py_UNUSED(owner)){
     PyErr_SetString(PyExc_AttributeError, "cached property is read-only");
     return NULL;
@@ -112,7 +112,7 @@ static PyMemberDef under_cached_property_members[] = {
         Py_READONLY,
     },
     {NULL} /* Sentinel */
-}; 
+};
 
 static PyMethodDef under_cached_property_methods[] = {
     {"__class_getitem__", (PyCFunction)Py_GenericAlias, METH_O | METH_CLASS,NULL},
@@ -147,7 +147,7 @@ static PyType_Spec UnderCachedPropertySpec = {
 
 /*************************** CachedPropertyObject **************************/
 /* An optimized version of functool's cached-property */
-/* For more info on how this object works it's recommended to see 
+/* For more info on how this object works it's recommended to see
  * Either functool's version or _propcache/pc.h */
 
 
@@ -170,7 +170,7 @@ cached_property__set_name__(CachedPropertyObject* self, PyObject *const *args, P
     return c_prop__set_name__(self, args[0]);
 }
 
-static PyObject* 
+static PyObject*
 cached_property__get__(CachedPropertyObject* self, PyObject* inst, void* Py_UNUSED(owner)){
     return c_prop__get__(self, inst);
 };
@@ -346,7 +346,7 @@ static PyModuleDef propcache_c_module = {
     .m_slots = module_slots,
     .m_traverse = module_traverse,
     .m_clear = module_clear,
-    .m_free = (freefunc)module_free, 
+    .m_free = (freefunc)module_free,
 };
 
 PyMODINIT_FUNC

@@ -13,8 +13,8 @@ extern "C" {
 
 /************* under_cached_property / cached_property methods ********************/
 
-/* OTHER NOTES: 
- * - Made sense to not use -1 to express failure and rather handle everything in 
+/* OTHER NOTES:
+ * - Made sense to not use -1 to express failure and rather handle everything in
  *  True/False Fashion don't see the day this gets requested to be wrapped as a c-api
  *  module but incase requested this is why true/false is utilized
  */
@@ -36,7 +36,7 @@ __propcache_set_func_doc(PyObject* func, PyObject* doc){
 }
 
 // cached / under_cached use the same caching mechanism
-// so combining the two under an inlined funciton made 
+// so combining the two under an inlined funciton made
 // perfect sense...
 
 static inline PyObject*
@@ -54,7 +54,7 @@ __propcache_get_value(PyObject* name, PyObject* func, PyObject* inst, const char
     } else {
         Py_INCREF(val);
     }
-    // TODO: Try Looking into returning val with Py_NewRef 
+    // TODO: Try Looking into returning val with Py_NewRef
     return val;
 }
 
@@ -70,7 +70,7 @@ uc_prop_init(UnderCachedPropertyObject* self, PyObject* wrapped){
     if (!PyCallable_Check(wrapped)){
         PyErr_Format(
             PyExc_TypeError,
-            "wrapped method named %R must be callable", 
+            "wrapped method named %R must be callable",
             name
         );
         return 0;
@@ -84,7 +84,7 @@ uc_prop_init(UnderCachedPropertyObject* self, PyObject* wrapped){
 
 
 
-static inline PyObject* 
+static inline PyObject*
 uc_prop__get__(UnderCachedPropertyObject* self, PyObject* inst){
     if (inst == NULL || Py_IsNone(inst)){
         return (PyObject*)self;
@@ -99,7 +99,7 @@ uc_prop__get__(UnderCachedPropertyObject* self, PyObject* inst){
 
 static inline void
 c_prop_init(CachedPropertyObject* self, PyObject* func){
-    /* In the old cython version we used None This time 
+    /* In the old cython version we used None This time
     We can now utilize NULL to speedup checking in __set_name__ */
     self->func = func;
     self->name = NULL;
@@ -122,12 +122,12 @@ c_prop__set_name__(CachedPropertyObject* self, PyObject* name){
                 PyErr_Format(
                     PyExc_TypeError,
                     "Cannot assign the same cached_property to two different names %R and %R",
-                    self->name, 
+                    self->name,
                     name
                 );
                 return 0;
             }
-            
+
             default : {
                 /* Error but likely for a different reason */
                 return 0;
@@ -136,7 +136,7 @@ c_prop__set_name__(CachedPropertyObject* self, PyObject* name){
     }
 }
 
-static inline PyObject* 
+static inline PyObject*
 c_prop__get__(CachedPropertyObject* self, PyObject* inst){
     if (inst == NULL || (Py_IsNone(inst))){
         return (PyObject*)self;
@@ -149,7 +149,7 @@ c_prop__get__(CachedPropertyObject* self, PyObject* inst){
         );
         return NULL;
     }
-    /* Incase object was using __slots__ instead of __dict__ 
+    /* Incase object was using __slots__ instead of __dict__
      * PyObject_GetAttrString will catch it and throw an error */
     return __propcache_get_value(self->name, self->func, inst, "__dict__");
 }

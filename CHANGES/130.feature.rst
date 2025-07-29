@@ -1,0 +1,1 @@
+Made propcache avalible for use with Cython by using cimport -- by :user:`Vizonex`.

@@ -3,6 +3,7 @@ Bugfixes
 CPython
 Changelog
 Codecov
+cimport
 Cython
 GPG
 IPv

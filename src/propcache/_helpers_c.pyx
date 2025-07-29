@@ -61,7 +61,7 @@ cdef class cached_property:
     variable.  It is, in Python parlance, a data descriptor.
 
     """
-    
+
     def __init__(self, func):
         self.func = func
         self.name = None

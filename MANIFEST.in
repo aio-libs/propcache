@@ -21,4 +21,3 @@ exclude src/propcache/*.pyd
 prune docs/_build
 include src/propcache/__init__.pxd
 include src/propcache/_helpers_c.pxd
-

@@ -3,7 +3,6 @@ Bugfixes
 CPython
 Changelog
 Codecov
-cimport
 Cython
 GPG
 IPv
@@ -19,6 +18,7 @@ booleans
 bools
 changelog
 changelogs
+cimport
 config
 de
 decodable

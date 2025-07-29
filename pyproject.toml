@@ -12,7 +12,7 @@ build-backend = "pep517_backend.hooks"  # wraps `setuptools.build_meta`
 
 [tool.local.cythonize]
 # This attr can contain multiple globs
-src = ["src/propcache/*.pyx", "src/propcache/*.pxd"]
+src = ["src/propcache/*.pyx"]
 
 [tool.local.cythonize.env]
 # Env vars provisioned during cythonize call

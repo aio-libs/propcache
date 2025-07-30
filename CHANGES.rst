@@ -14,6 +14,42 @@ Changelog
 
 .. towncrier release notes start
 
+0.3.2
+=====
+
+*(2025-06-09)*
+
+
+Improved documentation
+----------------------
+
+- Fixed incorrect decorator usage in the :func:`~propcache.api.under_cached_property` example code -- by :user:`meanmail`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`109`.
+
+
+Packaging updates and notes for downstreams
+-------------------------------------------
+
+- Updated to use Cython 3.1 universally across the build path -- by :user:`lysnikolaou`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`117`.
+
+- Made Cython line tracing opt-in via the ``with-cython-tracing`` build config setting -- by :user:`bdraco`.
+
+  Previously, line tracing was enabled by default in :file:`pyproject.toml`, which caused build issues for some users and made wheels nearly twice as slow.
+
+  Now line tracing is only enabled when explicitly requested via ``pip install . --config-setting=with-cython-tracing=true`` or by setting the ``PROPCACHE_CYTHON_TRACING`` environment variable.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`118`.
+
+
+----
+
+
 0.3.1
 =====
 

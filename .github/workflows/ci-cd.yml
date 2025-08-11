@@ -216,9 +216,9 @@ jobs:
         - os: windows-11-arm
           no-extensions: Y
         - os: windows-11-arm
-          pyver: '3.9'
+          pyver: '3.9' # not supported by setup-python action
         - os: windows-11-arm
-          pyver: '3.10'
+          pyver: '3.10' # not supported by setup-python action
         include:
         - pyver: pypy-3.10
           no-extensions: Y

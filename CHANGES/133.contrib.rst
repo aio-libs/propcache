@@ -1,5 +1,5 @@
 Builds have been added for arm64 Windows
 wheels and the ``reusable-build-wheel.yml``
 workflow has been modified to allow for
-an os value (``windows-11-arm``) which
+an OS value (``windows-11-arm``) which
 does include the ``-latest`` postfix.

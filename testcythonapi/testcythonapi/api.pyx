@@ -6,7 +6,7 @@ from propcache cimport cached_property, under_cached_property
 cdef class TestUnderCachedProperty:
     cdef:
         public dict _cache
-    
+
     def __init__(self) -> None:
         self._cache = {}
 
@@ -21,7 +21,7 @@ cdef class TestUnderCachedProperty:
 cdef class TestCachedProperty:
     cdef:
         public dict _cache
-    
+
     def __init__(self) -> None:
         self._cache = {}
 
@@ -37,12 +37,10 @@ cdef class TestCachedProperty:
 cdef class TestUnderCachedPropertyAssignment:
     cdef:
         public dict _cache
-    
+
     def __init__(self) -> None:
         self._cache = {}
-    
+
     @cached_property
     def prop(self) -> int:
         return 1
-
-

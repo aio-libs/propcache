@@ -137,21 +137,21 @@ jobs:
     strategy:
       matrix:
         os:
-        - ubuntu
-        - windows
+        - ubuntu-latest
+        - windows-latest
         - windows-11-arm
-        - macos
+        - macos-latest
         tag:
         - ''
         - 'musllinux'
         exclude:
-        - os: windows
+        - os: windows-latest
           tag: 'musllinux'
         - os: windows-11-arm
           tag: 'musllinux'
-        - os: macos
+        - os: macos-latest
           tag: 'musllinux'
-        - os: ubuntu
+        - os: ubuntu-latest
           tag: >-
            ${{
            (github.event_name != 'push' || !contains(github.ref, 'refs/tags/'))

@@ -137,18 +137,21 @@ jobs:
     strategy:
       matrix:
         os:
-        - ubuntu
-        - windows
-        - macos
+        - ubuntu-latest
+        - windows-latest
+        - windows-11-arm
+        - macos-latest
         tag:
         - ''
         - 'musllinux'
         exclude:
-        - os: windows
+        - os: windows-latest
           tag: 'musllinux'
-        - os: macos
+        - os: windows-11-arm
           tag: 'musllinux'
-        - os: ubuntu
+        - os: macos-latest
+          tag: 'musllinux'
+        - os: ubuntu-latest
           tag: >-
            ${{
            (github.event_name != 'push' || !contains(github.ref, 'refs/tags/'))
@@ -203,12 +206,19 @@ jobs:
         - ubuntu-latest
         - macos-latest
         - windows-latest
+        - windows-11-arm
         experimental: [false]
         exclude:
         - os: macos-latest
           no-extensions: Y
         - os: windows-latest
           no-extensions: Y
+        - os: windows-11-arm
+          no-extensions: Y
+        - os: windows-11-arm
+          pyver: '3.9'  # not supported by setup-python action
+        - os: windows-11-arm
+          pyver: '3.10'  # not supported by setup-python action
         include:
         - pyver: pypy-3.10
           no-extensions: Y

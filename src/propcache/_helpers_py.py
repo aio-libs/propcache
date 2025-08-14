@@ -42,7 +42,9 @@ class under_cached_property(Generic[_T]):
     def __get__(self, inst: None, owner: Optional[type[object]] = None) -> Self: ...
 
     @overload
-    def __get__(self, inst: _CacheImpl[Any], owner: Optional[type[object]] = None) -> _T: ...  # type: ignore[misc]
+    def __get__(
+        self, inst: _CacheImpl[Any], owner: Optional[type[object]] = None
+    ) -> _T: ...
 
     def __get__(
         self, inst: Optional[_CacheImpl[Any]], owner: Optional[type[object]] = None

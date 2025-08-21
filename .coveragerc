@@ -37,4 +37,3 @@ source =
   .
 source_pkgs =
   propcache
-core = ctrace

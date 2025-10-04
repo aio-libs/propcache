@@ -1,18 +1,18 @@
 import pytest
 
-CYTHON_API = pytest.importorskip("testcythonapi")
+CYTHON_API = pytest.importorskip("propcache._test_cythonapi")
 
 
 def test_under_cached_property() -> None:
     uc_property = CYTHON_API.TestUnderCachedProperty()
-    assert uc_property.prop() == 1
-    assert uc_property.prop2() == "foo"
+    assert uc_property.prop == 1
+    assert uc_property.prop2 == "foo"
 
 
 def test_cached_property() -> None:
     c_property = CYTHON_API.TestCachedProperty()
-    assert c_property.prop() == 1
-    assert c_property.prop2() == "foo"
+    assert c_property.prop == 1
+    assert c_property.prop2 == "foo"
 
 
 def test_under_cached_property_assignment() -> None:

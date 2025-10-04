@@ -2,7 +2,7 @@
 
 from ._helpers_c cimport cached_property, under_cached_property
 
-# WARNING: Do not use under normal circumstances 
+# WARNING: Do not use under normal circumstances
 # feel free to ignore this file if your not testing.
 
 cdef class TestUnderCachedProperty:

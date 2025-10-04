@@ -18,4 +18,4 @@ def test_cached_property() -> None:
 def test_under_cached_property_assignment() -> None:
     a = CYTHON_API.TestUnderCachedPropertyAssignment()
     with pytest.raises(AttributeError):
-        a.prop = 123  # type: ignore[assignment]
+        a.prop = 123

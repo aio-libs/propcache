@@ -14,6 +14,45 @@ Changelog
 
 .. towncrier release notes start
 
+v0.4.0
+======
+
+*(2025-10-04)*
+
+
+Features
+--------
+
+- Optimized propcache by replacing sentinel :py:class:`object` for checking if
+  the :py:class:`object` is ``NULL`` and changed :py:class:`dict` API for
+  Python C-API -- by :user:`Vizonex`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`121`.
+
+
+Contributor-facing changes
+--------------------------
+
+- Builds have been added for arm64 Windows
+  wheels and the ``reusable-build-wheel.yml``
+  workflow has been modified to allow for
+  an OS value (``windows-11-arm``) which
+  does not include the ``-latest`` postfix
+  -- by :user:`finnagin`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`133`.
+
+- Added CI for CPython 3.14 -- by :user:`kumaraditya303`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`140`.
+
+
+----
+
+
 0.3.2
 =====
 

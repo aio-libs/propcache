@@ -526,6 +526,7 @@ jobs:
           qemu: armv7l
     uses: ./.github/workflows/reusable-build-wheel.yml
     with:
+      os: ubuntu-latest
       qemu: ${{ matrix.qemu }}
       tag: ${{ matrix.tag }}
       wheel-tags-to-skip: >-

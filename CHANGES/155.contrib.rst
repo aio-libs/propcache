@@ -1,0 +1,4 @@
+Fixes the default value for the ``os``
+parameter in ``reusable-build-wheel.yml``
+to be ``ubuntu-latest`` instead of
+``ubuntu``.

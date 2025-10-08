@@ -16,6 +16,8 @@ cdef extern from "Python.h":
     int PyDict_SetItem(
         object dict, object key, PyObject* value
     ) except -1
+    void Py_DECREF(PyObject*)
+
 
 cdef class under_cached_property:
     """Use as a class method decorator.  It operates almost exactly like
@@ -44,6 +46,8 @@ cdef class under_cached_property:
         cdef PyObject* val = PyDict_GetItem(cache, self.name)
         if val == NULL:
             val = PyObject_CallOneArg(self.wrapped, inst)
+            # PyObject_CallOneArg should not be making extra refs
+            Py_DECREF(val)
             PyDict_SetItem(cache, self.name, val)
         return <object>val
 
@@ -93,6 +97,7 @@ cdef class cached_property:
         cdef PyObject* val = PyDict_GetItem(cache, self.name)
         if val is NULL:
             val = PyObject_CallOneArg(self.func, inst)
+            Py_DECREF(val)
             PyDict_SetItem(cache, self.name, val)
         return <object>val
 

@@ -95,8 +95,6 @@ cdef class cached_property:
         if val is NULL:
             val = PyObject_CallOneArg(self.func, inst)
             PyDict_SetItem(cache, self.name, val)
-        else:
-            Py_INCREF(val)
         return <object>val
 
     __class_getitem__ = classmethod(GenericAlias)

@@ -246,9 +246,5 @@ def test_under_cached_property_no_refcount_leak(propcache_module: APIProtocol) -
     refetch_refcount = sys.getrefcount(result)
     assert refetch_refcount == cleared_refcount  # Original object refcount unchanged
 
-    gc.collect()
     # Now we should have 2 Sentinel instances (original + new one)
-    sentinel_count_after_refetch = sum(
-        1 for obj in gc.get_objects() if isinstance(obj, UnderCachedPropertySentinel)
-    )
-    assert sentinel_count_after_refetch == initial_sentinel_count + 2
+    assert count_sentinels() == initial_sentinel_count + 2

@@ -6,6 +6,8 @@ import pytest
 
 from propcache.api import under_cached_property
 
+IS_PYPY = hasattr(sys, "pypy_version_info")
+
 if sys.version_info >= (3, 11):
     from typing import assert_type
 
@@ -165,3 +167,50 @@ def test_ensured_wrapped_function_is_accessible(propcache_module: APIProtocol) -
 
     a = A()
     assert A.prop.wrapped(a) == 1
+
+
+@pytest.mark.c_extension
+@pytest.mark.skipif(IS_PYPY, reason="PyPy has no C extension")
+def test_under_cached_property_no_refcount_leak(propcache_module: APIProtocol) -> None:
+    """Test that under_cached_property does not leak references."""
+
+    class Sentinel:
+        """A unique object we can track."""
+
+    class A:
+        def __init__(self) -> None:
+            """Init."""
+            self._cache: dict[str, Any] = {}
+
+        @propcache_module.under_cached_property
+        def prop(self) -> Sentinel:
+            """Return a sentinel object."""
+            return Sentinel()
+
+    a = A()
+
+    # First access - creates and caches the object
+    result = a.prop
+    # sys.getrefcount returns 1 higher than actual (the temp ref from the call)
+    # After first access: result owns 1, _cache owns 1, getrefcount call owns 1 = 3
+    initial_refcount = sys.getrefcount(result)
+
+    # Second access - should return the cached object without creating new refs
+    result2 = a.prop
+    assert result is result2  # Should be the exact same object
+
+    # After second access: result owns 1, result2 owns 1, _cache owns 1, getrefcount call owns 1 = 4
+    second_refcount = sys.getrefcount(result)
+    assert second_refcount == initial_refcount + 1  # Only result2 should add 1
+
+    # Third access
+    result3 = a.prop
+    assert result is result3
+    third_refcount = sys.getrefcount(result)
+    assert third_refcount == initial_refcount + 2  # result2 and result3 each add 1
+
+    # Clean up local refs
+    del result2
+    del result3
+    after_cleanup_refcount = sys.getrefcount(result)
+    assert after_cleanup_refcount == initial_refcount  # Back to just result and _cache

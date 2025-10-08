@@ -207,12 +207,8 @@ def test_under_cached_property_no_refcount_leak(propcache_module: APIProtocol) -
     # After first access: result owns 1, _cache owns 1, getrefcount call owns 1 = 3
     initial_refcount = sys.getrefcount(result)
 
-    gc.collect()
     # Should have exactly 1 Sentinel instance now
-    sentinel_count_after_first = sum(
-        1 for obj in gc.get_objects() if isinstance(obj, UnderCachedPropertySentinel)
-    )
-    assert sentinel_count_after_first == initial_sentinel_count + 1
+    assert count_sentinels() == initial_sentinel_count + 1
 
     # Second access - should return the cached object without creating new refs
     result2 = a.prop
@@ -222,12 +218,8 @@ def test_under_cached_property_no_refcount_leak(propcache_module: APIProtocol) -
     second_refcount = sys.getrefcount(result)
     assert second_refcount == initial_refcount + 1
 
-    gc.collect()
     # Still should have exactly 1 Sentinel instance
-    sentinel_count_after_second = sum(
-        1 for obj in gc.get_objects() if isinstance(obj, UnderCachedPropertySentinel)
-    )
-    assert sentinel_count_after_second == initial_sentinel_count + 1
+    assert count_sentinels() == initial_sentinel_count + 1
 
     # Third access
     result3 = a.prop

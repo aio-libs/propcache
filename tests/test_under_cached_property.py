@@ -1,3 +1,4 @@
+import gc
 import sys
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Protocol, TypedDict, TypeVar
@@ -174,7 +175,7 @@ def test_ensured_wrapped_function_is_accessible(propcache_module: APIProtocol) -
 def test_under_cached_property_no_refcount_leak(propcache_module: APIProtocol) -> None:
     """Test that under_cached_property does not leak references."""
 
-    class Sentinel:
+    class UnderCachedPropertySentinel:
         """A unique object we can track."""
 
     class A:
@@ -183,9 +184,15 @@ def test_under_cached_property_no_refcount_leak(propcache_module: APIProtocol) -
             self._cache: dict[str, Any] = {}
 
         @propcache_module.under_cached_property
-        def prop(self) -> Sentinel:
+        def prop(self) -> UnderCachedPropertySentinel:
             """Return a sentinel object."""
-            return Sentinel()
+            return UnderCachedPropertySentinel()
+
+    gc.collect()
+    # Count Sentinel instances before we start
+    initial_sentinel_count = sum(
+        1 for obj in gc.get_objects() if isinstance(obj, UnderCachedPropertySentinel)
+    )
 
     a = A()
 
@@ -195,6 +202,13 @@ def test_under_cached_property_no_refcount_leak(propcache_module: APIProtocol) -
     # After first access: result owns 1, _cache owns 1, getrefcount call owns 1 = 3
     initial_refcount = sys.getrefcount(result)
 
+    gc.collect()
+    # Should have exactly 1 Sentinel instance now
+    sentinel_count_after_first = sum(
+        1 for obj in gc.get_objects() if isinstance(obj, UnderCachedPropertySentinel)
+    )
+    assert sentinel_count_after_first == initial_sentinel_count + 1
+
     # Second access - should return the cached object without creating new refs
     result2 = a.prop
     assert result is result2
@@ -202,6 +216,13 @@ def test_under_cached_property_no_refcount_leak(propcache_module: APIProtocol) -
     # Only result2 should add 1
     second_refcount = sys.getrefcount(result)
     assert second_refcount == initial_refcount + 1
+
+    gc.collect()
+    # Still should have exactly 1 Sentinel instance
+    sentinel_count_after_second = sum(
+        1 for obj in gc.get_objects() if isinstance(obj, UnderCachedPropertySentinel)
+    )
+    assert sentinel_count_after_second == initial_sentinel_count + 1
 
     # Third access
     result3 = a.prop
@@ -227,3 +248,10 @@ def test_under_cached_property_no_refcount_leak(propcache_module: APIProtocol) -
     assert result4 is not result  # Should be a new object
     refetch_refcount = sys.getrefcount(result)
     assert refetch_refcount == cleared_refcount  # Original object refcount unchanged
+
+    gc.collect()
+    # Now we should have 2 Sentinel instances (original + new one)
+    sentinel_count_after_refetch = sum(
+        1 for obj in gc.get_objects() if isinstance(obj, UnderCachedPropertySentinel)
+    )
+    assert sentinel_count_after_refetch == initial_sentinel_count + 2

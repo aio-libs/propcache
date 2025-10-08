@@ -46,8 +46,6 @@ cdef class under_cached_property:
         if val == NULL:
             val = PyObject_CallOneArg(self.wrapped, inst)
             PyDict_SetItem(cache, self.name, val)
-        else:
-            Py_INCREF(val)
         return <object>val
 
     def __set__(self, inst, value):

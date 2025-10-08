@@ -178,6 +178,15 @@ def test_under_cached_property_no_refcount_leak(propcache_module: APIProtocol) -
     class UnderCachedPropertySentinel:
         """A unique object we can track."""
 
+    def count_sentinels() -> int:
+        """Count the number of UnderCachedPropertySentinel instances in gc."""
+        gc.collect()
+        return sum(
+            1
+            for obj in gc.get_objects()
+            if isinstance(obj, UnderCachedPropertySentinel)
+        )
+
     class A:
         def __init__(self) -> None:
             """Init."""
@@ -188,11 +197,7 @@ def test_under_cached_property_no_refcount_leak(propcache_module: APIProtocol) -
             """Return a sentinel object."""
             return UnderCachedPropertySentinel()
 
-    gc.collect()
-    # Count Sentinel instances before we start
-    initial_sentinel_count = sum(
-        1 for obj in gc.get_objects() if isinstance(obj, UnderCachedPropertySentinel)
-    )
+    initial_sentinel_count = count_sentinels()
 
     a = A()
 

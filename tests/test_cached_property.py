@@ -173,22 +173,33 @@ def test_cached_property_no_refcount_leak(propcache_module: APIProtocol) -> None
 
     # Second access - should return the cached object without creating new refs
     result2 = a.prop
-    assert result is result2  # Should be the exact same object
-
+    assert result is result2
     # After second access: result owns 1, result2 owns 1, __dict__ owns 1, getrefcount call owns 1 = 4
+    # Only result2 should add 1
     second_refcount = sys.getrefcount(result)
-    assert second_refcount == initial_refcount + 1  # Only result2 should add 1
+    assert second_refcount == initial_refcount + 1
 
     # Third access
     result3 = a.prop
     assert result is result3
+    # result2 and result3 each add 1
     third_refcount = sys.getrefcount(result)
-    assert third_refcount == initial_refcount + 2  # result2 and result3 each add 1
+    assert third_refcount == initial_refcount + 2
 
-    # Clean up local refs
+    # Clean up local refs - should be back to just result and __dict__
     del result2
     del result3
     after_cleanup_refcount = sys.getrefcount(result)
-    assert (
-        after_cleanup_refcount == initial_refcount
-    )  # Back to just result and __dict__
+    assert after_cleanup_refcount == initial_refcount
+
+    # Clear the cache and verify no leak when re-fetching
+    # After clearing: only result owns it
+    del a.__dict__["prop"]
+    cleared_refcount = sys.getrefcount(result)
+    assert cleared_refcount == initial_refcount - 1  # No longer in __dict__
+
+    # Re-fetch - this should create a new object, not affect old one
+    result4 = a.prop
+    assert result4 is not result  # Should be a new object
+    refetch_refcount = sys.getrefcount(result)
+    assert refetch_refcount == cleared_refcount  # Original object refcount unchanged

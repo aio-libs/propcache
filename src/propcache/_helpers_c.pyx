@@ -46,9 +46,8 @@ cdef class under_cached_property:
         cdef PyObject* val = PyDict_GetItem(cache, self.name)
         if val == NULL:
             val = PyObject_CallOneArg(self.wrapped, inst)
-            # PyObject_CallOneArg should not be making extra refs
-            Py_DECREF(val)
             PyDict_SetItem(cache, self.name, val)
+            Py_DECREF(val)
         return <object>val
 
     def __set__(self, inst, value):
@@ -97,8 +96,8 @@ cdef class cached_property:
         cdef PyObject* val = PyDict_GetItem(cache, self.name)
         if val is NULL:
             val = PyObject_CallOneArg(self.func, inst)
-            Py_DECREF(val)
             PyDict_SetItem(cache, self.name, val)
+            Py_DECREF(val)
         return <object>val
 
     __class_getitem__ = classmethod(GenericAlias)

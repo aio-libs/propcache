@@ -220,5 +220,7 @@ def test_cached_property_no_refcount_leak(propcache_module: APIProtocol) -> None
     refetch_refcount = sys.getrefcount(result)
     assert refetch_refcount == cleared_refcount  # Original object refcount unchanged
 
-    # Now we should have 2 Sentinel instances (original + new one)
+    # Now we should have 2 Sentinel instances:
+    # - original in `result`
+    # - new one in `result4`
     assert count_sentinels() == initial_sentinel_count + 2

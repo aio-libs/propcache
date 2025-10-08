@@ -1,1 +1,1 @@
-fix reference leak caused by ``Py_INCREF`` because Cython has it's own reference counter systems -- by :user:`Vizonex`.
+Fixed reference leak caused by ``Py_INCREF`` because Cython has its own reference counter systems -- by :user:`Vizonex`.

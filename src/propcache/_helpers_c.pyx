@@ -16,7 +16,6 @@ cdef extern from "Python.h":
     int PyDict_SetItem(
         object dict, object key, PyObject* value
     ) except -1
-    void Py_INCREF(PyObject*)
 
 cdef class under_cached_property:
     """Use as a class method decorator.  It operates almost exactly like

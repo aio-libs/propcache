@@ -1,6 +1,8 @@
 # cython: language_level=3, freethreading_compatible=True
 from types import GenericAlias
 
+import cython
+
 from cpython.dict cimport PyDict_GetItem
 from cpython.object cimport PyObject
 
@@ -39,6 +41,7 @@ cdef class under_cached_property:
     def __doc__(self):
         return self.wrapped.__doc__
 
+    @cython.binding(False)
     def __get__(self, object inst, owner):
         if inst is None:
             return self
@@ -85,6 +88,7 @@ cdef class cached_property:
                 f"({self.name!r} and {name!r})."
             )
 
+    @cython.binding(False)
     def __get__(self, inst, owner):
         if inst is None:
             return self

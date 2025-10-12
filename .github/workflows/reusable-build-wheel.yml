@@ -16,7 +16,7 @@ on:
         type: string
       os:
         description: VM OS to use, without version suffix
-        default: ubuntu
+        default: ubuntu-latest
         required: false
         type: string
       qemu:

@@ -14,6 +14,36 @@ Changelog
 
 .. towncrier release notes start
 
+0.4.1
+=====
+
+*(2025-10-08)*
+
+
+Bug fixes
+---------
+
+- Fixed reference leak caused by ``Py_INCREF`` because Cython has its own reference counter systems -- by :user:`Vizonex`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`162`.
+
+
+Contributor-facing changes
+--------------------------
+
+- Fixes the default value for the ``os``
+  parameter in ``reusable-build-wheel.yml``
+  to be ``ubuntu-latest`` instead of
+  ``ubuntu``.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`155`.
+
+
+----
+
+
 0.4.0
 =====
 

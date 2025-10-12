@@ -16,7 +16,8 @@ cdef extern from "Python.h":
     int PyDict_SetItem(
         object dict, object key, PyObject* value
     ) except -1
-    void Py_INCREF(PyObject*)
+    void Py_DECREF(PyObject*)
+
 
 cdef class under_cached_property:
     """Use as a class method decorator.  It operates almost exactly like
@@ -46,8 +47,7 @@ cdef class under_cached_property:
         if val == NULL:
             val = PyObject_CallOneArg(self.wrapped, inst)
             PyDict_SetItem(cache, self.name, val)
-        else:
-            Py_INCREF(val)
+            Py_DECREF(val)
         return <object>val
 
     def __set__(self, inst, value):
@@ -97,8 +97,7 @@ cdef class cached_property:
         if val is NULL:
             val = PyObject_CallOneArg(self.func, inst)
             PyDict_SetItem(cache, self.name, val)
-        else:
-            Py_INCREF(val)
+            Py_DECREF(val)
         return <object>val
 
     __class_getitem__ = classmethod(GenericAlias)

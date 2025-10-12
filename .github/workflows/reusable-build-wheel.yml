@@ -16,7 +16,7 @@ on:
         type: string
       os:
         description: VM OS to use, without version suffix
-        default: ubuntu
+        default: ubuntu-latest
         required: false
         type: string
       qemu:
@@ -49,7 +49,7 @@ jobs:
   build-wheel:
     name: >-
      Build ${{ inputs.tag }} wheels on ${{ inputs.os }} ${{ inputs.qemu }}
-    runs-on: ${{ inputs.os }}-latest
+    runs-on: ${{ inputs.os }}
     timeout-minutes: ${{ inputs.qemu && 60 || 20 }}
     steps:
     - name: Retrieve the project source from an sdist inside the GHA artifact
@@ -83,7 +83,7 @@ jobs:
       shell: bash
 
     - name: Build wheels
-      uses: pypa/cibuildwheel@v3.0.0
+      uses: pypa/cibuildwheel@v3.2.0
       env:
         CIBW_ARCHS_MACOS: x86_64 arm64 universal2
         CIBW_CONFIG_SETTINGS: >-  # Cython line tracing for coverage collection

@@ -1,9 +1,9 @@
 """Various helper functions."""
 
 import sys
-from collections.abc import Mapping
+from collections.abc import Mapping, Callable
 from functools import cached_property
-from typing import Any, Callable, Generic, Optional, Protocol, TypeVar, Union, overload
+from typing import Any, Generic, Protocol, TypeVar, overload
 
 __all__ = ("under_cached_property", "cached_property")
 
@@ -39,16 +39,16 @@ class under_cached_property(Generic[_T]):
         self.name = wrapped.__name__
 
     @overload
-    def __get__(self, inst: None, owner: Optional[type[object]] = None) -> Self: ...
+    def __get__(self, inst: None, owner: type[object] | None = None) -> Self: ...
 
     @overload
     def __get__(
-        self, inst: _CacheImpl[Any], owner: Optional[type[object]] = None
+        self, inst: _CacheImpl[Any], owner: type[object] | None = None
     ) -> _T: ...
 
     def __get__(
-        self, inst: Optional[_CacheImpl[Any]], owner: Optional[type[object]] = None
-    ) -> Union[_T, Self]:
+        self, inst: _CacheImpl[Any] | None, owner: type[object] | None = None
+    ) -> _T | Self:
         if inst is None:
             return self
         try:

@@ -1,5 +1,6 @@
 """Various helper functions."""
 
+from __future__ import annotations
 import sys
 from collections.abc import Mapping, Callable
 from functools import cached_property

@@ -41,6 +41,8 @@ reStructuredText
 reencoding
 requote
 requoting
+riscv
+riscv64
 runtimes
 sdist
 src

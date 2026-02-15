@@ -18,6 +18,7 @@ booleans
 bools
 changelog
 changelogs
+cimport
 config
 de
 decodable

@@ -28,9 +28,6 @@ cdef class under_cached_property:
 
     """
 
-    cdef readonly object wrapped
-    cdef object name
-
     def __init__(self, object wrapped):
         self.wrapped = wrapped
         self.name = wrapped.__name__
@@ -64,9 +61,6 @@ cdef class cached_property:
     variable.  It is, in Python parlance, a data descriptor.
 
     """
-
-    cdef readonly object func
-    cdef object name
 
     def __init__(self, func):
         self.func = func

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -126,8 +127,11 @@ def patched_env(
         extra_cflags.append('-DCYTHON_TRACE_NOGIL=1')  # Implies CYTHON_TRACE=1
     # When building in a temporary directory, rewrite the random tmp dir
     # path back to the original source directory so the compiled artifacts
-    # are reproducible. Ref: https://github.com/aio-libs/propcache/issues/68
-    if temporary_build_directory is not None:
+    # are reproducible. `-ffile-prefix-map` is a GCC/Clang flag and is not
+    # understood by MSVC, so skip it on Windows.
+    # Ref: https://github.com/aio-libs/propcache/issues/68
+    if temporary_build_directory is not None and sys.platform != 'win32':
+        assert original_source_directory is not None
         extra_cflags.append(
             f'-ffile-prefix-map={temporary_build_directory!s}={original_source_directory!s}',
         )

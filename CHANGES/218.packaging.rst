@@ -3,7 +3,7 @@ config setting (and ``PROPCACHE_BUILD_INPLACE`` environment variable)
 for controlling whether to build the project in-tree or in a
 temporary directory. It only affects wheels and is set up to build
 in a temporary directory by default. It does not affect editable
-wheel builds, they will keep being built in-tree regardless.
+wheel builds; they will keep being built in-tree regardless.
 
 Here's an example of using this setting:
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -103,7 +104,13 @@ def make_cythonize_cli_args_from_config(config: Config, cython_line_tracing_requ
 
 
 @contextmanager
-def patched_env(env: dict[str, str], cython_line_tracing_requested: bool) -> Iterator[None]:
+def patched_env(
+    env: dict[str, str],
+    cython_line_tracing_requested: bool,
+    *,
+    original_source_directory: Path | None = None,
+    temporary_build_directory: Path | None = None,
+) -> Iterator[None]:
     """Temporary set given env vars.
 
     :param env: tmp env vars to set
@@ -115,11 +122,23 @@ def patched_env(env: dict[str, str], cython_line_tracing_requested: bool) -> Ite
     expanded_env = {name: expandvars(var_val) for name, var_val in env.items()}  # type: ignore[no-untyped-call]
     os.environ.update(expanded_env)
 
+    extra_cflags: list[str] = []
     if cython_line_tracing_requested:
-        os.environ['CFLAGS'] = ' '.join((
-            os.getenv('CFLAGS', ''),
-            '-DCYTHON_TRACE_NOGIL=1',  # Implies CYTHON_TRACE=1
-        )).strip()
+        extra_cflags.append('-DCYTHON_TRACE_NOGIL=1')  # Implies CYTHON_TRACE=1
+    # When building in a temporary directory, rewrite the random tmp dir
+    # path back to the original source directory so the compiled artifacts
+    # are reproducible. `-ffile-prefix-map` is a GCC/Clang flag and is not
+    # understood by MSVC, so skip it on Windows.
+    # Ref: https://github.com/aio-libs/propcache/issues/68
+    if temporary_build_directory is not None and sys.platform != 'win32':
+        assert original_source_directory is not None
+        extra_cflags.append(
+            f'-ffile-prefix-map={temporary_build_directory!s}={original_source_directory!s}',
+        )
+    if extra_cflags:
+        os.environ['CFLAGS'] = ' '.join(
+            (os.getenv('CFLAGS', ''), *extra_cflags),
+        ).strip()
     try:
         yield
     finally:

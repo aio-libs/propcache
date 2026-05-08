@@ -77,6 +77,12 @@ CYTHON_TRACING_ENV_VAR = 'PROPCACHE_CYTHON_TRACING'
 PURE_PYTHON_CONFIG_SETTING = 'pure-python'
 """Config setting name toggle that is used to opt out of making C-exts."""
 
+BUILD_INPLACE_CONFIG_SETTING = 'build-inplace'
+"""Config setting name toggle for building C-exts in-place."""
+
+BUILD_INPLACE_ENV_VAR = 'PROPCACHE_BUILD_INPLACE'
+"""Environment variable name toggle for building C-exts in-place."""
+
 PURE_PYTHON_ENV_VAR = 'PROPCACHE_NO_EXTENSIONS'
 """Environment variable name toggle used to opt out of making C-exts."""
 
@@ -131,6 +137,19 @@ def _include_cython_line_tracing(
         config_settings,
         CYTHON_TRACING_CONFIG_SETTING,
         CYTHON_TRACING_ENV_VAR,
+        default=default,
+    )
+
+
+def _build_inplace(
+        config_settings: _ConfigDict | None = None,
+        *,
+        default: bool = False,
+) -> bool:
+    return _get_setting_value(
+        config_settings,
+        BUILD_INPLACE_CONFIG_SETTING,
+        BUILD_INPLACE_ENV_VAR,
         default=default,
     )
 
@@ -217,7 +236,7 @@ def _exclude_dir_path(
 
 
 @contextmanager
-def _in_temporary_directory(src_dir: Path) -> t.Iterator[None]:
+def _in_temporary_directory(src_dir: Path) -> t.Iterator[Path]:
     with TemporaryDirectory(prefix='.tmp-propcache-pep517-') as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
         root_tmp_dir_path = tmp_dir_path.parent
@@ -232,7 +251,7 @@ def _in_temporary_directory(src_dir: Path) -> t.Iterator[None]:
                 symlinks=True,
             )
             os.chdir(tmp_src_dir)
-            yield
+            yield tmp_src_dir
 
 
 @contextmanager
@@ -275,6 +294,10 @@ def maybe_prebuild_c_extensions(
 
     print("**********************", file=_standard_error_stream)
     print("* Accelerated build *", file=_standard_error_stream)
+    print(
+        f'* Build location: {"in-tree" if build_inplace else "tmp dir"} *',
+        file=_standard_error_stream,
+    )
     print("**********************", file=_standard_error_stream)
     if not IS_CPYTHON:
         _warn_that(
@@ -285,15 +308,21 @@ def maybe_prebuild_c_extensions(
             stacklevel=999,
         )
 
+    original_src_dir = Path.cwd().resolve()
     build_dir_ctx = (
         nullcontext() if build_inplace
-        else _in_temporary_directory(src_dir=Path.cwd().resolve())
+        else _in_temporary_directory(src_dir=original_src_dir)
     )
-    with build_dir_ctx:
+    with build_dir_ctx as tmp_build_dir:
         config = _get_local_cython_config()
 
         cythonize_args = _make_cythonize_cli_args_from_config(config, cython_line_tracing_requested)
-        with _patched_cython_env(config['env'], cython_line_tracing_requested):
+        with _patched_cython_env(
+                config['env'],
+                cython_line_tracing_requested,
+                original_source_directory=original_src_dir,
+                temporary_build_directory=tmp_build_dir,
+        ):
             _cythonize_cli_cmd(cythonize_args)  # type: ignore[no-untyped-call]
         with patched_distutils_cmd_install():
             with patched_dist_has_ext_modules():
@@ -317,7 +346,7 @@ def build_wheel(
     """
     with maybe_prebuild_c_extensions(
             line_trace_cython_when_unset=False,
-            build_inplace=False,
+            build_inplace=_build_inplace(config_settings, default=False),
             config_settings=config_settings,
     ):
         return _setuptools_build_wheel(
@@ -342,9 +371,17 @@ def build_editable(
     :param metadata_directory: :file:`.dist-info` directory path.
 
     """
+    mandatory_build_inplace = True
+    if not _build_inplace(config_settings, default=mandatory_build_inplace):
+        _warn_that(
+            'Editable builds require C-extensions to be produced in-tree',
+            RuntimeWarning,
+            stacklevel=999,
+        )
+
     with maybe_prebuild_c_extensions(
             line_trace_cython_when_unset=True,
-            build_inplace=True,
+            build_inplace=mandatory_build_inplace,
             config_settings=config_settings,
     ):
         return _setuptools_build_editable(

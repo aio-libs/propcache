@@ -1,7 +1,7 @@
 propcache
 =========
 
-The module provides a fast implementation of cached properties for Python 3.9+.
+The module provides a fast implementation of cached properties for Python 3.10+.
 
 .. image:: https://github.com/aio-libs/propcache/actions/workflows/ci-cd.yml/badge.svg
   :target: https://github.com/aio-libs/propcache/actions?query=workflow%3ACI

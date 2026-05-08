@@ -3,7 +3,6 @@
 from collections.abc import Iterable, Iterator, Mapping
 from itertools import chain
 from re import sub as _substitute_with_regexp
-from typing import Union
 
 
 def _emit_opt_pairs(opt_pair: tuple[str, dict[str, str] | str]) -> Iterator[str]:

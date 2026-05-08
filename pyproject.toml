@@ -75,6 +75,10 @@ before-test = [
 ]
 test-requires = "-r requirements/test.txt"
 test-command = "pytest -v --no-cov {project}/tests"
+# Free-threaded CPython under armv7l QEMU emulation crashes with SIGBUS when
+# importing the C extension; the wheel runs fine on real armv7l hardware, so
+# build and ship it but skip the emulated post-build test.
+test-skip = "*t-musllinux_armv7l"
 # don't build PyPy wheels, install from source instead
 skip = "pp*"
 

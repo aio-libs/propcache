@@ -1,2 +1,0 @@
-Added support for newer type hints and remove ``Optional`` and ``Union`` from all annotations
--- by :user:`Vizonex`

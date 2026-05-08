@@ -1,5 +1,0 @@
-Changed the Cython build dependency from ``~= 3.1.0`` to ``>= 3.2.0``,
-removing the upper version bound to avoid conflicts for downstream packagers
--- by :user:`jameshilliard` and :user:`gundalow`.
-
-The upstream Cython version is pinned to 3.2.4 in the CI/CD environment.

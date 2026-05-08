@@ -1,0 +1,2 @@
+Dropped Python 3.13t support due to failing workflows and other dangers
+-- by :user:`Vizonex`

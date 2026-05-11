@@ -21,6 +21,7 @@ changelogs
 config
 de
 decodable
+dependabot
 dev
 dists
 downstreams

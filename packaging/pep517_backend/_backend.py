@@ -30,6 +30,8 @@ except ImportError:
     _setuptools_build_editable = None  # type: ignore[assignment]
 
 
+from setuptools.command.build_ext import build_ext as _setuptools_build_ext_cmd
+
 # isort: split
 from distutils.command.install import install as _distutils_install_cmd
 from distutils.core import Distribution as _DistutilsDistribution
@@ -191,6 +193,30 @@ def patched_dist_has_ext_modules() -> Iterator[None]:
 
 
 @contextmanager
+def patched_build_ext_parallel() -> Iterator[None]:
+    """Default ``build_ext.parallel`` to ``os.cpu_count()``.
+
+    Per-module ``gcc`` compilations of the Cythonized hot paths then run in
+    parallel instead of one at a time; the QEMU emulated wheel jobs are the
+    biggest beneficiary.
+
+    :yields: None
+    """
+    orig_build_extensions = _setuptools_build_ext_cmd.build_extensions
+
+    def new_build_extensions(self: t.Any) -> None:
+        if self.parallel is None:
+            self.parallel = os.cpu_count() or 1
+        orig_build_extensions(self)
+
+    _setuptools_build_ext_cmd.build_extensions = new_build_extensions  # type: ignore[method-assign]
+    try:
+        yield
+    finally:
+        _setuptools_build_ext_cmd.build_extensions = orig_build_extensions  # type: ignore[method-assign]
+
+
+@contextmanager
 def patched_dist_get_long_description() -> Iterator[None]:
     """Make `has_ext_modules` of `Distribution` always return `True`.
 
@@ -324,9 +350,12 @@ def maybe_prebuild_c_extensions(
                 temporary_build_directory=tmp_build_dir,
         ):
             _cythonize_cli_cmd(cythonize_args)  # type: ignore[no-untyped-call]
-        with patched_distutils_cmd_install():
-            with patched_dist_has_ext_modules():
-                yield
+        with (
+            patched_distutils_cmd_install(),
+            patched_dist_has_ext_modules(),
+            patched_build_ext_parallel(),
+        ):
+            yield
 
 
 @patched_dist_get_long_description()

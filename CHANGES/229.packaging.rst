@@ -1,0 +1,1 @@
+Parallelized per-module ``gcc`` compilation of the Cythonized C extension by defaulting setuptools' ``build_ext.parallel`` to ``os.cpu_count()``; the QEMU emulated wheel jobs are the biggest beneficiary -- by :user:`bdraco`.

@@ -69,15 +69,6 @@ emit_code_comments = "True"
 # pip-based path took noticeably longer per ABI and ran once per matrix
 # cell.
 build-frontend = "build[uv]"
-before-test = [
-  # NOTE: Attempt to have pip pre-compile PyYAML wheel with our build
-  # NOTE: constraints unset. The hope is that pip will cache that wheel
-  # NOTE: and the test env provisioning stage will pick up PyYAML from
-  # NOTE: said cache rather than attempting to build it with a conflicting.
-  # NOTE: Version of Cython.
-  # Ref: https://github.com/pypa/cibuildwheel/issues/1666
-  "PIP_CONSTRAINT= pip install PyYAML",
-]
 test-requires = "-r requirements/test.txt"
 test-command = "pytest -v --no-cov {project}/tests"
 # Free-threaded CPython under armv7l QEMU emulation crashes with SIGBUS when
@@ -97,9 +88,6 @@ PY_COLORS = "1"
 
 [tool.cibuildwheel.config-settings]
 pure-python = "false"
-
-[tool.cibuildwheel.windows]
-before-test = []  # Windows cmd has different syntax and pip chooses wheels
 
 [tool.cibuildwheel.linux]
 before-all = "yum install -y libffi-devel || apk add --upgrade libffi-dev || apt-get install libffi-dev"

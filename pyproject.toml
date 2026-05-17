@@ -90,10 +90,10 @@ PY_COLORS = "1"
 pure-python = "false"
 
 [tool.cibuildwheel.linux]
-# ccache is installed alongside libffi-devel so the compiler-cache wrapping
+# Install ccache in the build container so the compiler-cache wrapping
 # configured by the CI workflow (PATH=/usr/lib64/ccache:... + bind-mounted
-# CCACHE_DIR) actually finds a ccache binary inside the build container.
-before-all = "(yum install -y libffi-devel ccache) || (apk add --upgrade libffi-dev ccache) || (apt-get install -y libffi-dev ccache)"
+# CCACHE_DIR) actually finds a ccache binary.
+before-all = "(yum install -y ccache) || (apk add --upgrade ccache) || (apt-get install -y ccache)"
 
 [tool.ruff.lint]
 # Keep this list small and intentional; the rest of the project still

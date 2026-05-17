@@ -4,7 +4,7 @@ requires = [
   # NOTE: provisioning of the in-tree build backend located under
   # NOTE: `packaging/pep517_backend/`.
   "expandvars",
-  "setuptools >= 82.0.1",  # Minimum required for `version = attr:`
+  "setuptools >= 47",  # Minimum required for `version = attr:`
   "tomli; python_version < '3.11'",
 ]
 backend-path = ["packaging"]  # requires `pip >= 20` or `pep517 >= 0.6.0`
@@ -98,3 +98,17 @@ before-test = []  # Windows cmd has different syntax and pip chooses wheels
 
 [tool.cibuildwheel.linux]
 before-all = "yum install -y libffi-devel || apk add --upgrade libffi-dev || apt-get install libffi-dev"
+
+[tool.ruff.lint]
+# Keep this list small and intentional; the rest of the project still
+# relies on flake8 for general style. The rules below are ones we want
+# to enforce repo-wide as a baseline.
+select = [
+  # Import sorting. Replaces the dedicated isort pre-commit hook so the
+  # formatter (ruff format) and the import sorter (ruff check --select I)
+  # come from the same tool and rev.
+  "I",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["propcache"]

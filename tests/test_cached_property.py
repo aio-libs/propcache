@@ -39,7 +39,6 @@ def test_cached_property(propcache_module: APIProtocol) -> None:
 
 def test_cached_property_without_cache(propcache_module: APIProtocol) -> None:
     class A:
-
         __slots__ = ()
 
         def __init__(self) -> None:
@@ -57,7 +56,6 @@ def test_cached_property_without_cache(propcache_module: APIProtocol) -> None:
 
 def test_cached_property_check_without_cache(propcache_module: APIProtocol) -> None:
     class A:
-
         __slots__ = ()
 
         def __init__(self) -> None:
@@ -106,7 +104,6 @@ def test_set_name(propcache_module: APIProtocol) -> None:
     """Test that the __set_name__ method is called and checked."""
 
     class A:
-
         @propcache_module.cached_property
         def prop(self) -> None:
             """Docstring."""

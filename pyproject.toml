@@ -97,7 +97,10 @@ pure-python = "false"
 before-test = []  # Windows cmd has different syntax and pip chooses wheels
 
 [tool.cibuildwheel.linux]
-before-all = "yum install -y libffi-devel || apk add --upgrade libffi-dev || apt-get install libffi-dev"
+# ccache is installed alongside libffi-devel so the compiler-cache wrapping
+# configured by the CI workflow (PATH=/usr/lib64/ccache:... + bind-mounted
+# CCACHE_DIR) actually finds a ccache binary inside the build container.
+before-all = "(yum install -y libffi-devel ccache) || (apk add --upgrade libffi-dev ccache) || (apt-get install -y libffi-dev ccache)"
 
 [tool.ruff.lint]
 # Keep this list small and intentional; the rest of the project still

@@ -115,6 +115,20 @@ jobs:
         echo "CIBW_ENVIRONMENT_LINUX=${cibw_env}" >> "${GITHUB_ENV}"
       shell: bash
 
+    - name: Wire ccache into the cibuildwheel macOS build
+      # Brew ships compiler-named shims under
+      # `$(brew --prefix ccache)/libexec`; prepending that to `PATH`
+      # via `CIBW_ENVIRONMENT_MACOS` routes setuptools' bare `clang`
+      # / `cc` lookups through ccache. `brew --prefix` keeps this
+      # working on both `/opt/homebrew` and `/usr/local` runners.
+      if: runner.os == 'macOS' && !inputs.qemu
+      run: |
+        libexec="$(brew --prefix ccache)/libexec"
+        host_cache="$(ccache --get-config cache_dir)"
+        cibw_env="PATH=${libexec}:\$PATH CCACHE_DIR=${host_cache}"
+        echo "CIBW_ENVIRONMENT_MACOS=${cibw_env}" >> "${GITHUB_ENV}"
+      shell: bash
+
     - name: Build wheels
       uses: pypa/cibuildwheel@v3.4.1
       with:

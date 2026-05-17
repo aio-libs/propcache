@@ -63,7 +63,6 @@ emit_code_comments = "True"
 
 [tool.cibuildwheel]
 build-frontend = "build"
-enable = ["cpython-freethreading"]
 before-test = [
   # NOTE: Attempt to have pip pre-compile PyYAML wheel with our build
   # NOTE: constraints unset. The hope is that pip will cache that wheel

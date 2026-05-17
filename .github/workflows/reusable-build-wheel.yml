@@ -100,21 +100,19 @@ jobs:
         max-size: 200M
 
     - name: Wire ccache into the cibuildwheel Linux container
-      # The manylinux/musllinux container ships without ccache and can't see
-      # the host's cache dir by default. `before-all` (in pyproject.toml)
-      # installs ccache inside the container; here we bind-mount the host
-      # cache dir and prepend the in-container ccache compiler symlinks to
-      # PATH so build_ext picks them up transparently.
+      # `cibuildwheel` already mounts the host filesystem at `/host` inside
+      # the manylinux/musllinux build container, so the cache dir set up by
+      # `hendrikmuhs/ccache-action` on the runner is reachable at
+      # `/host${cache_dir}`. The in-container ccache (installed via
+      # `before-all` in `pyproject.toml`) reads and writes through that
+      # mount. The cache dir is read straight from `ccache --get-config`
+      # because the action does not export `CCACHE_DIR` to `GITHUB_ENV`.
       if: runner.os == 'Linux' && !inputs.qemu
       run: |
-        mount="/host_ccache"
-        engine="docker; create_args: --volume=${CCACHE_DIR}:${mount}"
+        host_cache="$(ccache --get-config cache_dir)"
         cc_dirs="/usr/lib64/ccache:/usr/lib/ccache/bin:/usr/lib/ccache"
-        cibw_env="PATH=${cc_dirs}:\$PATH CCACHE_DIR=${mount}"
-        {
-          echo "CIBW_CONTAINER_ENGINE=${engine}"
-          echo "CIBW_ENVIRONMENT_LINUX=${cibw_env}"
-        } >> "${GITHUB_ENV}"
+        cibw_env="PATH=${cc_dirs}:\$PATH CCACHE_DIR=/host${host_cache}"
+        echo "CIBW_ENVIRONMENT_LINUX=${cibw_env}" >> "${GITHUB_ENV}"
       shell: bash
 
     - name: Build wheels

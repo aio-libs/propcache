@@ -26,6 +26,7 @@ dev
 dists
 downstreams
 facto
+frontend
 glibc
 google
 hardcoded

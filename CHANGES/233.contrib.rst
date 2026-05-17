@@ -1,0 +1,6 @@
+Wrapped the Linux and macOS C compiler with ``ccache`` in the
+``cibuildwheel`` matrix. The ``_helpers_c.c`` build for each
+Python version is now read from cache on warm runs instead of
+being recompiled from scratch, dropping the slowest wheel jobs by
+roughly half on cache hits
+-- by :user:`bdraco`.

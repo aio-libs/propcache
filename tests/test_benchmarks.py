@@ -76,7 +76,6 @@ def test_cached_property_cache_miss(benchmark: "BenchmarkFixture") -> None:
     """Benchmark for cached_property cache miss."""
 
     class Test:
-
         @cached_property
         def prop(self) -> int:
             """Return the value of the property."""

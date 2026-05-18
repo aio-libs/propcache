@@ -1,0 +1,6 @@
+Dropped the ``libffi-devel`` install from the ``cibuildwheel``
+Linux ``before-all`` step. It was added in :pr:`75` so
+``cffi`` could build from source during wheel testing; the
+current wheel-test chain no longer pulls in ``cffi``, so the
+header package is dead weight
+-- by :user:`bdraco`.

@@ -37,7 +37,7 @@ runs:
       'dist/${{
         fromJSON(
           inputs.job-dependencies-context
-        ).pre-setup.outputs.wheel-artifact-name
+        ).pre-setup.outputs.pure-python-wheel-artifact-name
       }}'
     shell: bash
   - name: Store the distribution packages
@@ -64,7 +64,7 @@ runs:
         dist/${{
           fromJSON(
             inputs.job-dependencies-context
-          ).pre-setup.outputs.wheel-artifact-name
+          ).pre-setup.outputs.pure-python-wheel-artifact-name
         }}
       retention-days: 15
 

@@ -171,7 +171,6 @@ jobs:
         - 3.12
         toxenv:
         - pre-commit
-        - metadata-validation
         # - build-docs
         # - doctest-docs
         # - spellcheck-docs
@@ -288,6 +287,34 @@ jobs:
           && 'false'
           || 'true'
         }}
+
+  metadata-validation:
+    name: 🧹 Validate metadata of all built dists
+    needs:
+    - build  # sdist + pure-python wheel
+    - build-wheels-for-tested-arches  # cibuildwheel binary wheels
+    - pre-setup  # transitive, for accessing settings
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+    - name: Set up Python via uv
+      uses: astral-sh/setup-uv@v8.1.0
+      with:
+        python-version: '3.12'
+        activate-environment: true
+        enable-cache: true
+    - name: Download all dists
+      uses: actions/download-artifact@v8
+      with:
+        path: dist
+        pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
+        merge-multiple: true
+    - name: Bootstrap tox via uv
+      run: uv pip install tox tox-uv
+    - name: Run metadata-validation tox env
+      run: tox r -e metadata-validation
 
   test:
     name: Test
@@ -499,6 +526,7 @@ jobs:
     timeout-minutes: 1
     needs:
     - lint
+    - metadata-validation
     - retro-lint
     - test
     steps:

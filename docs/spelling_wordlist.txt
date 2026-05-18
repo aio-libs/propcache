@@ -25,6 +25,7 @@ dependabot
 dev
 dists
 downstreams
+env
 facto
 frontend
 glibc
@@ -52,6 +53,7 @@ subclass
 subclasses
 subcomponent
 svetlov
+tox
 uncompiled
 unobvious
 v1

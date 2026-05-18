@@ -1,0 +1,10 @@
+Introduced an in-tree ``tox.ini`` and integrated
+``tox-dev/workflow``'s ``reusable-tox.yml`` into CI/CD. The
+``build-pure-python-dists`` job is replaced by a ``build`` job
+that builds the sdist and pure-python wheel through the
+``build-dists`` tox env, and a new ``lint`` job runs
+``pre-commit`` through ``tox-dev/workflow``. The existing
+``Linter`` workflow continues to run as ``retro-lint`` to keep
+``mypy``, ``twine check`` and ``spellcheck-docs`` coverage during
+the transition
+-- by :user:`bdraco`.

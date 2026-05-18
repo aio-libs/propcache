@@ -39,6 +39,28 @@ env:
   PYTHONIOENCODING: utf-8
   PYTHONUTF8: 1
   PYTHON_LATEST: 3.12
+  TOX_PARALLEL_NO_SPINNER: 1  # Disable tox's parallel run spinner animation
+  TOX_TESTENV_PASSENV: >-  # Make tox-wrapped tools see color requests
+    CI
+    COLOR
+    FORCE_COLOR
+    GITHUB_*
+    MYPY_FORCE_COLOR
+    NO_COLOR
+    PIP_DISABLE_PIP_VERSION_CHECK
+    PIP_NO_PYTHON_VERSION_WARNING
+    PIP_NO_WARN_SCRIPT_LOCATION
+    PRE_COMMIT_COLOR
+    PY_COLORS
+    PYTEST_THEME
+    PYTEST_THEME_MODE
+    PYTHONDONTWRITEBYTECODE
+    PYTHONIOENCODING
+    PYTHONLEGACYWINDOWSSTDIO
+    PYTHONTRACEMALLOC
+    PYTHONUTF8
+  UPSTREAM_REPOSITORY_ID: >-
+    866565706
 
 
 jobs:
@@ -46,91 +68,177 @@ jobs:
   pre-setup:
     name: ⚙️ Pre-set global build settings
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 2
     defaults:
       run:
         shell: python
     outputs:
       # NOTE: These aren't env vars because the `${{ env }}` context is
       # NOTE: inaccessible when passing inputs to reusable workflows.
+      cache-key-for-dep-files: >-
+        ${{ steps.calc-cache-key-files.outputs.cache-key-for-dep-files }}
       dists-artifact-name: python-package-distributions
-      sdist-name: ${{ env.PROJECT_NAME }}-*.tar.gz
-      wheel-name: ${{ env.PROJECT_NAME }}-*.whl
+      dist-version: ${{ steps.dist-version.outputs.dist-version }}
+      project-name: ${{ env.PROJECT_NAME }}
+      sdist-artifact-name: ${{ steps.artifact-name.outputs.sdist }}
+      wheel-artifact-name: ${{ steps.artifact-name.outputs.wheel }}
+      upstream-repository-id: ${{ env.UPSTREAM_REPOSITORY_ID }}
     steps:
-    - run: >-
-        print('No-op')
-
-
-  build-pure-python-dists:
-    name: 📦 Build distribution packages
-    needs:
-    - pre-setup
-    runs-on: ubuntu-latest
-    timeout-minutes: 1
-    outputs:
-      sdist-filename: >-
-        ${{ steps.dist-filenames-detection.outputs.sdist-filename }}
-      wheel-filename: >-
-        ${{ steps.dist-filenames-detection.outputs.wheel-filename }}
-    steps:
-    - name: Checkout project
-      uses: actions/checkout@v6
-    - name: Set up Python
+    - name: Switch to using Python ${{ env.PYTHON_LATEST }} by default
       uses: actions/setup-python@v6
       with:
         python-version: ${{ env.PYTHON_LATEST }}
+    - name: Check out src from Git
+      uses: actions/checkout@v6
     - name: >-
         Calculate dependency files' combined hash value
         for use in the cache key
       id: calc-cache-key-files
       uses: ./.github/actions/cache-keys
-    - name: Set up pip cache
-      uses: re-actors/cache-python-deps@release/v1
-      with:
-        cache-key-for-dependency-files: >-
-          ${{ steps.calc-cache-key-files.outputs.cache-key-for-dep-files }}
-    - name: Install core libraries for build
-      run: python -Im pip install build
-    - name: Build sdists and pure-python wheel
+    - name: Read the package version from the source tree
+      id: dist-version
+      run: |
+        import re
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+        VERSION_RE = re.compile(
+            r'''^__version__\s*=\s*["']([^"']+)["']''',
+            re.M,
+        )
+
+        init_text = Path('src/propcache/__init__.py').read_text()
+        match = VERSION_RE.search(init_text)
+        if match is None:
+            raise SystemExit(
+                'Could not find __version__ in propcache/__init__.py',
+            )
+
+        with Path(environ['GITHUB_OUTPUT']).open(mode=FILE_APPEND_MODE) as out:
+            print(f'dist-version={match.group(1)}', file=out)
+    - name: Set the expected dist artifact names
+      id: artifact-name
       env:
-        PIP_CONSTRAINT: requirements/cython.txt
-      run: python -Im build --config-setting=pure-python=true
-    - name: Determine actual created filenames
-      id: dist-filenames-detection
-      run: >-
-        {
-        echo -n sdist-filename=
-        ;
-        basename "$(ls -1 dist/${{ needs.pre-setup.outputs.sdist-name }})"
-        ;
-        echo -n wheel-filename=
-        ;
-        basename "$(ls -1 dist/${{ needs.pre-setup.outputs.wheel-name }})"
-        ;
-        }
-        >> "${GITHUB_OUTPUT}"
-    - name: Upload built artifacts for testing
-      uses: actions/upload-artifact@v7
-      with:
-        if-no-files-found: error
-        name: ${{ needs.pre-setup.outputs.dists-artifact-name  }}
-        # NOTE: Exact expected file names are specified here
-        # NOTE: as a safety measure — if anything weird ends
-        # NOTE: up being in this dir or not all dists will be
-        # NOTE: produced, this will fail the workflow.
-        path: |
-          dist/${{ steps.dist-filenames-detection.outputs.sdist-filename }}
-          dist/${{ steps.dist-filenames-detection.outputs.wheel-filename }}
-        retention-days: 15
+        DIST_VERSION: ${{ steps.dist-version.outputs.dist-version }}
+      run: |
+        from os import environ
+        from pathlib import Path
+
+        FILE_APPEND_MODE = 'a'
+
+        project_name = '${{ env.PROJECT_NAME }}'
+        version = environ['DIST_VERSION']
+
+        with Path(environ['GITHUB_OUTPUT']).open(mode=FILE_APPEND_MODE) as out:
+            print(f'sdist={project_name}-{version}.tar.gz', file=out)
+            print(
+                f'wheel={project_name}-{version}-py3-none-any.whl',
+                file=out,
+            )
+
+
+  build:
+    name: >-
+      📦 Build dists v${{ needs.pre-setup.outputs.dist-version }}
+    needs:
+    - pre-setup
+
+    uses: tox-dev/workflow/.github/workflows/reusable-tox.yml@89de3c6be3cd179adf71e28aa4ac5bef60804209  # yamllint disable-line rule:line-length
+    with:
+      cache-key-for-dependency-files: >-
+        ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
+      check-name: Build dists under 🐍3.12
+      job-dependencies-context: >-  # context for hooks
+        ${{ toJSON(needs) }}
+      python-version: '3.12'
+      runner-vm-os: ubuntu-latest
+      timeout-minutes: 3
+      toxenv: build-dists
+      tox-tool-deps: tox
+      xfail: false
 
   lint:
+    name: 🧹 Linters${{ '' }}  # nest jobs under the same sidebar category
+    needs:
+    - build
+    - pre-setup  # transitive, for accessing settings
+
+    strategy:
+      matrix:
+        runner-vm-os:
+        - ubuntu-latest
+        python-version:
+        - 3.12
+        toxenv:
+        - pre-commit
+        # - metadata-validation
+        # - build-docs
+        # - doctest-docs
+        # - spellcheck-docs
+        xfail:
+        - false
+      fail-fast: false
+
+    uses: tox-dev/workflow/.github/workflows/reusable-tox.yml@89de3c6be3cd179adf71e28aa4ac5bef60804209  # yamllint disable-line rule:line-length
+    with:
+      built-wheel-names: >-
+        ${{
+          matrix.toxenv == 'metadata-validation'
+          && needs.pre-setup.outputs.wheel-artifact-name
+          || ''
+        }}
+      cache-key-for-dependency-files: >-
+        ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
+      dists-artifact-name: >-
+        ${{ needs.pre-setup.outputs.dists-artifact-name }}
+      post-toxenv-preparation-command: >-
+        ${{
+          matrix.toxenv == 'pre-commit'
+          && 'python -Im pre_commit install-hooks'
+          || ''
+        }}
+      python-version: >-
+        ${{ matrix.python-version }}
+      runner-vm-os: >-
+        ${{ matrix.runner-vm-os }}
+      # NOTE: `pre-commit --show-diff-on-failure` and
+      # NOTE: `sphinxcontrib-spellcheck` with Git authors allowlist enabled
+      # NOTE: both depend on the presence of a Git repository.
+      source-tarball-name: >-
+        ${{
+          !contains(
+            fromJSON('["pre-commit", "spellcheck-docs"]'),
+            matrix.toxenv
+          )
+          && needs.pre-setup.outputs.sdist-artifact-name
+          || ''
+        }}
+      # NOTE: `pre-commit` and `sphinxcontrib-spellcheck` both depend on Git.
+      # NOTE: They may get slower due to network I/O, hence bigger timeout.
+      timeout-minutes: >-
+        ${{
+          !contains(
+            fromJSON('["pre-commit", "spellcheck-docs"]'),
+            matrix.toxenv
+          )
+          && 4
+          || 6
+        }}
+      toxenv: >-
+        ${{ matrix.toxenv }}
+      tox-tool-deps: tox
+      xfail: >-
+        ${{ matrix.xfail }}
+
+  retro-lint:
     uses: ./.github/workflows/reusable-linters.yml
 
   build-wheels-for-tested-arches:
     name: >-  # ${{ '' } is a hack to nest jobs under the same sidebar category
       📦 Build wheels for tested arches${{ '' }}
     needs:
-    - build-pure-python-dists
+    - build
     - pre-setup  # transitive, for accessing settings
     strategy:
       matrix:
@@ -171,7 +279,7 @@ jobs:
         || '*-musllinux_* pp*'
         }}
       source-tarball-name: >-
-        ${{ needs.build-pure-python-dists.outputs.sdist-filename }}
+        ${{ needs.pre-setup.outputs.sdist-artifact-name }}
       dists-artifact-name: ${{ needs.pre-setup.outputs.dists-artifact-name }}
       cython-tracing: >-  # Cython line tracing for coverage collection
         ${{
@@ -186,7 +294,7 @@ jobs:
   test:
     name: Test
     needs:
-    - build-pure-python-dists  # transitive, for accessing settings
+    - build  # transitive, ensures dists are built
     - build-wheels-for-tested-arches
     - pre-setup  # transitive, for accessing settings
     strategy:
@@ -232,7 +340,7 @@ jobs:
       uses: re-actors/checkout-python-sdist@release/v2
       with:
         source-tarball-name: >-
-          ${{ needs.build-pure-python-dists.outputs.sdist-filename }}
+          ${{ needs.pre-setup.outputs.sdist-artifact-name }}
         workflow-artifact-name: >-
           ${{ needs.pre-setup.outputs.dists-artifact-name }}
     - name: Download distributions
@@ -382,7 +490,7 @@ jobs:
   benchmark:
     name: Benchmark
     needs:
-    - build-pure-python-dists  # transitive, for accessing settings
+    - build  # transitive, ensures dists are built
     - build-wheels-for-tested-arches
     - pre-setup  # transitive, for accessing settings
     runs-on: ubuntu-latest
@@ -394,7 +502,7 @@ jobs:
       uses: re-actors/checkout-python-sdist@release/v2
       with:
         source-tarball-name: >-
-          ${{ needs.build-pure-python-dists.outputs.sdist-filename }}
+          ${{ needs.pre-setup.outputs.sdist-artifact-name }}
         workflow-artifact-name: >-
           ${{ needs.pre-setup.outputs.dists-artifact-name }}
     - name: Download distributions
@@ -476,7 +584,10 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 1
-    needs: [lint, test]
+    needs:
+    - lint
+    - retro-lint
+    - test
     steps:
     - name: Decide whether the needed jobs succeeded or failed
       uses: re-actors/alls-green@release/v1
@@ -499,7 +610,7 @@ jobs:
     name: >-  # ${{ '' } is a hack to nest jobs under the same sidebar category
       📦 Build wheels for odd arches${{ '' }}
     needs:
-    - build-pure-python-dists
+    - build
     - pre-deploy
     - pre-setup  # transitive, for accessing settings
     strategy:
@@ -528,13 +639,13 @@ jobs:
         || '*-musllinux_* pp*'
         }}
       source-tarball-name: >-
-        ${{ needs.build-pure-python-dists.outputs.sdist-filename }}
+        ${{ needs.pre-setup.outputs.sdist-artifact-name }}
       dists-artifact-name: ${{ needs.pre-setup.outputs.dists-artifact-name }}
 
   deploy:
     name: Deploy
     needs:
-    - build-pure-python-dists
+    - build
     - build-wheels-for-odd-archs
     - build-wheels-for-tested-arches
     - pre-setup  # transitive, for accessing settings
@@ -554,7 +665,7 @@ jobs:
       uses: re-actors/checkout-python-sdist@release/v2
       with:
         source-tarball-name: >-
-          ${{ needs.build-pure-python-dists.outputs.sdist-filename }}
+          ${{ needs.pre-setup.outputs.sdist-artifact-name }}
         workflow-artifact-name: >-
           ${{ needs.pre-setup.outputs.dists-artifact-name }}
 
@@ -590,7 +701,7 @@ jobs:
       uses: sigstore/gh-action-sigstore-python@v3.3.0
       with:
         inputs: >-
-          ./dist/${{ needs.build-pure-python-dists.outputs.sdist-filename }}
+          ./dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}
           ./dist/*.whl
 
     - name: Upload artifact signatures to GitHub Release

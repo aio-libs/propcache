@@ -7,7 +7,7 @@ the process locally by executing:
 
      .. code-block:: shell-session
 
-        $ tox -e docs
+        $ tox -e build-docs
 
 (or, equivalently, ``$ make doc`` -- a thin wrapper around the
 same ``tox`` invocation).

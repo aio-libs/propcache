@@ -244,13 +244,13 @@ unknown word as a hard failure. The spell checker reads every
 word in your news fragment (`cythonize`, `parametrization`,
 `repr`, and so on) that is not in
 [`docs/spelling_wordlist.txt`](docs/spelling_wordlist.txt)
-will fail `tox -e spelling` and burn a CI run before a human
+will fail `tox -e spellcheck-docs` and burn a CI run before a human
 even sees the PR.
 
 Before pushing:
 
 ```bash
-tox -e spelling   # or: make doc-spelling
+tox -e spellcheck-docs   # or: make doc-spelling
 ```
 
 If it flags a word you actually meant to use, add it to
@@ -283,13 +283,13 @@ Install `tox` (e.g. ``pipx install tox`` or
 ```bash
 tox -e py312-compiled    # tests against the C-extension build
 tox -e py312-pure        # tests against the pure-Python build
-tox -e lint              # pre-commit across the tree
+tox -e pre-commit        # pre-commit across the tree
 ```
 
 The legacy Makefile targets are thin wrappers around the same
 envs: `make test` runs `tox -e py312-compiled`, `make cov` adds
 coverage reporting, `make vtest` is verbose, `make fmt` runs
-the `lint` env. Override the interpreter or build flavour with
+the `pre-commit` env. Override the interpreter or build flavour with
 `make test PY=py311 VARIANT=pure` if you need a different cell.
 `make develop` runs `tox devenv` and drops an editable virtualenv
 at `./venv` for ad-hoc inspection.
@@ -346,18 +346,18 @@ the public descriptor surface, update the dispatcher in
 `src/propcache/api.py`) too.
 
 Generated files (`src/propcache/*.c`, `src/propcache/*.html`,
-the built `*.so`) are build outputs; do not commit them.
-`tox -e cython` (or the legacy `make cythonize` wrapper)
-regenerates the `.c` siblings of the `.pyx` sources during
-development.
+the built `*.so`) are build outputs; do not commit them. They
+are regenerated as a side-effect of the compiled test envs
+(`tox -e py3XY-compiled`) via the in-tree PEP 517 backend.
 
 ## Documentation
 
 User-visible API changes need a docs update under `docs/` (the
 relevant section of `docs/api.rst` plus any narrative pages). The
 docstring goes in the code; the prose context goes in the Sphinx
-sources. `tox -e docs` (or `make doc`) builds the docs locally;
-`tox -e doctest` exercises the runnable examples in the docs.
+sources. `tox -e build-docs` (or `make doc`) builds the docs
+locally; `tox -e doctest` exercises the runnable examples in
+the docs.
 
 ## Things not to do
 
@@ -368,7 +368,7 @@ sources. `tox -e docs` (or `make doc`) builds the docs locally;
   that was not possible in your environment.
 - Do not invent a `## What / ## Why / ## How / ## Testing` PR
   body; use the aio-libs template above.
-- Do not push without running `tox -e spelling` first if you
+- Do not push without running `tox -e spellcheck-docs` first if you
   edited any `.rst` file (including `CHANGES/`). The docs build
   fails on unknown words and burns a CI run; see _Run the docs
   spell check before pushing_ above.

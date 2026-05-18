@@ -18,14 +18,9 @@ VARIANT ?= compiled
 all: test
 
 
-.PHONY: cythonize
-cythonize:
-	$(TOX) -e cython
-
-
 .PHONY: fmt lint
 fmt lint:
-	$(TOX) -e lint
+	$(TOX) -e pre-commit
 
 
 .PHONY: test
@@ -46,7 +41,7 @@ cov:
 
 .PHONY: doc
 doc:
-	$(TOX) -e docs
+	$(TOX) -e build-docs
 	@echo "python3 -Im webbrowser file://`pwd`/.tox/docs/html/index.html"
 
 
@@ -57,7 +52,7 @@ doctest:
 
 .PHONY: doc-spelling
 doc-spelling:
-	$(TOX) -e spelling
+	$(TOX) -e spellcheck-docs
 
 
 .PHONY: build-dists

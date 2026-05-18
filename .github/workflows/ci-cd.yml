@@ -40,6 +40,7 @@ env:
   PYTHONUTF8: 1
   PYTHON_LATEST: 3.12
   TOX_PARALLEL_NO_SPINNER: 1  # Disable tox's parallel run spinner animation
+  UV_PYTHON_PREFERENCE: only-managed  # avoid ancient system Python
   TOX_TESTENV_PASSENV: >-  # Make tox-wrapped tools see color requests
     CI
     COLOR
@@ -366,7 +367,6 @@ jobs:
       uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: ${{ matrix.pyver }}
-        python-preference: only-managed
         activate-environment: true
         # Pre-release interpreters (alpha/beta/rc, `-dev`, or `~`-pinned
         # latest) skip the wheel cache so each run resolves freshly
@@ -501,7 +501,6 @@ jobs:
       uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: 3.13
-        python-preference: only-managed
         activate-environment: true
         enable-cache: true
     - name: Install dependencies

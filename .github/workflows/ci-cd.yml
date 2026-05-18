@@ -155,7 +155,6 @@ jobs:
       runner-vm-os: ubuntu-latest
       timeout-minutes: 3
       toxenv: build-dists
-      tox-tool-deps: tox
       xfail: false
 
   lint:
@@ -227,7 +226,6 @@ jobs:
         }}
       toxenv: >-
         ${{ matrix.toxenv }}
-      tox-tool-deps: tox
       xfail: >-
         ${{ matrix.xfail }}
 

@@ -171,9 +171,9 @@ jobs:
         - 3.12
         toxenv:
         - pre-commit
+        - spellcheck-docs
         # - build-docs
         # - doctest-docs
-        # - spellcheck-docs
         xfail:
         - false
       fail-fast: false

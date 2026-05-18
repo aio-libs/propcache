@@ -60,9 +60,5 @@ jobs:
         flag-name: MyPy
         format: cobertura
         measure: ${{ runner.debug == '1' && true || false }}
-    - name: Install spell checker
-      run: uv pip install -r requirements/doc-spelling.txt
-    - name: Run docs spelling
-      run: make doc-spelling
 
 ...

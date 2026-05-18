@@ -1,12 +1,7 @@
-Introduced an in-tree :file:`tox.ini` and integrated
-``tox-dev/workflow``'s :file:`reusable-tox.yml` into CI/CD. The
-``build-pure-python-dists`` job is replaced by a ``build`` job
-that builds the sdist and pure-python wheel through the
-``build-dists`` tox env. A new ``lint`` matrix runs
-``pre-commit`` and ``spellcheck-docs`` through ``tox-dev/workflow``,
-``mypy`` coverage is uploaded to Coveralls from a
-``post-tox-job`` hook, and a separate ``metadata-validation`` job
-runs ``twine check`` against every built dist (the pure-python
-wheel plus every ``cibuildwheel`` matrix output). The legacy
-``Linter`` reusable workflow has been removed
+Switched CI/CD to ``tox-dev/workflow``'s :file:`reusable-tox.yml`
+driven by an in-tree :file:`tox.ini`. The ``build``,
+``metadata-validation`` and ``lint`` (``pre-commit``,
+``spellcheck-docs``) jobs all run through the reusable workflow;
+``mypy`` coverage uploads to Coveralls from a ``post-tox-job``
+hook
 -- by :user:`bdraco`.

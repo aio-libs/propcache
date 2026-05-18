@@ -368,7 +368,21 @@ jobs:
         python-version: ${{ matrix.pyver }}
         python-preference: only-managed
         activate-environment: true
-        enable-cache: true
+        # Pre-release interpreters (alpha/beta/rc, `-dev`, or `~`-pinned
+        # latest) skip the wheel cache so each run resolves freshly
+        # against whatever the current snapshot ships.
+        enable-cache: >-
+          ${{
+            (
+              startsWith(matrix.pyver, '~')
+              || endsWith(matrix.pyver, '-dev')
+              || contains(matrix.pyver, 'a')
+              || contains(matrix.pyver, 'b')
+              || contains(matrix.pyver, 'rc')
+            )
+            && 'false'
+            || 'true'
+          }}
     - name: Install dependencies
       run: uv pip install -r requirements/codspeed.txt
     - name: Install ${{ env.PROJECT_NAME }} from a pre-built wheel

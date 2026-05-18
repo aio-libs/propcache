@@ -1,2 +1,3 @@
 -r codspeed.txt
 -r towncrier.txt
+tox >= 4.4

@@ -1,63 +1,72 @@
-PYXS = $(wildcard src/propcache/*.pyx)
+# Thin wrappers around ``tox``. The Python-aware automation lives in
+# ``tox.ini`` (see the header comments there for a tour of the envs).
+# The targets below exist so habitual ``make <foo>`` invocations keep
+# working — but feel free to call ``tox -e <env>`` directly.
+
+TOX ?= tox
+
+# Default Python factor for the local test envs. Override on the
+# command line (e.g. ``make test PY=py311``) when you want to test
+# against a different interpreter.
+PY ?= py312
+
+# Tox factor controlling whether the C-extension is built. Either
+# ``compiled`` (default; exercises the accelerated build) or ``pure``.
+VARIANT ?= compiled
+
 
 all: test
 
 
-.install-deps: $(shell find requirements -type f)
-	pip install -U -r requirements/dev.txt
-	pre-commit install
-	@touch .install-deps
+.PHONY: cythonize
+cythonize:
+	$(TOX) -e cython
 
 
-.install-cython: requirements/cython.txt
-	pip install -r requirements/cython.txt
-	touch .install-cython
+.PHONY: fmt lint
+fmt lint:
+	$(TOX) -e lint
 
 
-src/propcache/%.c: src/propcache/%.pyx
-	python -m cython -3 -o $@ $< -I src/propcache
+.PHONY: test
+test:
+	$(TOX) -e $(PY)-$(VARIANT)
 
 
-.cythonize: .install-cython $(PYXS:.pyx=.c)
+.PHONY: vtest
+vtest:
+	$(TOX) -e $(PY)-$(VARIANT) -- -v
 
 
-cythonize: .cythonize
-
-
-.develop: .install-deps $(shell find src/propcache -type f)
-	@pip install -e .
-	@touch .develop
-
-fmt:
-ifdef CI
-	pre-commit run --all-files --show-diff-on-failure
-else
-	pre-commit run --all-files
-endif
-
-lint: fmt
-
-test: lint .develop
-	pytest
-
-
-vtest: lint .develop
-	pytest -v
-
-
-cov: lint .develop
-	pytest --cov-report html --cov-report term
+.PHONY: cov
+cov:
+	$(TOX) -e $(PY)-$(VARIANT) -- --cov-report=html --cov-report=term
 	@echo "python3 -Im webbrowser file://`pwd`/htmlcov/index.html"
 
 
-doc: doctest doc-spelling
-	make -C docs html SPHINXOPTS="-W -E --keep-going -n"
-	@echo "python3 -Im webbrowser file://`pwd`/docs/_build/html/index.html"
+.PHONY: doc
+doc:
+	$(TOX) -e docs
+	@echo "python3 -Im webbrowser file://`pwd`/.tox/docs/html/index.html"
 
 
-doctest: .develop
-	make -C docs doctest SPHINXOPTS="-W -E --keep-going -n"
+.PHONY: doctest
+doctest:
+	$(TOX) -e doctest
 
 
+.PHONY: doc-spelling
 doc-spelling:
-	make -C docs spelling SPHINXOPTS="-W -E --keep-going -n"
+	$(TOX) -e spelling
+
+
+.PHONY: build-dists
+build-dists:
+	$(TOX) -e build-dists
+
+
+# Provision an editable venv at ``./venv`` mirroring the default test
+# env. Reproduces the previous ``make .develop`` workflow.
+.PHONY: develop
+develop:
+	$(TOX) devenv -e $(PY)-$(VARIANT) venv

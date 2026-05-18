@@ -59,9 +59,12 @@ jobs:
     - name: Self-install
       run: |
         pip install .
+    - name: Install tox
+      run: |
+        pip install 'tox >= 4.4'
     - name: Run linters
       run: |
-        make lint
+        tox -e lint
     - name: Send coverage data to Coveralls
       uses: coverallsapp/github-action@v2
       with:
@@ -72,12 +75,9 @@ jobs:
         flag-name: MyPy
         format: cobertura
         measure: ${{ runner.debug == '1' && true || false }}
-    - name: Install spell checker
-      run: |
-        pip install -r requirements/doc-spelling.txt
     - name: Run docs spelling
       run: |
-        make doc-spelling
+        tox -e spelling
     - name: Prepare twine checker
       run: |
         pip install -U build twine

@@ -7,7 +7,10 @@ the process locally by executing:
 
      .. code-block:: shell-session
 
-        $ make doc
+        $ tox -e docs
+
+(or, equivalently, ``$ make doc`` -- a thin wrapper around the
+same ``tox`` invocation).
 
 It is also integrated with `Read The Docs`_ that builds and
 publishes each commit to the main branch and generates live

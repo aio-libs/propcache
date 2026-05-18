@@ -1,0 +1,7 @@
+Migrated the contributor automation from ``make`` to ``tox``. A
+top-level :file:`tox.ini` now declares the test matrix
+(``pyXY-pure`` / ``pyXY-compiled``), linting, Cython source
+regeneration, distribution building, documentation, doctests,
+spelling, and benchmarks. The existing ``make`` targets remain as
+thin wrappers around ``tox -e <env>`` for muscle memory
+-- by :user:`webknjaz`.

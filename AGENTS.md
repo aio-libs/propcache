@@ -244,13 +244,13 @@ unknown word as a hard failure. The spell checker reads every
 word in your news fragment (`cythonize`, `parametrization`,
 `repr`, and so on) that is not in
 [`docs/spelling_wordlist.txt`](docs/spelling_wordlist.txt)
-will fail `make doc-spelling` and burn a CI run before a human
+will fail `tox -e spelling` and burn a CI run before a human
 even sees the PR.
 
 Before pushing:
 
 ```bash
-make doc-spelling
+tox -e spelling   # or: make doc-spelling
 ```
 
 If it flags a word you actually meant to use, add it to
@@ -277,16 +277,22 @@ misspellings by adding them to the wordlist.
 
 ## Tests
 
-Install dev deps and run the suite:
+Install `tox` (e.g. ``pipx install tox`` or
+``pip install -r requirements/dev.txt``) and run the matrix:
 
 ```bash
-make .develop      # installs deps and builds the Cython extension in place
-pytest ./tests
+tox -e py312-compiled    # tests against the C-extension build
+tox -e py312-pure        # tests against the pure-Python build
+tox -e lint              # pre-commit across the tree
 ```
 
-Or use the Makefile targets directly: `make test` runs lint and
-then pytest, `make cov` adds coverage, `make vtest` is verbose.
-`make fmt` runs pre-commit across the tree.
+The legacy Makefile targets are thin wrappers around the same
+envs: `make test` runs `tox -e py312-compiled`, `make cov` adds
+coverage reporting, `make vtest` is verbose, `make fmt` runs
+the `lint` env. Override the interpreter or build flavour with
+`make test PY=py311 VARIANT=pure` if you need a different cell.
+`make develop` runs `tox devenv` and drops an editable virtualenv
+at `./venv` for ad-hoc inspection.
 
 CI runs the full matrix across the supported Python versions
 plus a wheel build, doctests, spellcheck, and a CodSpeed
@@ -341,16 +347,17 @@ the public descriptor surface, update the dispatcher in
 
 Generated files (`src/propcache/*.c`, `src/propcache/*.html`,
 the built `*.so`) are build outputs; do not commit them.
-`make cythonize` regenerates the `.c` siblings of the `.pyx`
-sources during development.
+`tox -e cython` (or the legacy `make cythonize` wrapper)
+regenerates the `.c` siblings of the `.pyx` sources during
+development.
 
 ## Documentation
 
 User-visible API changes need a docs update under `docs/` (the
 relevant section of `docs/api.rst` plus any narrative pages). The
 docstring goes in the code; the prose context goes in the Sphinx
-sources. `make doc` builds the docs locally; `make doctest`
-exercises the runnable examples in the docs.
+sources. `tox -e docs` (or `make doc`) builds the docs locally;
+`tox -e doctest` exercises the runnable examples in the docs.
 
 ## Things not to do
 
@@ -361,7 +368,7 @@ exercises the runnable examples in the docs.
   that was not possible in your environment.
 - Do not invent a `## What / ## Why / ## How / ## Testing` PR
   body; use the aio-libs template above.
-- Do not push without running `make doc-spelling` first if you
+- Do not push without running `tox -e spelling` first if you
   edited any `.rst` file (including `CHANGES/`). The docs build
   fails on unknown words and burns a CI run; see _Run the docs
   spell check before pushing_ above.

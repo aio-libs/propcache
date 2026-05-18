@@ -35,13 +35,6 @@ from distutils.command.install import install as _distutils_install_cmd
 from distutils.core import Distribution as _DistutilsDistribution
 from distutils.dist import DistributionMetadata as _DistutilsDistributionMetadata
 
-with suppress(ImportError):
-    # NOTE: Only available for wheel builds that bundle C-extensions. Declared
-    # NOTE: by `get_requires_for_build_wheel()` and
-    # NOTE: `get_requires_for_build_editable()`, when `pure-python`
-    # NOTE: is not passed.
-    from Cython.Build.Cythonize import main as _cythonize_cli_cmd
-
 from ._compat import chdir_cm
 from ._cython_configuration import get_local_cython_config as _get_local_cython_config
 from ._cython_configuration import (
@@ -313,6 +306,14 @@ def maybe_prebuild_c_extensions(
         nullcontext() if build_inplace
         else _in_temporary_directory(src_dir=original_src_dir)
     )
+    # Import Cython lazily so the backend module can be loaded in
+    # frontends that follow PEP 517 strictly (pip, ``python -m build``)
+    # *as well as* frontends that keep the backend subprocess alive
+    # across hook calls (tox's ``pyproject_api``). The latter loads
+    # this module before ``install_requires_for_build_wheel`` runs, so
+    # an import at module scope would have observed Cython as missing.
+    from Cython.Build.Cythonize import main as _cythonize_cli_cmd
+
     with build_dir_ctx as tmp_build_dir:
         config = _get_local_cython_config()
 

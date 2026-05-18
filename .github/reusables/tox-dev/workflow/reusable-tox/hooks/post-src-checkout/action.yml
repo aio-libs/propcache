@@ -42,5 +42,17 @@ runs:
         }}-pre-commit-${{
           hashFiles('.pre-commit-config.yaml')
         }}
+  - name: Download every built dist for metadata-validation
+    if: fromJSON(inputs.calling-job-context).toxenv == 'metadata-validation'
+    uses: actions/download-artifact@v8
+    with:
+      path: dist
+      pattern: >-
+        ${{
+          fromJSON(
+            inputs.job-dependencies-context
+          ).pre-setup.outputs.dists-artifact-name
+        }}*
+      merge-multiple: true
 
 ...

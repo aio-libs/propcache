@@ -285,27 +285,23 @@ jobs:
     - build  # sdist + pure-python wheel
     - build-wheels-for-tested-arches  # cibuildwheel binary wheels
     - pre-setup  # transitive, for accessing settings
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v6
-    - name: Set up Python via uv
-      uses: astral-sh/setup-uv@v8.1.0
-      with:
-        python-version: '3.12'
-        activate-environment: true
-        enable-cache: true
-    - name: Download all dists
-      uses: actions/download-artifact@v8
-      with:
-        path: dist
-        pattern: ${{ needs.pre-setup.outputs.dists-artifact-name }}*
-        merge-multiple: true
-    - name: Bootstrap tox via uv
-      run: uv pip install tox tox-uv
-    - name: Run metadata-validation tox env
-      run: tox r -e metadata-validation
+
+    uses: tox-dev/workflow/.github/workflows/reusable-tox.yml@34958348bac6272f9729229f1b5679c76c3f9651  # yamllint disable-line rule:line-length
+    with:
+      cache-key-for-dependency-files: >-
+        ${{ needs.pre-setup.outputs.cache-key-for-dep-files }}
+      check-name: 🧹 Validate metadata of all built dists
+      dists-artifact-name: >-
+        ${{ needs.pre-setup.outputs.dists-artifact-name }}
+      job-dependencies-context: >-  # context for hooks
+        ${{ toJSON(needs) }}
+      python-version: '3.12'
+      runner-vm-os: ubuntu-latest
+      source-tarball-name: >-
+        ${{ needs.pre-setup.outputs.sdist-artifact-name }}
+      timeout-minutes: 3
+      toxenv: metadata-validation
+      xfail: false
 
   test:
     name: Test

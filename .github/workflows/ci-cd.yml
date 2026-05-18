@@ -366,6 +366,7 @@ jobs:
       uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: ${{ matrix.pyver }}
+        python-preference: only-managed
         activate-environment: true
         enable-cache: true
     - name: Install dependencies
@@ -486,6 +487,7 @@ jobs:
       uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: 3.13
+        python-preference: only-managed
         activate-environment: true
         enable-cache: true
     - name: Install dependencies

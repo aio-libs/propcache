@@ -25,22 +25,16 @@ inputs:
 runs:
   using: composite
   steps:
-  - name: Log setting up pre-commit cache
+  - name: Send MyPy coverage data to Coveralls
     if: fromJSON(inputs.calling-job-context).toxenv == 'pre-commit'
-    run: >-
-      >&2 echo Caching ~/.cache/pre-commit based on
-      the contents of '.pre-commit-config.yaml'...
-    shell: bash
-  - name: Cache pre-commit.com virtualenvs
-    if: fromJSON(inputs.calling-job-context).toxenv == 'pre-commit'
-    uses: actions/cache@v5
+    uses: coverallsapp/github-action@v2
     with:
-      path: ~/.cache/pre-commit
-      key: >-
-        ${{
-          runner.os
-        }}-pre-commit-${{
-          hashFiles('.pre-commit-config.yaml')
-        }}
+      debug: ${{ runner.debug == '1' && true || false }}
+      fail-on-error: ${{ runner.debug == '1' && false || true }}
+      files: >-
+        .tox/.tmp/.mypy/python-3.11/cobertura.xml
+      flag-name: MyPy
+      format: cobertura
+      measure: ${{ runner.debug == '1' && true || false }}
 
 ...

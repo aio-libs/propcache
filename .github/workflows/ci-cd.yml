@@ -222,9 +222,6 @@ jobs:
       xfail: >-
         ${{ matrix.xfail }}
 
-  retro-lint:
-    uses: ./.github/workflows/reusable-linters.yml
-
   build-wheels-for-tested-arches:
     name: >-  # ${{ '' } is a hack to nest jobs under the same sidebar category
       📦 Build wheels for tested arches${{ '' }}
@@ -521,7 +518,6 @@ jobs:
     needs:
     - lint
     - metadata-validation
-    - retro-lint
     - test
     steps:
     - name: Decide whether the needed jobs succeeded or failed

@@ -2,7 +2,7 @@
 
 inputs:
   calling-job-context:
-    description: A JSON with the calling job inputs
+    description: Calling job inputs encoded as a JSON string
     type: string
   current-job-steps:
     description: >-

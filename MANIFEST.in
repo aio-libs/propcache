@@ -13,6 +13,7 @@ graft docs
 graft CHANGES
 graft requirements
 graft tests
+graft .github/reusables
 global-exclude *.pyc
 global-exclude *.cache
 exclude src/propcache/*.c

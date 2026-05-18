@@ -1,6 +1,7 @@
 include .coveragerc
 include pyproject.toml
 include pytest.ini
+include tox.ini
 include towncrier.toml
 include LICENSE
 include NOTICE
@@ -12,6 +13,7 @@ graft docs
 graft CHANGES
 graft requirements
 graft tests
+graft .github/reusables
 global-exclude *.pyc
 global-exclude *.cache
 exclude src/propcache/*.c

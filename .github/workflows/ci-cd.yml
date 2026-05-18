@@ -171,7 +171,7 @@ jobs:
         - 3.12
         toxenv:
         - pre-commit
-        # - metadata-validation
+        - metadata-validation
         # - build-docs
         # - doctest-docs
         # - spellcheck-docs

@@ -64,13 +64,5 @@ jobs:
       run: uv pip install -r requirements/doc-spelling.txt
     - name: Run docs spelling
       run: make doc-spelling
-    - name: Prepare twine checker
-      env:
-        PIP_CONSTRAINT: requirements/cython.txt
-      run: |
-        uv pip install -U build twine
-        python -m build --config-setting=pure-python=true
-    - name: Run twine checker
-      run: twine check --strict dist/*
 
 ...

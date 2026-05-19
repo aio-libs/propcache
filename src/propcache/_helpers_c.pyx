@@ -96,11 +96,6 @@ cdef class cached_property:
                 "Cannot use cached_property instance"
                 " without calling __set_name__ on it.")
         cdef dict cache = inst.__dict__
-        cdef PyObject* val = PyDict_GetItem(cache, self.name)
-        if val is NULL:
-            val = PyObject_CallOneArg(self.func, inst)
-            PyDict_SetItem(cache, self.name, val)
-            Py_DECREF(val)
-        return <object>val
+        return under_cached_property_get(self.func, self.name, cache, inst)
 
     __class_getitem__ = classmethod(GenericAlias)

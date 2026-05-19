@@ -1,23 +1,6 @@
 # cython: language_level=3, freethreading_compatible=True
 from types import GenericAlias
 
-from cpython.dict cimport PyDict_GetItem
-from cpython.object cimport PyObject
-
-
-cdef extern from "Python.h":
-    # Call a callable Python object callable with exactly
-    # 1 positional argument arg and no keyword arguments.
-    # Return the result of the call on success, or raise
-    # an exception and return NULL on failure.
-    PyObject* PyObject_CallOneArg(
-        object callable, object arg
-    ) except NULL
-    int PyDict_SetItem(
-        object dict, object key, PyObject* value
-    ) except -1
-    void Py_DECREF(PyObject*)
-
 # Added to prevent performance from degrading in the most critical sections.
 cdef extern from "Python.h":
     """

@@ -569,10 +569,35 @@ jobs:
         exclude:
         - tag: ''
           qemu: armv7l
+        include:
+        # Build aarch64 natively on the GH-hosted ARM runner instead of
+        # x86_64-under-QEMU; this drops the build from ~40 min of
+        # emulation to a few minutes of native execution. Each
+        # (qemu, tag) combo is listed explicitly so the include
+        # unambiguously augments the existing matrix cell rather than
+        # relying on the partial-key merge behaviour of `matrix.include`.
+        - qemu: aarch64
+          tag: ''
+          runner-vm-os: ubuntu-24.04-arm
+          native-arch: true
+        - qemu: aarch64
+          tag: musllinux
+          runner-vm-os: ubuntu-24.04-arm
+          native-arch: true
+        # armv7l also moves to aarch64 hosts. QEMU stays registered so
+        # binfmt picks up the 32-bit ARM userspace handler regardless of
+        # whether the host kernel has CONFIG_COMPAT enabled. Even with
+        # emulation, aarch64-on-aarch64 hosting beats x86_64 by a wide
+        # margin. armv7l's ``tag: ''`` cell is excluded above, so only
+        # the musllinux cell is overridden here.
+        - qemu: armv7l
+          tag: musllinux
+          runner-vm-os: ubuntu-24.04-arm
     uses: ./.github/workflows/reusable-build-wheel.yml
     with:
-      os: ubuntu-latest
+      os: ${{ matrix.runner-vm-os || 'ubuntu-latest' }}
       qemu: ${{ matrix.qemu }}
+      native-arch: ${{ matrix.native-arch && true || false }}
       tag: ${{ matrix.tag }}
       wheel-tags-to-skip: >-
         ${{

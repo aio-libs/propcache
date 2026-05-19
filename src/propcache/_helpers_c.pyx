@@ -15,7 +15,7 @@ under_cached_property_get(
 )
 {
     PyObject* val;
-    
+
     if (!PyDict_CheckExact(cache)){
         PyErr_Format(PyExc_TypeError, "Expected dict, got %.200s", Py_TYPE(cache)->tp_name);
         return NULL;

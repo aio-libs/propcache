@@ -3,14 +3,14 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 #include "Python.h"
 
 
 /* Fixes performance regression when generating cython code. */
 /* SEE: https://github.com/aio-libs/propcache/issues/244 */
-static PyObject* 
+static PyObject*
 under_cached_property_get(PyObject* wrapped, PyObject* name, PyObject* cache, PyObject* inst){
     PyObject* val;
 

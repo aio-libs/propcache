@@ -29,7 +29,7 @@ under_cached_property_get(
         // NOTE: We do not need to DECREF as we gained a ref already.
         // TODO: Validate if that is true...
     }
-    Py_INCREF(val);
+    Py_XINCREF(val);
     return val;
 }
     """

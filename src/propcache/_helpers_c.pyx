@@ -15,6 +15,11 @@ under_cached_property_get(
 )
 {
     PyObject* val;
+    
+    if (!PyDict_CheckExact(cache)){
+        PyErr_Format(PyExc_TypeError, "Expected dict, got %.200s", Py_TYPE(cache)->tp_name);
+        return NULL;
+    }
 
     val = PyDict_GetItem(cache, name);
     if (val == NULL){
@@ -36,7 +41,7 @@ under_cached_property_get(
     object under_cached_property_get(
         object wrapped,
         object name,
-        dict cache,
+        object cache,
         object inst
     )
 
@@ -108,7 +113,6 @@ cdef class cached_property:
             raise TypeError(
                 "Cannot use cached_property instance"
                 " without calling __set_name__ on it.")
-        cdef dict cache = inst.__dict__
-        return under_cached_property_get(self.func, self.name, cache, inst)
+        return under_cached_property_get(self.func, self.name, inst.__dict__, inst)
 
     __class_getitem__ = classmethod(GenericAlias)

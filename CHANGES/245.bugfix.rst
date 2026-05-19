@@ -1,0 +1,3 @@
+Retain raw performance of propcache by keeping it's critcal logic
+in a C header file instead of in Cython.
+-- by :user:`Vizonex`.

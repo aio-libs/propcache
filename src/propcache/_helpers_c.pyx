@@ -20,7 +20,12 @@ cdef extern from "Python.h":
 
 # Added to prevent performance from degrading in the most critical sections.
 cdef extern from "_helpers_h.h":
-    object under_cached_property_get(object wrapped, object name, dict cache, object inst)
+    object under_cached_property_get(
+        object wrapped, 
+        object name, 
+        dict cache, 
+        object inst
+    )
 
 
 cdef class under_cached_property:

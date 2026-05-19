@@ -12,7 +12,9 @@ QEMU
 Towncrier
 Twitter
 UTF
+aarch
 aiohttp
+armv
 backend
 boolean
 booleans

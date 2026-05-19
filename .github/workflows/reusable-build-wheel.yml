@@ -24,6 +24,14 @@ on:
         default: ''
         required: false
         type: string
+      native-arch:
+        description: >-
+          Whether the runner natively executes the architecture named
+          by ``qemu`` (so the QEMU userspace handler does not need to
+          be registered). Defaults to ``false``.
+        default: false
+        required: false
+        type: boolean
       tag:
         description: Build platform tag wheels
         default: ''
@@ -59,7 +67,7 @@ jobs:
         workflow-artifact-name: ${{ inputs.dists-artifact-name }}
 
     - name: Set up QEMU
-      if: inputs.qemu
+      if: inputs.qemu && ! inputs.native-arch
       uses: docker/setup-qemu-action@v4
       with:
         platforms: all
@@ -68,17 +76,20 @@ jobs:
         # xref https://github.com/tonistiigi/binfmt/issues/215
         image: tonistiigi/binfmt:qemu-v8.1.5
       id: qemu
-    - name: Prepare emulation
+    - name: Prepare cross-arch build environment
       if: inputs.qemu
       run: |
-        # Build emulated architectures only if QEMU is set,
-        # use default "auto" otherwise
+        # Tell cibuildwheel which Linux arch to build for; the default
+        # of "auto" would only build the host arch, but the odd-arch
+        # matrix may pin a different target even when running natively.
         echo "CIBW_ARCHS_LINUX=${{ inputs.qemu }}" >> "${GITHUB_ENV}"
         # Override pyproject.toml's `build[uv]` because the pypa odd-arch
-        # containers (as of the 2026.03.20-1 tag) do not ship `uv`
-        # preinstalled; without this override cibuildwheel fails with
-        # `Command ['which', 'uv'] failed with code 1` inside the
-        # QEMU-emulated manylinux/musllinux containers.
+        # manylinux/musllinux container images (as of the 2026.03.20-1
+        # tag) do not ship `uv` preinstalled; without this override
+        # cibuildwheel fails with `Command ['which', 'uv'] failed with
+        # code 1` inside those containers. The container image is the
+        # same whether the host runs natively or under QEMU, so this
+        # override is still required on native ARM runners.
         echo "CIBW_BUILD_FRONTEND=build" >> "${GITHUB_ENV}"
       shell: bash
 

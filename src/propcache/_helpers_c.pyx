@@ -18,6 +18,10 @@ cdef extern from "Python.h":
     ) except -1
     void Py_DECREF(PyObject*)
 
+# Added to prevent preformance from degrading in the most critical sections.
+cdef extern from "_helpers_h.h":
+    object under_cached_property_get(object wrapped, object name, dict cache, object inst)
+
 
 cdef class under_cached_property:
     """Use as a class method decorator.  It operates almost exactly like
@@ -42,13 +46,7 @@ cdef class under_cached_property:
     def __get__(self, object inst, owner):
         if inst is None:
             return self
-        cdef dict cache = inst._cache
-        cdef PyObject* val = PyDict_GetItem(cache, self.name)
-        if val == NULL:
-            val = PyObject_CallOneArg(self.wrapped, inst)
-            PyDict_SetItem(cache, self.name, val)
-            Py_DECREF(val)
-        return <object>val
+        return under_cached_property_get(self.wrapped, self.name, inst._cache, inst)
 
     def __set__(self, inst, value):
         raise AttributeError("cached property is read-only")

@@ -1,0 +1,5 @@
+Overrode ``CIBW_BUILD_FRONTEND=build`` for the QEMU-emulated
+odd-arch wheel matrix, since the pypa odd-arch container images
+do not ship ``uv`` preinstalled and the project's
+:file:`pyproject.toml` sets ``build-frontend = "build[uv]"``
+-- by :user:`bdraco`.

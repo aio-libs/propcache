@@ -19,7 +19,37 @@ cdef extern from "Python.h":
     void Py_DECREF(PyObject*)
 
 # Added to prevent performance from degrading in the most critical sections.
-cdef extern from "_helpers_h.h":
+cdef extern from "Python.h":
+    """
+/* Fixes performance regression when generating cython code. */
+/* SEE: https://github.com/aio-libs/propcache/issues/244 */
+static PyObject*
+under_cached_property_get(
+    PyObject* wrapped, 
+    PyObject* name, 
+    PyObject* cache, 
+    PyObject* inst
+)
+{
+    PyObject* val;
+
+    val = PyDict_GetItem(cache, name);
+    if (val == NULL){
+        val = PyObject_CallOneArg(wrapped, inst);
+        if (val == NULL){
+            return NULL;
+        }
+        if (PyDict_SetItem(cache, name, val) < 0){
+            Py_CLEAR(val);
+            return NULL;
+        }
+        // NOTE: We do not need to DECREF as we gained a ref already.
+        // TODO: Validate if that is true...
+    }
+    Py_INCREF(val);
+    return val;
+}
+    """
     object under_cached_property_get(
         object wrapped,
         object name,

@@ -569,10 +569,35 @@ jobs:
         exclude:
         - tag: ''
           qemu: armv7l
+        include:
+        # Build aarch64 natively on the GH-hosted ARM runner instead of
+        # x86_64-under-QEMU; this drops the build from ~40 min of
+        # emulation to a few minutes of native execution. Each
+        # (qemu, tag) combo is listed explicitly so the include
+        # unambiguously augments the existing matrix cell rather than
+        # relying on the partial-key merge behaviour of `matrix.include`.
+        - qemu: aarch64
+          tag: ''
+          runner-vm-os: ubuntu-24.04-arm
+          native-arch: true
+        - qemu: aarch64
+          tag: musllinux
+          runner-vm-os: ubuntu-24.04-arm
+          native-arch: true
+        # armv7l also moves to aarch64 hosts. QEMU stays registered so
+        # binfmt picks up the 32-bit ARM userspace handler regardless of
+        # whether the host kernel has CONFIG_COMPAT enabled. Even with
+        # emulation, aarch64-on-aarch64 hosting beats x86_64 by a wide
+        # margin. armv7l's ``tag: ''`` cell is excluded above, so only
+        # the musllinux cell is overridden here.
+        - qemu: armv7l
+          tag: musllinux
+          runner-vm-os: ubuntu-24.04-arm
     uses: ./.github/workflows/reusable-build-wheel.yml
     with:
-      os: ubuntu-latest
+      os: ${{ matrix.runner-vm-os || 'ubuntu-latest' }}
       qemu: ${{ matrix.qemu }}
+      native-arch: ${{ matrix.native-arch && true || false }}
       tag: ${{ matrix.tag }}
       wheel-tags-to-skip: >-
         ${{
@@ -622,7 +647,29 @@ jobs:
     - name: Login
       run: |
         echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+    - name: Check whether the GitHub Release already exists
+      # Allows re-running the deploy job after a partial failure (e.g. PyPI
+      # upload error) without the Make Release step failing with HTTP 422
+      # because the tag/release was created on a prior attempt. Treat
+      # only the literal `release not found` reply as "does not exist";
+      # other failures (auth, rate-limit, network) re-raise so the job
+      # fails loudly instead of falling through to Make Release.
+      id: gh-release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG: ${{ github.ref_name }}
+      run: |
+        if gh release view "${TAG}" --repo "${GITHUB_REPOSITORY}" \
+            >/dev/null 2>err; then
+          echo 'exists=true' >> "${GITHUB_OUTPUT}"
+        elif grep -qx 'release not found' err; then
+          echo 'exists=false' >> "${GITHUB_OUTPUT}"
+        else
+          cat err >&2
+          exit 1
+        fi
     - name: Make Release
+      if: steps.gh-release.outputs.exists != 'true'
       uses: aio-libs/create-release@v1.6.6
       with:
         changes_file: CHANGES.rst
@@ -638,6 +685,10 @@ jobs:
     - name: >-
         Publish 🐍📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        # Allow re-running the deploy job after a partial PyPI upload
+        # without failing on dists that were already published.
+        skip-existing: true
 
     - name: Sign the dists with Sigstore
       uses: sigstore/gh-action-sigstore-python@v3.3.0

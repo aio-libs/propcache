@@ -8,10 +8,13 @@ GPG
 IPv
 PRs
 PYX
+QEMU
 Towncrier
 Twitter
 UTF
+aarch
 aiohttp
+armv
 backend
 boolean
 booleans
@@ -38,7 +41,10 @@ manylinux
 multi
 nightlies
 pre
+preinstalled
 propcache
+pypa
+pyproject
 rc
 reStructuredText
 reencoding

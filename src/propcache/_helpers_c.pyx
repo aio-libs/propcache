@@ -16,7 +16,7 @@ under_cached_property_get(
 {
     PyObject* val;
 
-    if (!PyDict_CheckExact(cache)){
+    if (!PyDict_Check(cache)){
         PyErr_Format(
             PyExc_TypeError,
             "Expected dict, got %.200s",
@@ -24,6 +24,7 @@ under_cached_property_get(
         );
         return NULL;
     }
+
 
     val = PyDict_GetItem(cache, name);
     if (val == NULL){
@@ -35,10 +36,9 @@ under_cached_property_get(
             Py_CLEAR(val);
             return NULL;
         }
-        // NOTE: We do not need to DECREF as we gained a ref already.
-        // TODO: Validate if that is true...
+        return val;  /* already owned the ref from CallOneArg */
     }
-    Py_XINCREF(val);
+    Py_INCREF(val);  /* borrowed from PyDict_GetItem */
     return val;
 }
     """

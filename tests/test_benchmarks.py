@@ -1,6 +1,6 @@
 """codspeed benchmarks for propcache."""
 
-import typing
+import typing as _t
 
 import pytest
 

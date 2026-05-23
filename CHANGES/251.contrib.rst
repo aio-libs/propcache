@@ -1,0 +1,2 @@
+Omitted coverage for testing benchmarks when codspeed is not installed
+-- by :user:`Vizonex`.

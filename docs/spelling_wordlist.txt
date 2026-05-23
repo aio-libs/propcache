@@ -3,6 +3,7 @@ Bugfixes
 CPython
 Changelog
 Codecov
+codspeed
 Cython
 GPG
 IPv
@@ -45,7 +46,7 @@ preinstalled
 propcache
 pypa
 pyproject
-pytest-codspeed
+pytest
 rc
 reStructuredText
 reencoding

@@ -107,5 +107,5 @@ select = [
 known-first-party = ["propcache"]
 
 # This fixes coverage of some tests
-[tool.coverage.run] 
+[tool.coverage.run]
 omit = ["tests/test_benchmarks.py"]

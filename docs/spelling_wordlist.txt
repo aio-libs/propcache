@@ -45,6 +45,7 @@ preinstalled
 propcache
 pypa
 pyproject
+pytest-codspeed
 rc
 reStructuredText
 reencoding

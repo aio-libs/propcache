@@ -1,2 +1,2 @@
-Omitted coverage for testing benchmarks when codspeed is not installed
+Omitted coverage for testing benchmarks when pytest-codspeed is not installed
 -- by :user:`Vizonex`.

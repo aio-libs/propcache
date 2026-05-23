@@ -1,6 +1,5 @@
 """codspeed benchmarks for propcache."""
 
-import pytest
 import typing
 
 if typing.TYPE_CHECKING: # pragma: no cover
@@ -11,7 +10,9 @@ else:
 from propcache import cached_property, under_cached_property
 
 
-def test_under_cached_property_cache_hit(benchmark: pytest_codspeed.BenchmarkFixture) -> None:
+def test_under_cached_property_cache_hit(
+    benchmark: pytest_codspeed.BenchmarkFixture,
+) -> None:
     """Benchmark for under_cached_property cache hit."""
 
     class Test:
@@ -51,7 +52,9 @@ def test_cached_property_cache_hit(benchmark: pytest_codspeed.BenchmarkFixture) 
             t.prop
 
 
-def test_under_cached_property_cache_miss(benchmark: pytest_codspeed.BenchmarkFixture) -> None:
+def test_under_cached_property_cache_miss(
+    benchmark: pytest_codspeed.BenchmarkFixture,
+) -> None:
     """Benchmark for under_cached_property cache miss."""
 
     class Test:
@@ -73,7 +76,9 @@ def test_under_cached_property_cache_miss(benchmark: pytest_codspeed.BenchmarkFi
             t.prop
 
 
-def test_cached_property_cache_miss(benchmark: pytest_codspeed.BenchmarkFixture) -> None:
+def test_cached_property_cache_miss(
+    benchmark: pytest_codspeed.BenchmarkFixture,
+) -> None:
     """Benchmark for cached_property cache miss."""
 
     class Test:

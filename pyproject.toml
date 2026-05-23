@@ -102,3 +102,7 @@ select = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["propcache"]
+
+# This fixes coverage of some tests
+[tool.coverage.run] 
+omit = ["tests/test_benchmarks.py"]

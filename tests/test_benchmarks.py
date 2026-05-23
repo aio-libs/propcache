@@ -2,6 +2,8 @@
 
 import typing
 
+import pytest
+
 if typing.TYPE_CHECKING: # pragma: no cover
     import pytest_codspeed
 else:

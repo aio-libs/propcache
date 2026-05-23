@@ -1,3 +1,2 @@
-Retain raw performance of propcache by keeping it's critical logic
-in a C function instead of in Cython.
+Retain raw performance of propcache by moving critical sections to C
 -- by :user:`Vizonex`.

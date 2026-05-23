@@ -4,7 +4,7 @@ import typing
 
 import pytest
 
-if typing.TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:
     import pytest_codspeed
 else:
     pytest_codspeed = pytest.importorskip("pytest_codspeed")

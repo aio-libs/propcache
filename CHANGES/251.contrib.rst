@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 Omitted coverage for testing benchmarks when pytest-codspeed is not installed
 -- by :user:`Vizonex`.
+=======
+Omitted coverage for testing benchmarks when codspeed is not installed
+-- by :user:`Vizonex`.
+>>>>>>> 276ddf3e5ce9624830976e91226854f0125be408

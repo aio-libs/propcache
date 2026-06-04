@@ -35,7 +35,7 @@ or have some suggestion in order to improve the library.
 Discussion list
 ---------------
 
-*aio-libs* google group: https://groups.google.com/forum/#!forum/aio-libs
+*aio-libs* GitHub Discussions: https://github.com/orgs/aio-libs/discussions
 
 Feel free to post your questions and ideas here.
 

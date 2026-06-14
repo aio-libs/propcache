@@ -364,7 +364,7 @@ jobs:
         merge-multiple: true
     - name: Setup Python ${{ matrix.pyver }}
       id: python-install
-      uses: astral-sh/setup-uv@v8.1.0
+      uses: astral-sh/setup-uv@v8.2.0
       with:
         python-version: ${{ matrix.pyver }}
         activate-environment: true
@@ -459,7 +459,7 @@ jobs:
     - name: Send coverage data to Codecov
       if: >-
         !cancelled()
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./coverage.xml
@@ -498,7 +498,7 @@ jobs:
 
     - name: Setup Python 3.13
       id: python-install
-      uses: astral-sh/setup-uv@v8.1.0
+      uses: astral-sh/setup-uv@v8.2.0
       with:
         python-version: 3.13
         activate-environment: true
@@ -691,7 +691,7 @@ jobs:
         skip-existing: true
 
     - name: Sign the dists with Sigstore
-      uses: sigstore/gh-action-sigstore-python@v3.3.0
+      uses: sigstore/gh-action-sigstore-python@v3.4.0
       with:
         inputs: >-
           ./dist/${{ needs.pre-setup.outputs.sdist-artifact-name }}

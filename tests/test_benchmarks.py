@@ -1,10 +1,10 @@
 """codspeed benchmarks for propcache."""
 
-import typing as _t
+import typing
 
 import pytest
 
-if _t.TYPE_CHECKING:  # pragma: no cover
+if typing.TYPE_CHECKING:  # pragma: no cover
     import pytest_codspeed
 else:
     pytest_codspeed = pytest.importorskip("pytest_codspeed")

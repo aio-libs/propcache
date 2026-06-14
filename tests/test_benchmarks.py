@@ -1,16 +1,20 @@
 """codspeed benchmarks for propcache."""
 
+import typing
+
 import pytest
 
-try:
-    from pytest_codspeed import BenchmarkFixture
-except ImportError:
-    pytestmark = pytest.mark.skip("pytest_codspeed needs to be installed")
+if typing.TYPE_CHECKING:  # pragma: no cover
+    import pytest_codspeed
+else:
+    pytest_codspeed = pytest.importorskip("pytest_codspeed")
 
 from propcache import cached_property, under_cached_property
 
 
-def test_under_cached_property_cache_hit(benchmark: "BenchmarkFixture") -> None:
+def test_under_cached_property_cache_hit(
+    benchmark: pytest_codspeed.BenchmarkFixture,
+) -> None:
     """Benchmark for under_cached_property cache hit."""
 
     class Test:
@@ -30,7 +34,7 @@ def test_under_cached_property_cache_hit(benchmark: "BenchmarkFixture") -> None:
             t.prop
 
 
-def test_cached_property_cache_hit(benchmark: "BenchmarkFixture") -> None:
+def test_cached_property_cache_hit(benchmark: pytest_codspeed.BenchmarkFixture) -> None:
     """Benchmark for cached_property cache hit."""
 
     class Test:
@@ -50,7 +54,9 @@ def test_cached_property_cache_hit(benchmark: "BenchmarkFixture") -> None:
             t.prop
 
 
-def test_under_cached_property_cache_miss(benchmark: "BenchmarkFixture") -> None:
+def test_under_cached_property_cache_miss(
+    benchmark: pytest_codspeed.BenchmarkFixture,
+) -> None:
     """Benchmark for under_cached_property cache miss."""
 
     class Test:
@@ -72,7 +78,9 @@ def test_under_cached_property_cache_miss(benchmark: "BenchmarkFixture") -> None
             t.prop
 
 
-def test_cached_property_cache_miss(benchmark: "BenchmarkFixture") -> None:
+def test_cached_property_cache_miss(
+    benchmark: pytest_codspeed.BenchmarkFixture,
+) -> None:
     """Benchmark for cached_property cache miss."""
 
     class Test:

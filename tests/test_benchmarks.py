@@ -6,7 +6,7 @@ import pytest
 
 if TYPE_CHECKING:
     import pytest_codspeed
-else:
+else:  # pragma: no cover
     pytest_codspeed = pytest.importorskip("pytest_codspeed")
 
 from propcache import cached_property, under_cached_property

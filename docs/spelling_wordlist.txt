@@ -21,6 +21,7 @@ booleans
 bools
 changelog
 changelogs
+codspeed
 config
 de
 decodable
@@ -45,6 +46,7 @@ preinstalled
 propcache
 pypa
 pyproject
+pytest
 rc
 reStructuredText
 reencoding

@@ -2,7 +2,12 @@
 
 from typing import TYPE_CHECKING
 
-_PUBLIC_API = ("cached_property", "under_cached_property")
+_PUBLIC_API = (
+    "cached_property",
+    "under_cache_name",
+    "under_cached_property",
+    "under_cached_property_with_name",
+)
 
 __version__ = "0.5.2"
 __all__ = ()
@@ -11,7 +16,11 @@ __all__ = ()
 # This module is now a facade for the API.
 if TYPE_CHECKING:
     from .api import cached_property as cached_property  # noqa: F401
+    from .api import under_cache_name as under_cache_name  # noqa: F401
     from .api import under_cached_property as under_cached_property  # noqa: F401
+    from .api import (  # noqa: F401
+        under_cached_property_with_name as under_cached_property_with_name,
+    )
 
 
 def _import_facade(attr: str) -> object:

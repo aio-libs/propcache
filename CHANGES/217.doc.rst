@@ -1,0 +1,3 @@
+Updated discussion links from the defunct Google Groups forum to
+the ``aio-libs`` org-wide GitHub Discussions
+-- by :user:`gundalow`.

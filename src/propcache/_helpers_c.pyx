@@ -1,22 +1,53 @@
 # cython: language_level=3, freethreading_compatible=True
 from types import GenericAlias
 
-from cpython.dict cimport PyDict_GetItem
-from cpython.object cimport PyObject
-
-
+# Added to prevent performance from degrading in the most critical sections.
 cdef extern from "Python.h":
-    # Call a callable Python object callable with exactly
-    # 1 positional argument arg and no keyword arguments.
-    # Return the result of the call on success, or raise
-    # an exception and return NULL on failure.
-    PyObject* PyObject_CallOneArg(
-        object callable, object arg
-    ) except NULL
-    int PyDict_SetItem(
-        object dict, object key, PyObject* value
-    ) except -1
-    void Py_DECREF(PyObject*)
+    """
+/* Fixes performance regression when generating cython code. */
+/* SEE: https://github.com/aio-libs/propcache/issues/244 */
+static PyObject*
+under_cached_property_get(
+    PyObject* wrapped,
+    PyObject* name,
+    PyObject* cache,
+    PyObject* inst
+)
+{
+    PyObject* val;
+
+    if (!PyDict_Check(cache)){
+        PyErr_Format(
+            PyExc_TypeError,
+            "Expected dict, got %.200s",
+            Py_TYPE(cache)->tp_name
+        );
+        return NULL;
+    }
+
+
+    val = PyDict_GetItem(cache, name);
+    if (val == NULL){
+        val = PyObject_CallOneArg(wrapped, inst);
+        if (val == NULL){
+            return NULL;
+        }
+        if (PyDict_SetItem(cache, name, val) < 0){
+            Py_CLEAR(val);
+            return NULL;
+        }
+        return val;  /* already owned the ref from CallOneArg */
+    }
+    Py_INCREF(val);  /* borrowed from PyDict_GetItem */
+    return val;
+}
+    """
+    object under_cached_property_get(
+        object wrapped,
+        object name,
+        object cache,
+        object inst
+    )
 
 
 cdef class under_cached_property:
@@ -42,13 +73,7 @@ cdef class under_cached_property:
     def __get__(self, object inst, owner):
         if inst is None:
             return self
-        cdef dict cache = inst._cache
-        cdef PyObject* val = PyDict_GetItem(cache, self.name)
-        if val == NULL:
-            val = PyObject_CallOneArg(self.wrapped, inst)
-            PyDict_SetItem(cache, self.name, val)
-            Py_DECREF(val)
-        return <object>val
+        return under_cached_property_get(self.wrapped, self.name, inst._cache, inst)
 
     def __set__(self, inst, value):
         raise AttributeError("cached property is read-only")
@@ -92,12 +117,6 @@ cdef class cached_property:
             raise TypeError(
                 "Cannot use cached_property instance"
                 " without calling __set_name__ on it.")
-        cdef dict cache = inst.__dict__
-        cdef PyObject* val = PyDict_GetItem(cache, self.name)
-        if val is NULL:
-            val = PyObject_CallOneArg(self.func, inst)
-            PyDict_SetItem(cache, self.name, val)
-            Py_DECREF(val)
-        return <object>val
+        return under_cached_property_get(self.func, self.name, inst.__dict__, inst)
 
     __class_getitem__ = classmethod(GenericAlias)

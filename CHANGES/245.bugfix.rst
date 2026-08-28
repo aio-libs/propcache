@@ -1,0 +1,2 @@
+Retain raw performance of propcache by moving critical sections to C
+-- by :user:`Vizonex`.

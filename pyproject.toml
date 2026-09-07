@@ -75,8 +75,6 @@ test-command = "pytest -v --no-cov {project}/tests"
 # importing the C extension; the wheel runs fine on real armv7l hardware, so
 # build and ship it but skip the emulated post-build test.
 test-skip = "*t-musllinux_armv7l"
-# don't build PyPy wheels, install from source instead
-skip = "pp*"
 
 [tool.cibuildwheel.environment]
 COLOR = "yes"

@@ -21,7 +21,6 @@ booleans
 bools
 changelog
 changelogs
-cibuildwheel
 codspeed
 config
 de
@@ -62,7 +61,6 @@ subclass
 subclasses
 subcomponent
 svetlov
-toml
 tox
 uncompiled
 unobvious

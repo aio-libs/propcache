@@ -262,10 +262,9 @@ jobs:
         && '*_i686
         *-macosx_universal2
         *-musllinux_*
-        *-win32
-        pp*'
-        || (matrix.tag == 'musllinux') && '*-manylinux_* pp*'
-        || '*-musllinux_* pp*'
+        *-win32'
+        || (matrix.tag == 'musllinux') && '*-manylinux_*'
+        || '*-musllinux_*'
         }}
       source-tarball-name: >-
         ${{ needs.pre-setup.outputs.sdist-artifact-name }}
@@ -602,8 +601,8 @@ jobs:
       wheel-tags-to-skip: >-
         ${{
         (matrix.tag == 'musllinux')
-        && '*-manylinux_* pp*'
-        || '*-musllinux_* pp*'
+        && '*-manylinux_*'
+        || '*-musllinux_*'
         }}
       source-tarball-name: >-
         ${{ needs.pre-setup.outputs.sdist-artifact-name }}

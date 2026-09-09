@@ -1,0 +1,7 @@
+Added :class:`~propcache.api.under_cached_property_with_name`, a variant of
+:class:`~propcache.api.under_cached_property` that stores cached values in
+a caller-chosen attribute instead of the hard-coded ``_cache``. A
+:class:`~propcache.api.under_cache_name` decorator factory is also provided
+for binding a cache attribute name once and reusing it across multiple
+property declarations, which makes the new descriptor practical to use on
+classes that define ``__slots__``.

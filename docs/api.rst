@@ -54,3 +54,47 @@ under_cached_property
 
        instance.clear_cache()
        print(instance.calculated_data)  # expensive operation
+
+under_cached_property_with_name
+===============================
+
+.. decorator:: under_cached_property_with_name(func, cache_name)
+
+   Like :func:`under_cached_property`, but the cache attribute name is
+   configurable. The cached value is stored under
+   ``getattr(instance, cache_name)[func.__name__]`` instead of the
+   hard-coded ``_cache``.
+
+   This is useful when working with classes that define ``__slots__`` and
+   need to use a different attribute name, or when an instance maintains
+   several independent cache buckets.
+
+   The named attribute must already exist on the instance (typically
+   initialized to an empty ``dict``) before the first attribute access.
+
+under_cache_name
+================
+
+.. decorator:: under_cache_name(cache_name)
+
+   Decorator factory that binds a ``cache_name`` once and returns a
+   reusable decorator. Calling the resulting object on a method produces
+   an :func:`under_cached_property_with_name` descriptor wired to that
+   cache attribute.
+
+   Example::
+
+       from propcache.api import under_cache_name
+
+       reify = under_cache_name("_my_cache")
+
+       class MyTool:
+           __slots__ = ("i", "_my_cache")
+
+           def __init__(self, i: int) -> None:
+               self.i = i
+               self._my_cache = {}
+
+           @reify
+           def cached_item(self) -> int:
+               return self.i + 10

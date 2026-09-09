@@ -10,13 +10,25 @@ def test_api_at_top_level() -> None:
     """Verify the public API is accessible at top-level."""
     assert propcache.cached_property is not None
     assert propcache.under_cached_property is not None
+    assert propcache.under_cached_property_with_name is not None
+    assert propcache.under_cache_name is not None
     assert propcache.cached_property is _helpers.cached_property
     assert propcache.under_cached_property is _helpers.under_cached_property
+    assert (
+        propcache.under_cached_property_with_name
+        is _helpers.under_cached_property_with_name
+    )
+    assert propcache.under_cache_name is _helpers.under_cache_name
 
 
 @pytest.mark.parametrize(
     "prop_name",
-    ("cached_property", "under_cached_property"),
+    (
+        "cached_property",
+        "under_cached_property",
+        "under_cached_property_with_name",
+        "under_cache_name",
+    ),
 )
 def test_public_api_is_discoverable_in_dir(prop_name: str) -> None:
     """Verify the public API is discoverable programmatically."""

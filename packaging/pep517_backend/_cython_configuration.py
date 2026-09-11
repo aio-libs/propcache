@@ -10,14 +10,11 @@ from pathlib import Path
 from sys import version_info as _python_version_tuple
 from typing import TypedDict
 
-from expandvars import expandvars
-
 from ._compat import load_toml_from_string
 from ._transformers import get_cli_kwargs_from_config, get_enabled_cli_flags_from_config
 
 
 class Config(TypedDict):
-    env: dict[str, str]
     flags: dict[str, bool]
     kwargs: dict[str, str | dict[str, str]]
     src: list[str]
@@ -32,12 +29,8 @@ def get_local_cython_config() -> Config:
     This basically reads entries from::
 
         [tool.local.cythonize]
-        # Env vars provisioned during cythonize call
+        # Source files to translate with Cython
         src = ["src/**/*.pyx"]
-
-        [tool.local.cythonize.env]
-        # Env vars provisioned during cythonize call
-        LDFLAGS = "-lssh"
 
         [tool.local.cythonize.flags]
         # This section can contain the following booleans:
@@ -105,22 +98,16 @@ def make_cythonize_cli_args_from_config(config: Config, cython_line_tracing_requ
 
 @contextmanager
 def patched_env(
-    env: dict[str, str],
     cython_line_tracing_requested: bool,
     *,
     original_source_directory: Path | None = None,
     temporary_build_directory: Path | None = None,
 ) -> Iterator[None]:
-    """Temporary set given env vars.
-
-    :param env: tmp env vars to set
-    :type env: dict
+    """Temporarily adjust compiler flags for Cython builds.
 
     :yields: None
     """
     orig_env = os.environ.copy()
-    expanded_env = {name: expandvars(var_val) for name, var_val in env.items()}  # type: ignore[no-untyped-call]
-    os.environ.update(expanded_env)
 
     extra_cflags: list[str] = []
     if cython_line_tracing_requested:

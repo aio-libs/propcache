@@ -318,7 +318,6 @@ def maybe_prebuild_c_extensions(
 
         cythonize_args = _make_cythonize_cli_args_from_config(config, cython_line_tracing_requested)
         with _patched_cython_env(
-                config['env'],
                 cython_line_tracing_requested,
                 original_source_directory=original_src_dir,
                 temporary_build_directory=tmp_build_dir,

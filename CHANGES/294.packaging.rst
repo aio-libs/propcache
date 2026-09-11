@@ -1,0 +1,2 @@
+Removed the unused build configuration for environment variable interpolation
+and the ``expandvars`` build dependency -- by :user:`f321x`.

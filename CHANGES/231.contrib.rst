@@ -1,3 +1,0 @@
-Added an ``AGENTS.md`` file with contributor guidance for AI
-coding agents, adapted from the ``yarl`` equivalent
--- by :user:`bdraco`.

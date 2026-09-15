@@ -8,8 +8,25 @@ from pathlib import Path
 
 import pytest
 from pep517_backend._cython_configuration import patched_env
+from setuptools._distutils.ccompiler import new_compiler
+from setuptools._distutils.sysconfig import customize_compiler
 
 TRACE_MACRO = "-DCYTHON_TRACE_NOGIL=1"
+
+
+def _interpreter_flags() -> list[str]:
+    """Return the compiler flags CPython was configured with."""
+    cflags: str = sysconfig.get_config_var("CFLAGS") or ""
+    return shlex.split(cflags)
+
+
+def _configured_compile_command() -> list[str]:
+    """Return the compile command setuptools derives from the environment."""
+    compiler = new_compiler()
+    customize_compiler(compiler)
+    # ``customize_compiler`` sets this attribute dynamically.
+    command: list[str] = compiler.compiler_so  # type: ignore[attr-defined]
+    return command
 
 
 @pytest.mark.parametrize(
@@ -68,12 +85,6 @@ def test_interpreter_flags_survive_the_build_env(tmp_path: Path) -> None:
     This drives setuptools' real compiler customization, so it fails if the
     backend ever goes back to setting CFLAGS.
     """
-    from setuptools._distutils.ccompiler import (
-        new_compiler,
-    )
-    from setuptools._distutils.sysconfig import customize_compiler
-
-    interpreter_flags = shlex.split(sysconfig.get_config_var("CFLAGS") or "")
     source_dir = tmp_path / "src"
     build_dir = tmp_path / "build"
 
@@ -83,12 +94,9 @@ def test_interpreter_flags_survive_the_build_env(tmp_path: Path) -> None:
         original_source_directory=source_dir,
         temporary_build_directory=build_dir,
     ):
-        compiler = new_compiler()
-        customize_compiler(compiler)
-        # ``customize_compiler`` sets this attribute dynamically.
-        command = compiler.compiler_so  # type: ignore[attr-defined]
+        command = _configured_compile_command()
 
-    for flag in interpreter_flags:
+    for flag in _interpreter_flags():
         assert flag in command
     assert TRACE_MACRO in command
     assert f"-ffile-prefix-map={build_dir}={source_dir}" in command

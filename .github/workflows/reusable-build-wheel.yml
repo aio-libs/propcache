@@ -51,6 +51,11 @@ on:
         default: ''
         required: false
         type: string
+      macos-archs:
+        description: macOS architectures to build wheels for
+        default: x86_64 arm64 universal2
+        required: false
+        type: string
 
 env:
   FORCE_COLOR: "1"  # Make tools pretty.
@@ -124,7 +129,7 @@ jobs:
         # `CIBW_BUILD_FRONTEND=build` when QEMU is in play.
         extras: uv
       env:
-        CIBW_ARCHS_MACOS: x86_64 arm64 universal2
+        CIBW_ARCHS_MACOS: ${{ inputs.macos-archs }}
         CIBW_CONFIG_SETTINGS: >-  # Cython line tracing for coverage collection
           pure-python=false
           with-cython-tracing=${{ inputs.cython-tracing }}

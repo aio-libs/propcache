@@ -1,0 +1,5 @@
+Fixed a possible crash in the C implementation of ``cached_property``
+and ``under_cached_property`` on free-threaded Python, where a cached
+value could be freed by another thread while it was being read;
+regular builds are unaffected
+-- by :user:`bdraco`.

@@ -1,8 +1,18 @@
 # cython: language_level=3, freethreading_compatible=True
 from types import GenericAlias
 
-from cpython.dict cimport PyDict_GetItem
+from cpython.dict cimport PyDict_GetItemRef
 from cpython.object cimport PyObject
+
+
+cdef extern from *:
+    # ``PyDict_GetItemRef`` gives us a new reference to the cached value.
+    # ``propcache_steal`` hands that reference to Cython as an ``object``
+    # without another incref, so a cache hit costs a single incref.
+    """
+    #define propcache_steal(value) (value)
+    """
+    object propcache_steal(PyObject* value)
 
 
 cdef extern from "Python.h":
@@ -10,13 +20,7 @@ cdef extern from "Python.h":
     # 1 positional argument arg and no keyword arguments.
     # Return the result of the call on success, or raise
     # an exception and return NULL on failure.
-    PyObject* PyObject_CallOneArg(
-        object callable, object arg
-    ) except NULL
-    int PyDict_SetItem(
-        object dict, object key, PyObject* value
-    ) except -1
-    void Py_DECREF(PyObject*)
+    object PyObject_CallOneArg(object callable, object arg)
 
 
 cdef class under_cached_property:
@@ -43,12 +47,14 @@ cdef class under_cached_property:
         if inst is None:
             return self
         cdef dict cache = inst._cache
-        cdef PyObject* val = PyDict_GetItem(cache, self.name)
-        if val == NULL:
-            val = PyObject_CallOneArg(self.wrapped, inst)
-            PyDict_SetItem(cache, self.name, val)
-            Py_DECREF(val)
-        return <object>val
+        cdef PyObject* val
+        # PyDict_GetItemRef returns a strong reference, a borrowed one
+        # could be freed by a concurrent eviction on free-threaded builds.
+        if PyDict_GetItemRef(cache, self.name, &val):
+            return propcache_steal(val)
+        result = PyObject_CallOneArg(self.wrapped, inst)
+        cache[self.name] = result
+        return result
 
     def __set__(self, inst, value):
         raise AttributeError("cached property is read-only")
@@ -93,11 +99,13 @@ cdef class cached_property:
                 "Cannot use cached_property instance"
                 " without calling __set_name__ on it.")
         cdef dict cache = inst.__dict__
-        cdef PyObject* val = PyDict_GetItem(cache, self.name)
-        if val is NULL:
-            val = PyObject_CallOneArg(self.func, inst)
-            PyDict_SetItem(cache, self.name, val)
-            Py_DECREF(val)
-        return <object>val
+        cdef PyObject* val
+        # PyDict_GetItemRef returns a strong reference, a borrowed one
+        # could be freed by a concurrent eviction on free-threaded builds.
+        if PyDict_GetItemRef(cache, self.name, &val):
+            return propcache_steal(val)
+        result = PyObject_CallOneArg(self.func, inst)
+        cache[self.name] = result
+        return result
 
     __class_getitem__ = classmethod(GenericAlias)

@@ -1,5 +1,6 @@
 import gc
 import sys
+import threading
 from collections.abc import Callable
 from operator import not_
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar
@@ -221,3 +222,78 @@ def test_cached_property_no_refcount_leak(propcache_module: APIProtocol) -> None
     # - original in `result`
     # - new one in `result4`
     assert count_sentinels() == initial_sentinel_count + 2
+
+
+def test_cached_property_concurrent_eviction(
+    propcache_module: APIProtocol, eviction_iterations: int
+) -> None:
+    """Reading while other threads evict the cached value must not crash.
+
+    On free-threaded builds a borrowed reference to the cached value could
+    be freed by a concurrent eviction before the descriptor returned it.
+    """
+
+    class A:
+        def __init__(self) -> None:
+            """Init."""
+
+        @propcache_module.cached_property
+        def prop(self) -> list[int]:
+            return [0] * 8
+
+    a = A()
+    cache: dict[str, object] = a.__dict__
+    barrier = threading.Barrier(8)
+
+    def evict() -> None:
+        barrier.wait()
+        for _ in range(eviction_iterations):
+            cache["prop"] = [1] * 8
+            cache.pop("prop", None)
+
+    def read() -> None:
+        barrier.wait()
+        for _ in range(eviction_iterations):
+            assert len(a.prop) == 8
+
+    threads = [threading.Thread(target=f) for f in [evict] * 4 + [read] * 4]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+
+def test_cached_property_lookup_error_propagates(
+    propcache_module: APIProtocol,
+) -> None:
+    """An error raised while looking up the cache is not swallowed."""
+
+    class CollidingKey:
+        """Hash like ``prop`` and fail the first equality check."""
+
+        def __init__(self) -> None:
+            self.raised = False
+
+        def __hash__(self) -> int:
+            return hash("prop")
+
+        def __eq__(self, other: object) -> bool:
+            if not self.raised:
+                self.raised = True
+                raise ZeroDivisionError
+            return False
+
+    class A:
+        def __init__(self) -> None:
+            self.__dict__[CollidingKey()] = 0  # type: ignore[index]
+
+        @propcache_module.cached_property
+        def prop(self) -> int:
+            return 1
+
+    a = A()
+    # Call ``__get__`` directly, plain attribute access would hit the
+    # colliding key in the instance dict before reaching the descriptor.
+    with pytest.raises(ZeroDivisionError):
+        A.prop.__get__(a, A)
+    assert a.prop == 1

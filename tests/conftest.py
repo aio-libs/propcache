@@ -1,4 +1,5 @@
 import argparse
+import sysconfig
 from dataclasses import dataclass
 from functools import cached_property
 from importlib import import_module
@@ -62,6 +63,16 @@ def propcache_module(
 ) -> ModuleType:
     """Return a pre-imported module containing a propcache variant."""
     return propcache_implementation.imported_module
+
+
+@pytest.fixture(scope="session")
+def eviction_iterations() -> int:
+    """Return the iteration count for the concurrent eviction tests.
+
+    The race only exists on free-threaded builds, so GIL and PyPy runs
+    use a short loop.
+    """
+    return 100_000 if sysconfig.get_config_var("Py_GIL_DISABLED") else 1_000
 
 
 def pytest_addoption(

@@ -249,7 +249,7 @@ jobs:
         - os: ubuntu-latest
           tag: >-
            ${{
-           (github.event_name != 'push' || !contains(github.ref, 'refs/tags/'))
+           (github.event_name != 'push' || github.ref_type != 'tag')
            && 'musllinux' || 'none'
            }}
     uses: ./.github/workflows/reusable-build-wheel.yml
@@ -258,7 +258,7 @@ jobs:
       tag: ${{ matrix.tag }}
       wheel-tags-to-skip: >-
         ${{
-        (github.event_name != 'push' || !contains(github.ref, 'refs/tags/'))
+        (github.event_name != 'push' || github.ref_type != 'tag')
         && '*_i686
         *-macosx_universal2
         *-musllinux_*
@@ -271,12 +271,15 @@ jobs:
       dists-artifact-name: ${{ needs.pre-setup.outputs.dists-artifact-name }}
       cython-tracing: >-  # Cython line tracing for coverage collection
         ${{
-          (
-            github.event_name == 'push'
-            && contains(github.ref, 'refs/tags/')
-          )
+          (github.event_name == 'push' && github.ref_type == 'tag')
           && 'false'
           || 'true'
+        }}
+      wheel-tests-to-skip: >-  # Off-tag, the `test` job tests these wheels
+        ${{
+        (github.event_name != 'push' || github.ref_type != 'tag')
+        && '*'
+        || ''
         }}
 
   metadata-validation:
@@ -396,10 +399,7 @@ jobs:
     - name: Produce the C-files for the Coverage.py Cython plugin
       if: >-  # Only works if the dists were built with line tracing
         !matrix.no-extensions
-        && (
-          github.event_name != 'push'
-          || !contains(github.ref, 'refs/tags/')
-        )
+        && (github.event_name != 'push' || github.ref_type != 'tag')
       env:
         PYTHONPATH: packaging/
       run: |
@@ -411,10 +411,7 @@ jobs:
     - name: Disable the Cython.Coverage Produce plugin
       if: >-  # Only works if the dists were built with line tracing
         matrix.no-extensions
-        || (
-          github.event_name == 'push'
-          && contains(github.ref, 'refs/tags/')
-        )
+        || (github.event_name == 'push' && github.ref_type == 'tag')
       run: |
         set -eEuo pipefail
         sed -i.bak 's/^\s\{2\}Cython\.Coverage$//g' .coveragerc
@@ -541,7 +538,7 @@ jobs:
     timeout-minutes: 1
     needs: test-summary
     # Run only on pushing a tag
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' && github.ref_type == 'tag'
     steps:
     - name: Dummy
       run: |

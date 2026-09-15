@@ -1,5 +1,6 @@
 import gc
 import sys
+import sysconfig
 import threading
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Protocol, TypedDict, TypeVar
@@ -13,7 +14,8 @@ IS_PYPY = hasattr(sys, "pypy_version_info")
 if sys.version_info >= (3, 11):
     from typing import assert_type
 
-ITERATIONS = 100_000
+# The concurrent eviction race only exists on free-threaded builds.
+ITERATIONS = 100_000 if sysconfig.get_config_var("Py_GIL_DISABLED") else 1_000
 
 _T_co = TypeVar("_T_co", covariant=True)
 

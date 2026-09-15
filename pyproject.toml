@@ -15,8 +15,10 @@ build-backend = "pep517_backend.hooks"  # wraps `setuptools.build_meta`
 src = ["src/propcache/*.pyx"]
 
 [tool.local.cythonize.env]
-# Env vars provisioned during cythonize call
-#CFLAGS = "-DCYTHON_TRACE=1 ${CFLAGS}"
+# Env vars provisioned during cythonize call. Prefer CPPFLAGS over CFLAGS:
+# a CFLAGS environment variable replaces the interpreter's own compiler
+# flags in setuptools' distutils, while CPPFLAGS is appended to them.
+#CPPFLAGS = "-DCYTHON_TRACE=1 ${CPPFLAGS}"
 #LDFLAGS = "${LDFLAGS}"
 
 [tool.local.cythonize.flags]
@@ -89,6 +91,9 @@ UV_CONSTRAINT = "requirements/cython.txt"
 
 [tool.cibuildwheel.config-settings]
 pure-python = "false"
+
+[tool.codespell]
+ignore-words-list = "ccompiler"
 
 [tool.ruff.lint]
 # Keep this list small and intentional; the rest of the project still

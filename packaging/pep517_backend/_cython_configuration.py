@@ -122,9 +122,9 @@ def patched_env(
     expanded_env = {name: expandvars(var_val) for name, var_val in env.items()}  # type: ignore[no-untyped-call]
     os.environ.update(expanded_env)
 
-    extra_cflags: list[str] = []
+    extra_compiler_flags: list[str] = []
     if cython_line_tracing_requested:
-        extra_cflags.append('-DCYTHON_TRACE_NOGIL=1')  # Implies CYTHON_TRACE=1
+        extra_compiler_flags.append('-DCYTHON_TRACE_NOGIL=1')  # Implies CYTHON_TRACE=1
     # When building in a temporary directory, rewrite the random tmp dir
     # path back to the original source directory so the compiled artifacts
     # are reproducible. `-ffile-prefix-map` is a GCC/Clang flag and is not
@@ -132,12 +132,16 @@ def patched_env(
     # Ref: https://github.com/aio-libs/propcache/issues/68
     if temporary_build_directory is not None and sys.platform != 'win32':
         assert original_source_directory is not None
-        extra_cflags.append(
+        extra_compiler_flags.append(
             f'-ffile-prefix-map={temporary_build_directory!s}={original_source_directory!s}',
         )
-    if extra_cflags:
-        os.environ['CFLAGS'] = ' '.join(
-            (os.getenv('CFLAGS', ''), *extra_cflags),
+    # Add the extra flags through ``CPPFLAGS`` rather than ``CFLAGS``:
+    # setuptools' distutils appends ``CPPFLAGS`` to the interpreter's own
+    # compiler flags, while a ``CFLAGS`` environment variable replaces them
+    # and silently drops ``-O3`` and ``-DNDEBUG`` from the build.
+    if extra_compiler_flags:
+        os.environ['CPPFLAGS'] = ' '.join(
+            (os.getenv('CPPFLAGS', ''), *extra_compiler_flags),
         ).strip()
     try:
         yield

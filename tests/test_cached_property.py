@@ -1,5 +1,6 @@
 import gc
 import sys
+import threading
 from collections.abc import Callable
 from operator import not_
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar
@@ -12,6 +13,8 @@ IS_PYPY = hasattr(sys, "pypy_version_info")
 
 if sys.version_info >= (3, 11):
     from typing import assert_type
+
+ITERATIONS = 20_000
 
 _T_co = TypeVar("_T_co", covariant=True)
 
@@ -221,3 +224,41 @@ def test_cached_property_no_refcount_leak(propcache_module: APIProtocol) -> None
     # - original in `result`
     # - new one in `result4`
     assert count_sentinels() == initial_sentinel_count + 2
+
+
+def test_cached_property_concurrent_eviction(propcache_module: APIProtocol) -> None:
+    """Reading while other threads evict the cached value must not crash.
+
+    On free-threaded builds a borrowed reference to the cached value could
+    be freed by a concurrent eviction before the descriptor returned it.
+    """
+
+    class A:
+        def __init__(self) -> None:
+            """Init."""
+
+        @propcache_module.cached_property
+        def prop(self) -> list[int]:
+            return [0] * 8
+
+    a = A()
+    cache = a.__dict__
+    barrier = threading.Barrier(8)
+
+    def evict() -> None:
+        barrier.wait()
+        for _ in range(ITERATIONS):
+            cache["prop"] = [1] * 8
+            cache.pop("prop", None)
+
+    def read() -> None:
+        barrier.wait()
+        for _ in range(ITERATIONS):
+            assert len(a.prop) == 8
+
+    threads = [threading.Thread(target=evict) for _ in range(4)]
+    threads += [threading.Thread(target=read) for _ in range(4)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()

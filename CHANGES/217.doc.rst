@@ -1,3 +1,0 @@
-Updated discussion links from the defunct Google Groups forum to
-GitHub Discussions
--- by :user:`gundalow`.

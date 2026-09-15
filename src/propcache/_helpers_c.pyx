@@ -1,52 +1,18 @@
 # cython: language_level=3, freethreading_compatible=True
 from types import GenericAlias
 
+from cpython.dict cimport PyDict_GetItemRef
 from cpython.object cimport PyObject
 
 
 cdef extern from *:
-    # ``propcache_get_ref`` looks ``name`` up in ``cache`` and stores a
-    # strong reference to the cached value in ``*value``. It returns 1 on a
-    # hit, 0 on a miss and -1 with an exception set on error, the same
-    # contract as ``PyDict_GetItemRef``. ``propcache_steal`` hands the
-    # reference to Cython as an ``object`` without another incref, so a
-    # cache hit costs exactly one incref.
-    #
-    # On the free-threaded build a borrowed pointer from ``PyDict_GetItem``
-    # could be freed by a concurrent eviction before it is used, so the
-    # atomic ``PyDict_GetItemRef`` is used there instead. On the default
-    # build ``PyDict_GetItem`` never reports an error, so the compiler drops
-    # the ``except -1`` check entirely.
+    # ``PyDict_GetItemRef`` gives us a new reference to the cached value.
+    # ``propcache_steal`` hands that reference to Cython as an ``object``
+    # without another incref, so a cache hit costs a single incref.
     """
-    static CYTHON_INLINE int
-    propcache_get_ref(PyObject *cache, PyObject *name, PyObject **value)
-    {
-    #ifdef Py_GIL_DISABLED
-        return PyDict_GetItemRef(cache, name, value);
-    #else
-        *value = PyDict_GetItem(cache, name);
-        Py_XINCREF(*value);
-        return *value != NULL;
-    #endif
-    }
-
     #define propcache_steal(value) (value)
-
-    /* Store the new reference ``value`` in ``cache`` and hand it back to
-       the caller, or drop it and return NULL if the store fails. */
-    static CYTHON_INLINE PyObject *
-    propcache_store(PyObject *cache, PyObject *name, PyObject *value)
-    {
-        if (PyDict_SetItem(cache, name, value) < 0) {
-            Py_DECREF(value);
-            return NULL;
-        }
-        return value;
-    }
     """
-    int propcache_get_ref(object cache, object name, PyObject** value) except -1
     object propcache_steal(PyObject* value)
-    object propcache_store(object cache, object name, PyObject* value)
 
 
 cdef extern from "Python.h":
@@ -54,9 +20,7 @@ cdef extern from "Python.h":
     # 1 positional argument arg and no keyword arguments.
     # Return the result of the call on success, or raise
     # an exception and return NULL on failure.
-    PyObject* PyObject_CallOneArg(
-        object callable, object arg
-    ) except NULL
+    object PyObject_CallOneArg(object callable, object arg)
 
 
 cdef class under_cached_property:
@@ -84,11 +48,13 @@ cdef class under_cached_property:
             return self
         cdef dict cache = inst._cache
         cdef PyObject* val
-        if propcache_get_ref(cache, self.name, &val):
+        # PyDict_GetItemRef returns a strong reference, a borrowed one
+        # could be freed by a concurrent eviction on free-threaded builds.
+        if PyDict_GetItemRef(cache, self.name, &val):
             return propcache_steal(val)
-        return propcache_store(
-            cache, self.name, PyObject_CallOneArg(self.wrapped, inst)
-        )
+        result = PyObject_CallOneArg(self.wrapped, inst)
+        cache[self.name] = result
+        return result
 
     def __set__(self, inst, value):
         raise AttributeError("cached property is read-only")
@@ -134,10 +100,12 @@ cdef class cached_property:
                 " without calling __set_name__ on it.")
         cdef dict cache = inst.__dict__
         cdef PyObject* val
-        if propcache_get_ref(cache, self.name, &val):
+        # PyDict_GetItemRef returns a strong reference, a borrowed one
+        # could be freed by a concurrent eviction on free-threaded builds.
+        if PyDict_GetItemRef(cache, self.name, &val):
             return propcache_steal(val)
-        return propcache_store(
-            cache, self.name, PyObject_CallOneArg(self.func, inst)
-        )
+        result = PyObject_CallOneArg(self.func, inst)
+        cache[self.name] = result
+        return result
 
     __class_getitem__ = classmethod(GenericAlias)

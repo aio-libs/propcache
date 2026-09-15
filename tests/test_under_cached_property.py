@@ -293,3 +293,37 @@ def test_under_cached_property_concurrent_eviction(
         thread.start()
     for thread in threads:
         thread.join()
+
+
+def test_under_cached_property_lookup_error_propagates(
+    propcache_module: APIProtocol,
+) -> None:
+    """An error raised while looking up the cache is not swallowed."""
+
+    class CollidingKey:
+        """Hash like ``prop`` and fail the first equality check."""
+
+        def __init__(self) -> None:
+            self.raised = False
+
+        def __hash__(self) -> int:
+            return hash("prop")
+
+        def __eq__(self, other: object) -> bool:
+            if not self.raised:
+                self.raised = True
+                raise ZeroDivisionError
+            return False
+
+    class A:
+        def __init__(self) -> None:
+            self._cache: dict[object, int] = {CollidingKey(): 0}
+
+        @propcache_module.under_cached_property
+        def prop(self) -> int:
+            return 1
+
+    a = A()
+    with pytest.raises(ZeroDivisionError):
+        a.prop
+    assert a.prop == 1

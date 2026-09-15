@@ -1,0 +1,4 @@
+Dropped the deprecated ``License :: OSI Approved :: Apache Software
+License`` classifier; ``setuptools`` 84 warns about it and the dist
+build treats warnings as errors, so releases could no longer be built
+-- by :user:`bdraco`.

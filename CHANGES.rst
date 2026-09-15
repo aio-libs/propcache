@@ -14,6 +14,30 @@ Changelog
 
 .. towncrier release notes start
 
+0.5.4
+=====
+
+*(2026-09-15)*
+
+
+Packaging updates and notes for downstreams
+-------------------------------------------
+
+- Fixed the release wheels being compiled without optimization since
+  version 0.5.0. The build backend set ``CFLAGS`` to add
+  ``-ffile-prefix-map``, which replaced the interpreter's own compiler
+  flags instead of extending them, so ``-O3`` and ``-DNDEBUG`` were
+  dropped; the extra flags now go through ``CPPFLAGS``, which is
+  appended. Cached property reads are about 1.5x faster than in 0.5.3
+  -- by :user:`bdraco`.
+
+  *Related issues and pull requests on GitHub:*
+  :issue:`244`, :issue:`302`.
+
+
+----
+
+
 0.5.3
 =====
 

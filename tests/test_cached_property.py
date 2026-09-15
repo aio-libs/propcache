@@ -1,6 +1,5 @@
 import gc
 import sys
-import sysconfig
 import threading
 from collections.abc import Callable
 from operator import not_
@@ -14,9 +13,6 @@ IS_PYPY = hasattr(sys, "pypy_version_info")
 
 if sys.version_info >= (3, 11):
     from typing import assert_type
-
-# The concurrent eviction race only exists on free-threaded builds.
-ITERATIONS = 100_000 if sysconfig.get_config_var("Py_GIL_DISABLED") else 1_000
 
 _T_co = TypeVar("_T_co", covariant=True)
 
@@ -228,7 +224,9 @@ def test_cached_property_no_refcount_leak(propcache_module: APIProtocol) -> None
     assert count_sentinels() == initial_sentinel_count + 2
 
 
-def test_cached_property_concurrent_eviction(propcache_module: APIProtocol) -> None:
+def test_cached_property_concurrent_eviction(
+    propcache_module: APIProtocol, eviction_iterations: int
+) -> None:
     """Reading while other threads evict the cached value must not crash.
 
     On free-threaded builds a borrowed reference to the cached value could
@@ -249,13 +247,13 @@ def test_cached_property_concurrent_eviction(propcache_module: APIProtocol) -> N
 
     def evict() -> None:
         barrier.wait()
-        for _ in range(ITERATIONS):
+        for _ in range(eviction_iterations):
             cache["prop"] = [1] * 8
             cache.pop("prop", None)
 
     def read() -> None:
         barrier.wait()
-        for _ in range(ITERATIONS):
+        for _ in range(eviction_iterations):
             assert len(a.prop) == 8
 
     threads = [threading.Thread(target=evict) for _ in range(4)]

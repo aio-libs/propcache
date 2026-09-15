@@ -135,9 +135,13 @@ def patched_env(
         extra_cflags.append(
             f'-ffile-prefix-map={temporary_build_directory!s}={original_source_directory!s}',
         )
+    # Add the extra flags through ``CPPFLAGS`` rather than ``CFLAGS``:
+    # setuptools' distutils appends ``CPPFLAGS`` to the interpreter's own
+    # compiler flags, while a ``CFLAGS`` environment variable replaces them
+    # and silently drops ``-O3`` and ``-DNDEBUG`` from the build.
     if extra_cflags:
-        os.environ['CFLAGS'] = ' '.join(
-            (os.getenv('CFLAGS', ''), *extra_cflags),
+        os.environ['CPPFLAGS'] = ' '.join(
+            (os.getenv('CPPFLAGS', ''), *extra_cflags),
         ).strip()
     try:
         yield

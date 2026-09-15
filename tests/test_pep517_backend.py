@@ -58,7 +58,7 @@ def test_extra_flags_go_through_cppflags(
         original_source_directory=source_dir,
         temporary_build_directory=build_dir,
     ):
-        cppflags = shlex.split(os.environ["CPPFLAGS"])
+        cppflags = os.environ["CPPFLAGS"].split(" ")
         assert os.environ["CFLAGS"] == "-fuser-cflag"
 
     assert cppflags[0] == "-DUSER=1"
@@ -68,10 +68,14 @@ def test_extra_flags_go_through_cppflags(
 
 
 @pytest.mark.parametrize("tracing", [True, False])
-def test_tracing_macro_follows_the_request(tracing: bool) -> None:
+def test_tracing_macro_follows_the_request(
+    monkeypatch: pytest.MonkeyPatch, tracing: bool
+) -> None:
     """The line tracing macro is defined only when tracing is requested."""
+    monkeypatch.delenv("CPPFLAGS", raising=False)
+
     with patched_env({}, tracing):
-        cppflags = shlex.split(os.environ.get("CPPFLAGS", ""))
+        cppflags = os.environ.get("CPPFLAGS", "").split(" ")
 
     assert (TRACE_MACRO in cppflags) is tracing
 
@@ -79,12 +83,17 @@ def test_tracing_macro_follows_the_request(tracing: bool) -> None:
 @pytest.mark.skipif(
     sys.platform == "win32", reason="MSVC does not read CFLAGS or CPPFLAGS"
 )
-def test_interpreter_flags_survive_the_build_env(tmp_path: Path) -> None:
+def test_interpreter_flags_survive_the_build_env(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     """The compiler still gets the interpreter's flags plus the extra ones.
 
     This drives setuptools' real compiler customization, so it fails if the
     backend ever goes back to setting CFLAGS.
     """
+    # A developer shell exporting these would replace the flags up front.
+    monkeypatch.delenv("CFLAGS", raising=False)
+    monkeypatch.delenv("CPPFLAGS", raising=False)
     source_dir = tmp_path / "src"
     build_dir = tmp_path / "build"
 

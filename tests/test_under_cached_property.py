@@ -13,7 +13,7 @@ IS_PYPY = hasattr(sys, "pypy_version_info")
 if sys.version_info >= (3, 11):
     from typing import assert_type
 
-ITERATIONS = 20_000
+ITERATIONS = 100_000
 
 _T_co = TypeVar("_T_co", covariant=True)
 

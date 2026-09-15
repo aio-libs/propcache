@@ -90,6 +90,9 @@ UV_CONSTRAINT = "requirements/cython.txt"
 [tool.cibuildwheel.config-settings]
 pure-python = "false"
 
+[tool.codespell]
+ignore-words-list = "ccompiler"
+
 [tool.ruff.lint]
 # Keep this list small and intentional; the rest of the project still
 # relies on flake8 for general style. The rules below are ones we want

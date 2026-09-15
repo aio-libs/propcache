@@ -1,8 +1,50 @@
 # cython: language_level=3, freethreading_compatible=True
 from types import GenericAlias
 
-from cpython.dict cimport PyDict_GetItem
 from cpython.object cimport PyObject
+
+
+cdef extern from *:
+    # Look ``name`` up in ``cache`` and return the (possibly borrowed) pointer
+    # to the cached value, or NULL on a miss.
+    #
+    # On the default (GIL) build this is a plain borrowing ``PyDict_GetItem``
+    # and ``propcache_release`` compiles to nothing, so the descriptor read hot
+    # path stays exactly as cheap as it has always been for the vast majority
+    # of users: a single ``<object>`` reference-count bump and no extra work.
+    #
+    # On the free-threaded build a borrowed pointer can be freed by a
+    # concurrent eviction between the lookup and its use, a use-after-free, so
+    # the atomic ``PyDict_GetItemRef`` returns a strong reference that is held
+    # across the ``<object>`` promotion; ``propcache_release`` then drops that
+    # extra reference.
+    """
+    static CYTHON_INLINE PyObject *
+    propcache_get(PyObject *cache, PyObject *name)
+    {
+    #ifdef Py_GIL_DISABLED
+        PyObject *value = NULL;
+        (void)PyDict_GetItemRef(cache, name, &value);
+        return value;
+    #else
+        return PyDict_GetItem(cache, name);
+    #endif
+    }
+
+    #ifdef Py_GIL_DISABLED
+    static CYTHON_INLINE void propcache_release(PyObject *value)
+    {
+        Py_DECREF(value);
+    }
+    #else
+    static CYTHON_INLINE void propcache_release(PyObject *value)
+    {
+        (void)value;
+    }
+    #endif
+    """
+    PyObject* propcache_get(object cache, object name)
+    void propcache_release(PyObject* value)
 
 
 cdef extern from "Python.h":
@@ -43,12 +85,17 @@ cdef class under_cached_property:
         if inst is None:
             return self
         cdef dict cache = inst._cache
-        cdef PyObject* val = PyDict_GetItem(cache, self.name)
-        if val == NULL:
+        cdef PyObject* val = propcache_get(cache, self.name)
+        cdef object result
+        if val is NULL:
             val = PyObject_CallOneArg(self.wrapped, inst)
             PyDict_SetItem(cache, self.name, val)
+            result = <object>val
             Py_DECREF(val)
-        return <object>val
+            return result
+        result = <object>val
+        propcache_release(val)
+        return result
 
     def __set__(self, inst, value):
         raise AttributeError("cached property is read-only")
@@ -93,11 +140,16 @@ cdef class cached_property:
                 "Cannot use cached_property instance"
                 " without calling __set_name__ on it.")
         cdef dict cache = inst.__dict__
-        cdef PyObject* val = PyDict_GetItem(cache, self.name)
+        cdef PyObject* val = propcache_get(cache, self.name)
+        cdef object result
         if val is NULL:
             val = PyObject_CallOneArg(self.func, inst)
             PyDict_SetItem(cache, self.name, val)
+            result = <object>val
             Py_DECREF(val)
-        return <object>val
+            return result
+        result = <object>val
+        propcache_release(val)
+        return result
 
     __class_getitem__ = classmethod(GenericAlias)

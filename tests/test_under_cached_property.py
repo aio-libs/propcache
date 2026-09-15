@@ -285,8 +285,7 @@ def test_under_cached_property_concurrent_eviction(
         for _ in range(eviction_iterations):
             assert len(a.prop) == 8
 
-    threads = [threading.Thread(target=evict) for _ in range(4)]
-    threads += [threading.Thread(target=read) for _ in range(4)]
+    threads = [threading.Thread(target=f) for f in [evict] * 4 + [read] * 4]
     for thread in threads:
         thread.start()
     for thread in threads:

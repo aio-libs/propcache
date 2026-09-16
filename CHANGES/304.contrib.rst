@@ -1,0 +1,6 @@
+Pinned the build backend's test dependencies, ``expandvars``,
+``setuptools`` and ``tomli``, like the other test requirements so
+Dependabot keeps them updated; the backend tests import the private
+``setuptools._distutils`` API and run with warnings as errors, so an
+unpinned release could break unrelated pull requests
+-- by :user:`bdraco`.

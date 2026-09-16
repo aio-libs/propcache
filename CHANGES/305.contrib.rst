@@ -1,0 +1,6 @@
+Relaxed the Codecov target for the ``packaging/`` component from a
+fixed percentage to ``auto``, which only rejects decreases. The build
+backend only gained test coverage in :pr:`302` and sits well below the
+old target; the target will be raised again once its coverage has
+grown to match the rest of the repository
+-- by :user:`bdraco`.

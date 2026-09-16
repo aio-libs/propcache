@@ -33,7 +33,11 @@ coverage:
       packaging:
         paths:
         - packaging/
-        target: 75.24%
+        # The build backend only gained test coverage in #302, so it
+        # cannot be held to the library standard yet. ``auto`` only
+        # forbids decreases; raise this to a fixed target once the
+        # coverage has grown to match the rest of the repo.
+        target: auto
       tests:
         flags:
         - pytest

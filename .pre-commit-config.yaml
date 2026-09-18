@@ -122,7 +122,6 @@ repos:
     name: MyPy, for Python 3.11
     additional_dependencies:
     - Cython
-    - expandvars
     - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
     - pytest
     - pytest_codspeed==3.0.0

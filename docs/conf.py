@@ -83,6 +83,7 @@ except ImportError:
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
 }
 
 
@@ -106,7 +107,6 @@ master_doc = "index"
 github_url = "https://github.com"
 github_repo_org = "aio-libs"
 github_repo_name = "propcache"
-github_repo_slug = f"{github_repo_org}/{github_repo_name}"
 
 project = github_repo_name
 copyright = f"2016, Andrew Svetlov, {project} contributors and aio-libs team"
@@ -191,7 +191,7 @@ extlinks = {
 # The extension's default URL templates already match the ones the replaced
 # `extlinks` entries used -- including `:user:` pointing at GitHub Sponsors --
 # so only the repository slug needs to be configured.
-issues_github_path = github_repo_slug
+issues_github_path = f"{github_repo_org}/{github_repo_name}"
 
 # The link captions differ slightly from the ones `extlinks` produced: `:pr:`
 # now renders as `#N` rather than `PR #N` and `:commit:` as an `@`-prefixed

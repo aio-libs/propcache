@@ -1,5 +1,5 @@
 -r towncrier.txt
 myst-parser >= 4.0.1
 sphinx==8.2.3
-sphinx-issues  # Sphinx roles providing support for linking GitHub
+sphinx-issues >= 5.0.0  # Sphinx roles providing support for linking GitHub
 sphinxcontrib-towncrier

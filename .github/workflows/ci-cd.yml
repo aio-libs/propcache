@@ -374,7 +374,7 @@ jobs:
         merge-multiple: true
     - name: Setup Python ${{ matrix.pyver }}
       id: python-install
-      uses: astral-sh/setup-uv@v10.1.0
+      uses: astral-sh/setup-uv@v10.2.0
       with:
         python-version: ${{ matrix.pyver }}
         activate-environment: true
@@ -501,7 +501,7 @@ jobs:
 
     - name: Setup Python 3.13
       id: python-install
-      uses: astral-sh/setup-uv@v10.1.0
+      uses: astral-sh/setup-uv@v10.2.0
       with:
         python-version: 3.13
         activate-environment: true

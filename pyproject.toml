@@ -3,11 +3,84 @@ requires = [
   # NOTE: The following build dependencies are necessary for initial
   # NOTE: provisioning of the in-tree build backend located under
   # NOTE: `packaging/pep517_backend/`.
-  "setuptools >= 47",  # Minimum required for `version = attr:`
+  # setuptools >= 67.0 required for Python 3.12+ support
+  # Next step should be >= 77.0 for PEP 639 support
+  # Don't bump too early to give distributors time to update
+  # their setuptools version.
+  "setuptools >= 67.0",
   "tomli; python_version < '3.11'",
 ]
 backend-path = ["packaging"]  # requires `pip >= 20` or `pep517 >= 0.6.0`
 build-backend = "pep517_backend.hooks"  # wraps `setuptools.build_meta`
+
+[project]
+name = "propcache"
+# NOTE: The table form of `license` and `tool.setuptools.license-files`
+# NOTE: are superseded by PEP 639 (`license = "Apache-2.0"` plus
+# NOTE: `project.license-files`), which needs `setuptools >= 77`.
+# NOTE: Switch once the build requirement above is bumped.
+license = {text = "Apache-2.0"}
+description = "Accelerated property cache"
+authors = [{ name = "Andrew Svetlov", email = "andrew.svetlov@gmail.com" }]
+maintainers = [{ name = "aiohttp team", email = "team@aiohttp.org" }]
+requires-python = ">=3.10"
+keywords = [
+  "cython",
+  "cext",
+  "propcache",
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+
+  "Intended Audience :: Developers",
+
+  "Programming Language :: Cython",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dynamic = ["version", "readme"]
+
+[project.urls]
+"Homepage" = "https://github.com/aio-libs/propcache"
+"Chat: Matrix" = "https://matrix.to/#/#aio-libs:matrix.org"
+"Chat: Matrix Space" = "https://matrix.to/#/#aio-libs-space:matrix.org"
+"CI: GitHub Workflows" = "https://github.com/aio-libs/propcache/actions?query=branch:master"
+"Code of Conduct" = "https://github.com/aio-libs/.github/blob/master/CODE_OF_CONDUCT.md"
+"Coverage: codecov" = "https://codecov.io/github/aio-libs/propcache"
+"Docs: Changelog" = "https://propcache.readthedocs.io/en/latest/changes/"
+"Docs: RTD" = "https://propcache.readthedocs.io"
+"GitHub: issues" = "https://github.com/aio-libs/propcache/issues"
+"GitHub: repo" = "https://github.com/aio-libs/propcache"
+
+[tool.setuptools]
+license-files = ["LICENSE", "NOTICE"]
+
+[tool.setuptools.dynamic]
+version = { attr = "propcache.__version__" }
+readme = { file = ["README.rst", "CHANGES.rst"] }
+
+# Ref:
+# https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#src-layout
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["propcache*"]
+
+[tool.setuptools.package-data]
+# Ref:
+# https://setuptools.pypa.io/en/latest/userguide/datafiles.html#package-data
+# (see notes for the asterisk/`*` meaning)
+"*" = ["*.so", "*.pyd", "*.pyx"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.c", "*.h"]
 
 [tool.local.cythonize]
 # This attr can contain multiple globs

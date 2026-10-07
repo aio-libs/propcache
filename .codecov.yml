@@ -47,6 +47,6 @@ coverage:
       tests:
         paths:
         - tests/
-        target: 98.2%  # 100%
+        target: 100%
 
 ...

@@ -5,6 +5,7 @@ import shlex
 import sys
 import sysconfig
 from pathlib import Path
+from typing import Any
 
 import pytest
 from pep517_backend import cli
@@ -93,9 +94,9 @@ def test_translate_cython_requests_line_tracing(
     The plugin relies on these C files to map the traced extension back to
     the ``.pyx`` sources, so they need the ``linetrace`` directive.
     """
-    captured = {}
+    captured: dict[str, Any] = {}
 
-    def fake_translate(sources: list[str], options: object) -> object:
+    def fake_translate(sources: list[str], options: Any) -> object:
         captured["sources"] = sources
         captured["options"] = options
         return type("Result", (), {"num_errors": 0})()
@@ -106,7 +107,7 @@ def test_translate_cython_requests_line_tracing(
     assert cli.run_main_program(["cli", "translate-cython"]) == 0
 
     assert captured["sources"]
-    directives = captured["options"].compiler_directives  # type: ignore[attr-defined]
+    directives = captured["options"].compiler_directives
     assert directives["linetrace"] is True
 
 

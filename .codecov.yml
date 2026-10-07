@@ -21,7 +21,7 @@ coverage:
         target: 100%
     project:
       default:
-        target: 87.5%  # 100%
+        target: 92.46%  # 100%
       lib-combined:
         paths:
         - src/propcache/

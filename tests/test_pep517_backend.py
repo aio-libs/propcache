@@ -7,11 +7,15 @@ import sysconfig
 from pathlib import Path
 
 import pytest
+from pep517_backend import cli
 from pep517_backend._cython_configuration import patched_env
 from setuptools._distutils.ccompiler import new_compiler
 from setuptools._distutils.sysconfig import customize_compiler
 
 TRACE_MACRO = "-DCYTHON_TRACE_NOGIL=1"
+# The Cython.Coverage plugin cannot consume sys.monitoring events.
+LEGACY_TRACING_MACRO = "-DCYTHON_USE_SYS_MONITORING=0"
+PROJECT_ROOT = Path(__file__).parents[1]
 
 
 def _interpreter_flags() -> list[str]:
@@ -71,13 +75,39 @@ def test_extra_flags_go_through_cppflags(
 def test_tracing_macro_follows_the_request(
     monkeypatch: pytest.MonkeyPatch, tracing: bool
 ) -> None:
-    """The line tracing macro is defined only when tracing is requested."""
+    """The line tracing macros are defined only when tracing is requested."""
     monkeypatch.delenv("CPPFLAGS", raising=False)
 
     with patched_env({}, tracing):
         cppflags = os.environ.get("CPPFLAGS", "").split(" ")
 
     assert (TRACE_MACRO in cppflags) is tracing
+    assert (LEGACY_TRACING_MACRO in cppflags) is tracing
+
+
+def test_translate_cython_requests_line_tracing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """``translate-cython`` emits C files the Cython.Coverage plugin can read.
+
+    The plugin relies on these C files to map the traced extension back to
+    the ``.pyx`` sources, so they need the ``linetrace`` directive.
+    """
+    captured = {}
+
+    def fake_translate(sources: list[str], options: object) -> object:
+        captured["sources"] = sources
+        captured["options"] = options
+        return type("Result", (), {"num_errors": 0})()
+
+    monkeypatch.chdir(PROJECT_ROOT)
+    monkeypatch.setattr(cli, "_translate_cython_cli_cmd", fake_translate)
+
+    assert cli.run_main_program(["cli", "translate-cython"]) == 0
+
+    assert captured["sources"]
+    directives = captured["options"].compiler_directives  # type: ignore[attr-defined]
+    assert directives["linetrace"] is True
 
 
 @pytest.mark.skipif(

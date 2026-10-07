@@ -19,16 +19,22 @@ coverage:
     patch:
       default:
         target: 100%
-        flags:
-        - pytest
     project:
       default:
         target: 87.5%  # 100%
-      lib:
-        flags:
-        - pytest
+      lib-combined:
         paths:
-        - propcache/
+        - src/propcache/
+        target: 100%
+      lib-cython:
+        paths:
+        - src/propcache/*.pyx
+        - src/propcache/**/*.pyx
+        target: 100%
+      lib-python:
+        paths:
+        - src/propcache/*.py
+        - src/propcache/**/*.py
         target: 100%
       packaging:
         paths:
@@ -39,8 +45,6 @@ coverage:
         # coverage has grown to match the rest of the repo.
         target: auto
       tests:
-        flags:
-        - pytest
         paths:
         - tests/
         target: 98.2%  # 100%

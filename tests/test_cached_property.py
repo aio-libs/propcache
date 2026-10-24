@@ -297,3 +297,23 @@ def test_cached_property_lookup_error_propagates(
     with pytest.raises(ZeroDivisionError):
         A.prop.__get__(a, A)
     assert a.prop == 1
+
+
+def test_cached_property_get_returns_cached_value(
+    propcache_module: APIProtocol,
+) -> None:
+    calls = 0
+
+    class A:
+        @propcache_module.cached_property
+        def prop(self) -> int:
+            nonlocal calls
+            calls += 1
+            return calls
+
+    a = A()
+    assert a.prop == 1
+    # Plain attribute access finds the cached value in the instance dict
+    # without reaching the descriptor, so call ``__get__`` directly.
+    assert A.prop.__get__(a, A) == 1
+    assert calls == 1

@@ -238,14 +238,14 @@ jobs:
         - macos-latest
         tag:
         - ''
-        - 'musllinux'
+        - musllinux
         exclude:
         - os: windows-latest
-          tag: 'musllinux'
+          tag: musllinux
         - os: windows-11-arm
-          tag: 'musllinux'
+          tag: musllinux
         - os: macos-latest
-          tag: 'musllinux'
+          tag: musllinux
         - os: ubuntu-latest
           tag: >-
            ${{
@@ -331,7 +331,7 @@ jobs:
         - 3.11
         - >-
           3.10
-        no-extensions: ['', 'Y']
+        no-extensions: ['', Y]
         os:
         - ubuntu-latest
         - macos-latest

@@ -2,7 +2,7 @@
 covdefaults
 # Dependencies of the in-tree PEP 517 build backend under test:
 expandvars==1.1.2
-pytest==9.1.1
+pytest==9.2.0
 pytest-cov>=7.1.0
 pytest-xdist
 setuptools==84.2.1

@@ -1,0 +1,7 @@
+Restored coverage measurement of the Cython module in CI, which had
+reported nothing since ``translate-cython`` stopped requesting line
+tracing -- and, on CPython 3.13 and later, because Cython routes tracing
+through ``sys.monitoring``, which the ``Cython.Coverage`` plugin cannot
+consume. Windows stays unmeasured: the defines ride on ``CPPFLAGS``,
+which ``setuptools`` forwards only to the Unix compiler
+-- by :user:`aiolibsbot`.

@@ -127,6 +127,10 @@ def patched_env(
     extra_compiler_flags: list[str] = []
     if cython_line_tracing_requested:
         extra_compiler_flags.append('-DCYTHON_TRACE_NOGIL=1')  # Implies CYTHON_TRACE=1
+        # Cython defaults this on for CPython 3.13+, routing tracing through
+        # sys.monitoring, which the Cython.Coverage plugin cannot consume.
+        # Ask for the legacy tracing hooks instead:
+        extra_compiler_flags.append('-DCYTHON_USE_SYS_MONITORING=0')
     # When building in a temporary directory, rewrite the random tmp dir
     # path back to the original source directory so the compiled artifacts
     # are reproducible. `-ffile-prefix-map` is a GCC/Clang flag and is not

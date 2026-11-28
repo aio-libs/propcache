@@ -60,10 +60,9 @@ mandatory.
 
 ### 1. Use the aio-libs pull request template
 
-`propcache` follows the standard `aio-libs` PR template. Even
-though the repo does not ship its own
-`.github/PULL_REQUEST_TEMPLATE.md`, maintainers expect every PR
-body to follow this exact structure. Do not invent your own
+`propcache` follows the standard `aio-libs` PR template, shipped in
+[`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md).
+Maintainers expect every PR body to follow this exact structure. Do not invent your own
 `## What / ## Why / ## How / ## Testing` layout; that is the
 marker that the PR was written by an agent without reading the
 conventions.
@@ -80,6 +79,10 @@ Fill out the template verbatim, like so:
 ## Are there changes in behavior for the user?
 
 <yes or no, plus a sentence if yes>
+
+## Is it a substantial burden for the maintainers to support this?
+
+<no, plus a sentence on why if relevant>
 
 ## Related issue number
 
